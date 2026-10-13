@@ -277,7 +277,15 @@ export default async function handler(req, res) {
     }
     if (err instanceof GoogleApiError) {
       console.error("Gemini API error", err.status, err.message);
-      if (err.status === 429) return res.status(429).json({ error: "The free Gemini quota is used up for now. Wait a minute, or try again tomorrow." });
+      if (err.status === 429) {
+        const daily = /PerDay/i.test(err.message);
+        return res.status(429).json({
+          daily,
+          error: daily
+            ? "Today's free Gemini quota is used up on every model we can try. It resets at midnight US Pacific time."
+            : "Too many rewrites in the last minute on the free Gemini tier. Wait a minute and try again.",
+        });
+      }
       if (err.status === 503 || err.status === 500) return res.status(503).json({ error: "Gemini's free models are overloaded right now. Try again in a minute." });
       if (err.status === 400 || err.status === 403) return res.status(500).json({ error: `Gemini rejected the request (${err.status}). Check GOOGLE_API_KEY and GEMINI_MODEL.` });
       return res.status(502).json({ error: `The AI service returned an error (${err.status}).` });
