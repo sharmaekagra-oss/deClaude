@@ -1,0 +1,16 @@
+{
+  "name": "declaude",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "mock": "node mock-server.js",
+    "test": "node test/detectors.test.js && node test/skill-examples.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

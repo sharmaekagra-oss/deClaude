@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>deClaude</title>
+  <meta name="description" content="Paste AI-written text and get it back in plain human prose, with every change explained.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f1d1a'/%3E%3Cpath d='M9 16h14' stroke='%23f4efe6' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M7 9l18 14' stroke='%23d9534f' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <h1>de<span>Claude</span></h1>
+      <p class="tag">Paste text an AI wrote. Get it back the way a person would write it, with every change marked and explained.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="input card" aria-labelledby="input-h">
+      <div class="input-head">
+        <h2 id="input-h">Your text</h2>
+        <label class="sample">
+          <span class="visually-hidden">Load a sample</span>
+          <select id="sample">
+            <option value="">Try a sample…</option>
+          </select>
+        </label>
+      </div>
+      <textarea id="src" rows="12" placeholder="Paste an email, blog post, product description, LinkedIn post or cover letter…" spellcheck="true"></textarea>
+      <div class="input-foot">
+        <p id="live" class="live" aria-live="polite">0 words</p>
+        <div class="actions">
+          <input id="pass" type="password" placeholder="Class passcode" autocomplete="off" hidden>
+          <button id="go" type="button" class="primary">deClaude it</button>
+        </div>
+      </div>
+      <p id="err" class="err" role="alert" hidden></p>
+    </section>
+
+    <section id="loading" class="loading" hidden aria-live="polite">
+      <div class="bar"><span></span></div>
+      <p>Rewriting. This usually takes 20 to 60 seconds.</p>
+    </section>
+
+    <section id="results" hidden aria-labelledby="res-h">
+      <h2 id="res-h" class="visually-hidden">Results</h2>
+
+      <div class="scoreboard">
+        <div class="score before">
+          <p class="lbl">Before</p>
+          <p class="big"><span id="b-total">0</span> <small>AI tells</small></p>
+          <p class="sub" id="b-sub"></p>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="score after">
+          <p class="lbl">After</p>
+          <p class="big"><span id="a-total">0</span> <small>AI tells</small></p>
+          <p class="sub" id="a-sub"></p>
+        </div>
+        <div class="families" id="families" aria-label="AI tells by family, before and after"></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="seg" role="tablist" aria-label="Highlight">
+          <button role="tab" aria-selected="true" data-mode="changes">Changes</button>
+          <button role="tab" aria-selected="false" data-mode="tells">AI tells</button>
+        </div>
+        <button id="copy" type="button" class="ghost">Copy rewrite</button>
+      </div>
+      <p id="doc-notes" class="doc-notes" hidden></p>
+
+      <div class="columns">
+        <article class="col card">
+          <h3>Original</h3>
+          <div id="orig" class="text"></div>
+        </article>
+        <article class="col card">
+          <h3>Rewrite</h3>
+          <div id="rew" class="text"></div>
+        </article>
+      </div>
+
+      <section class="card list-card">
+        <h3>What changed <span id="n-changes" class="count"></span></h3>
+        <ol id="changes" class="changes"></ol>
+      </section>
+
+      <section id="kept-wrap" class="card list-card" hidden>
+        <h3>Left alone on purpose</h3>
+        <ul id="kept" class="kept"></ul>
+      </section>
+
+      <p id="meta" class="meta"></p>
+    </section>
+
+    <section class="legend card" aria-labelledby="legend-h">
+      <h2 id="legend-h">What it looks for</h2>
+      <p>24 patterns in five families, taken from Wikipedia's <a href="https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing" target="_blank" rel="noopener">Signs of AI writing</a> guide and the most-starred de-AI projects on GitHub. A rule-based scan counts them before and after. Claude does the rewrite, following our <a href="https://github.com/sharmaekagra-oss/deClaude/blob/main/skill/SKILL.md" target="_blank" rel="noopener">SKILL.md</a>.</p>
+      <div id="legend" class="legend-grid"></div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>MICA OpenProject. A tell count is a signal, not proof that a person or an AI wrote something.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

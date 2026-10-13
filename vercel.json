@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "app",
+  "functions": {
+    "api/rewrite.js": {
+      "maxDuration": 300,
+      "includeFiles": "skill/SKILL.md"
+    }
+  }
+}

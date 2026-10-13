@@ -6,39 +6,69 @@ MICA OpenProject · 40 marks
 
 ## Deliverables
 
-| Deliverable | Location | Status |
-|---|---|---|
-| AI-writing pattern list (15+) | `docs/research/patterns.md` | Not started |
-| SKILL.md with before/after examples | `skill/SKILL.md` | Not started |
-| Working app (Vercel link) | `app/` | Not started |
-| Test report: 5 samples, before/after | `docs/test-report/` | Not started |
-| Blind test: 5+ classmates, results | `docs/blind-test/` | Not started |
-| One-page AI tools and prompts log | `docs/ai-log.md` | Not started |
+| Deliverable | Location | Status | Owner |
+|---|---|---|---|
+| AI-writing pattern list (15+) | [docs/research/patterns.md](docs/research/patterns.md) | Done: 24 patterns, sourced | |
+| GitHub repo survey | [docs/research/repo_notes.md](docs/research/repo_notes.md) | Done: 21 repos | |
+| SKILL.md with before/after examples | [skill/SKILL.md](skill/SKILL.md) | Done: 8 short + 3 full examples, all pass our own detectors | |
+| Working app | `app/` + `api/` | Built, tested with a mock reply. **Needs a real API key run, then a Vercel deploy** | |
+| Test samples (5 Claude originals) | [docs/test-report/samples-original.md](docs/test-report/samples-original.md) | Done | |
+| Test report: before/after | `docs/test-report/results.md` | Run `scripts/run-tests.js` once the app has a key | |
+| Human-written controls | [docs/blind-test/human-controls.md](docs/blind-test/human-controls.md) | **Teammates to write (no AI)** | |
+| Blind test: 5+ classmates | [docs/blind-test/PROTOCOL.md](docs/blind-test/PROTOCOL.md) | Protocol and scripts ready. Needs real responses | |
+| One-page AI tools and prompts log | [docs/ai-log.md](docs/ai-log.md) | Keep adding as you go | |
 
-## Agreed parameters
+## How it works
 
-- **Hosting:** Vercel Hobby (free). Frontend plus one serverless function at `/api/rewrite`. The API key lives only in Vercel environment variables.
-- **Engine:** hybrid. Rule-based detectors flag patterns first, then Claude rewrites using `skill/SKILL.md` as its rules.
-- **Change view:** side-by-side original and rewrite, with each change annotated by the pattern it fixed.
-- **Test set:** email, blog post, product description, LinkedIn post, cover letter.
-- **Blind test:** at least 5 real classmates. Raw responses are kept in `docs/blind-test/`. No simulated responses.
+1. **Quick scan (in the browser).** `app/detectors.js` runs regex and sentence-length checks for the 24 patterns and counts tells as you type.
+2. **Rewrite (on the server).** `api/rewrite.js` sends the text to Claude with `skill/SKILL.md` as the system prompt, plus the scan results as hints. Claude returns the rewrite and a list of changes, each tagged with a pattern ID.
+3. **Check.** The server scans the rewrite. If hard patterns survived (em dashes, stock openers, chatbot residue and so on), Claude gets one repair pass. Any dash that still survives is replaced automatically, because the brief requires zero.
+4. **Show.** The page shows a before/after tell count by family, the original and the rewrite side by side with numbered highlights linking each change, and the list of changes with reasons. An "AI tells" toggle shows the raw scan on both versions.
+
+## Run it locally
+
+Needs Node 20 or later.
+
+```bash
+npm install
+```
+
+To see the UI with a canned reply (no API key, no cost):
+
+```bash
+npm run mock
+```
+
+To run it for real, copy `.env.example` to `.env.local`, add your Anthropic API key, then:
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 (or the port in `PORT`). Run the checks with `npm test`.
+
+## Deploy to Vercel (free Hobby plan)
+
+1. Go to vercel.com, sign in with GitHub, and click **Add New → Project**. Import `sharmaekagra-oss/deClaude`.
+2. Leave the framework as **Other**. `vercel.json` already sets the output folder (`app`) and the function settings.
+3. Under **Environment Variables**, add `ANTHROPIC_API_KEY`. Optionally add `APP_PASSCODE` (a word you give classmates) and `CLAUDE_MODEL`.
+4. Click **Deploy**. Every push to `main` redeploys, and every pull request gets a preview link.
+5. In the Anthropic Console, set a monthly spend limit on the key.
+
+**Model and cost.** The default is `claude-opus-5-5` ($4 per million input tokens, $20 per million output). A rewrite of a 300-word piece sends the SKILL.md (about 6,000 tokens, cached after the first call) plus the text. Most of the cost is the output: the rewrite, the change list and the model's thinking. Expect roughly 5 to 15 US cents per rewrite; check real usage in the Console after the first few runs. Setting `CLAUDE_MODEL=claude-haiku-5-5` costs about a fortieth as much, but test whether quality holds first.
 
 ## Repo layout
 
 ```
-app/            Web app (frontend + /api serverless function)
-skill/          SKILL.md, the single source of truth for rewrite rules
-docs/research/  GitHub repo survey, pattern list, sources
-docs/test-report/  The 5 test pieces, before and after
-docs/blind-test/   Form, answer key, raw responses, results
-docs/ai-log.md  AI tools and key prompts used (keep this updated as you go)
-```
-
-## Getting started
-
-```bash
-git clone <repo-url>
-cd declaude
+app/              Frontend: index.html, app.js, styles.css, detectors.js, samples.json
+api/rewrite.js    Serverless function that calls Claude
+skill/SKILL.md    The rewrite rules (single source of truth)
+scripts/          run-tests.js, build-samples.js, build-blind-test.js, analyze-blind-test.js
+test/             Detector tests and the SKILL.md example check
+docs/research/    Repo survey and pattern list
+docs/test-report/ Original samples and the before/after results
+docs/blind-test/  Protocol, human controls, forms, responses, results
+docs/ai-log.md    AI tools and key prompts used
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how we work together.
