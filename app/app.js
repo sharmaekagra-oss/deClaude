@@ -48,6 +48,15 @@ go.addEventListener("click", async () => {
   go.disabled = true;
   $("loading").hidden = false;
   $("results").hidden = true;
+  const t0 = Date.now();
+  const tick = () => {
+    const s = Math.round((Date.now() - t0) / 1000);
+    $("loading-msg").textContent = s < 25
+      ? `Rewriting… ${s}s`
+      : `Still working… ${s}s. Free models sometimes queue, and the app moves to another one if needed.`;
+  };
+  tick();
+  const timer = setInterval(tick, 1000);
   try {
     const res = await fetch("/api/rewrite", {
       method: "POST",
@@ -65,6 +74,7 @@ go.addEventListener("click", async () => {
   } catch (e) {
     showError(e.message);
   } finally {
+    clearInterval(timer);
     go.disabled = false;
     $("loading").hidden = true;
   }
@@ -161,11 +171,12 @@ function renderLists() {
     </li>`).join("");
   $("kept-wrap").hidden = !kept.length;
   $("kept").innerHTML = kept.map((k) => `<li><q>${esc(k.text)}</q> ${esc(k.why)}</li>`).join("");
-  const NAMES = { gemini: "Google Gemini", claude: "Anthropic Claude", openrouter: "OpenRouter" };
+  const NAMES = { gemini: "Google Gemini", claude: "Anthropic Claude", openrouter: "OpenRouter", groq: "Groq" };
   const bits = [`Rewritten by ${result.model} (${NAMES[result.provider] || result.provider}) in ${result.seconds}s.`];
   if (result.fellBackFrom?.length) bits.push(`${result.fellBackFrom.map((p) => NAMES[p] || p).join(" and ")} hit a free-tier limit, so the next provider took over.`);
   if (result.repaired) bits.push("A second pass fixed patterns the first draft missed.");
   if (result.autoFixedDashes) bits.push("Leftover dashes were replaced automatically.");
+  for (const w of result.warnings || []) bits.push(`Check: ${w}.`);
   $("meta").textContent = bits.join(" ");
 }
 

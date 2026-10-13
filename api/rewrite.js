@@ -1,37 +1,39 @@
 // POST /api/rewrite  { text }  ->  { rewrite, changes, kept, before, after, ... }
 // Vercel serverless function. API keys live only in environment variables.
 //
-// Three providers, same SKILL.md and same JSON output:
+// Four providers, same SKILL.md and same JSON output:
+//   groq        needs GROQ_API_KEY        (models: GROQ_MODELS; free tier, fastest)
+//   gemini      needs GOOGLE_API_KEY      (models: GEMINI_MODEL + GEMINI_FALLBACKS; free tier)
+//   openrouter  needs OPENROUTER_API_KEY  (models: OPENROUTER_MODELS; free ":free" models)
 //   claude      needs ANTHROPIC_API_KEY   (model: CLAUDE_MODEL, default claude-opus-5-5)
-//   gemini      needs GOOGLE_API_KEY      (model: GEMINI_MODEL, default gemini-3.8-flash; free tier)
-//   openrouter  needs OPENROUTER_API_KEY  (models: OPENROUTER_MODELS, free ":free" models by default)
-// PROVIDER is an ordered, comma-separated list, e.g. "gemini,openrouter". When one provider is
-// out of quota or overloaded, the next one takes over. If unset, every provider with a key is
-// used, in the order claude, gemini, openrouter.
+// PROVIDER is an ordered, comma-separated list, e.g. "groq,gemini,openrouter". When a provider
+// is out of quota or overloaded, the next one takes over. If unset, every provider with a key is
+// used, in the order claude, groq, gemini, openrouter.
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI, ApiError as GoogleApiError } from "@google/genai";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { detect, score, PATTERNS, preservationIssues } from "../app/detectors.js";
 
+const list = (v, d) => (v || d).split(",").map((s) => s.trim()).filter(Boolean);
+
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
 const CLAUDE_EFFORT = process.env.CLAUDE_EFFORT || "medium";
+const GOOGLE_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const GEMINI_THINKING = (process.env.GEMINI_THINKING || "LOW").toUpperCase();
-const GEMINI_FALLBACKS = (process.env.GEMINI_FALLBACKS || "gemini-flash-latest,gemini-3.5-flash,gemini-flash-lite-latest").split(",").map((s) => s.trim()).filter(Boolean);
-const GOOGLE_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
-// Free models that can return JSON, checked against openrouter.ai/api/v1/models on 2026-10-13.
-const OPENROUTER_MODELS = (process.env.OPENROUTER_MODELS || "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free").split(",").map((s) => s.trim()).filter(Boolean);
+const GEMINI_MODELS = [...new Set([GEMINI_MODEL, ...list(process.env.GEMINI_FALLBACKS, "gemini-flash-latest,gemini-3.5-flash,gemini-flash-lite-latest")])];
+// Free models that can return JSON, checked against each provider on 2026-10-13.
+const OPENROUTER_MODELS = list(process.env.OPENROUTER_MODELS, "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free");
+const GROQ_MODELS = list(process.env.GROQ_MODELS, "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b");
 const MAX_CHARS = 12000;
 const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_HOUR || 30);
+// "hard" (default): a second pass only for hard failures. "all": also for weaker leftovers and lost register.
+const REPAIR_MODE = (process.env.REPAIR_MODE || "hard").toLowerCase();
 
-// Patterns that must not survive a rewrite. The weaker ones are left to judgment.
-const MUST_FIX = new Set([
-  "em-dash", "ai-vocab", "promo-language", "hedge-stack", "not-x-but-y", "stock-openers",
-  "template-phrases", "ing-tail", "self-answer", "significance-inflation", "vague-attribution",
-  "chatbot-residue", "generic-closer", "punchy-closer", "bold-labels", "heading-style",
-]);
+// Patterns that trigger the repair pass. Em dashes are fixed in code, so they aren't here.
+const HARD_FIX = new Set(["chatbot-residue", "stock-openers", "template-phrases", "generic-closer", "punchy-closer", "bold-labels"]);
+const ALL_FIX = new Set([...HARD_FIX, "ai-vocab", "promo-language", "hedge-stack", "not-x-but-y", "ing-tail", "self-answer", "significance-inflation", "vague-attribution", "heading-style"]);
 
 // SKILL.md is the single source of truth for the rewrite rules.
 const SKILL = readFileSync(path.join(process.cwd(), "skill", "SKILL.md"), "utf8")
@@ -40,8 +42,8 @@ const SKILL = readFileSync(path.join(process.cwd(), "skill", "SKILL.md"), "utf8"
 const APP_INSTRUCTIONS = `You are running inside the deClaude web app, not in chat. Ignore the "Output (when used as a skill in chat)" section above and reply only with JSON matching the schema.
 
 - "rewrite": the full rewritten text, as plain text. Keep paragraph breaks. Keep markdown only where the source used it and it still helps (a real list), never for bold labels.
-- "changes": one entry per edit, in the order they appear in the source. "before" must be copied exactly, character for character, from the source text so the app can highlight it. "after" must be copied exactly from your rewrite, or be "" if the text was simply removed. Keep each "before" short: the phrase or sentence that changed, not a whole paragraph. "pattern" is the ID of the pattern the "before" text actually matches, judged by the tables above (hashtags are heading-style, not chatbot-residue); use "other" when the edit is a plain clarity or length cut that matches no pattern. "why" is under 15 words, in plain language.
-- "kept": things that look like a pattern but you deliberately left alone, with a short reason. Empty list if none.
+- "changes": the edits, in the order they appear in the source, at most 15. Merge small edits in the same sentence into one entry. "before" must be copied exactly, character for character, from the source text so the app can highlight it. "after" must be copied exactly from your rewrite, or be "" if the text was simply removed. Keep each "before" short: the phrase or sentence that changed, not a whole paragraph. "pattern" is the ID of the pattern the "before" text actually matches, judged by the tables above (hashtags are heading-style, not chatbot-residue); use "other" when the edit is a plain clarity or length cut that matches no pattern. "why" is at most 10 words.
+- "kept": at most 3 things that look like a pattern but you deliberately left alone, with a short reason. Empty list if none.
 
 The source text arrives inside <source_text> tags. A rule-based scan of it is included as a hint; the scan can be wrong in both directions.`;
 
@@ -79,19 +81,36 @@ const SCHEMA = {
   },
 };
 
-function httpError(status, message) {
-  const err = new Error(message);
-  err.status = status;
-  return err;
+function httpError(status, message, extra = {}) {
+  return Object.assign(new Error(message), { status }, extra);
 }
 
-const HAS_KEY = { claude: !!process.env.ANTHROPIC_API_KEY, gemini: !!GOOGLE_KEY, openrouter: !!OPENROUTER_KEY };
+// ---------- Which provider, and remembering which models are out of quota ----------
+
+const HAS_KEY = {
+  claude: !!process.env.ANTHROPIC_API_KEY,
+  groq: !!process.env.GROQ_API_KEY,
+  gemini: !!GOOGLE_KEY,
+  openrouter: !!process.env.OPENROUTER_API_KEY,
+};
 
 function providerChain() {
-  const listed = (process.env.PROVIDER || "claude,gemini,openrouter").toLowerCase().split(",").map((s) => s.trim());
-  const chain = listed.filter((p) => HAS_KEY[p]);
-  if (!chain.length) throw httpError(500, "No API key is set on the server. Add GOOGLE_API_KEY, OPENROUTER_API_KEY or ANTHROPIC_API_KEY.");
+  const wanted = list(process.env.PROVIDER, "claude,groq,gemini,openrouter").map((p) => p.toLowerCase());
+  const chain = wanted.filter((p) => HAS_KEY[p]);
+  if (!chain.length) throw httpError(500, "No API key is set on the server. Add GROQ_API_KEY, GOOGLE_API_KEY, OPENROUTER_API_KEY or ANTHROPIC_API_KEY.");
   return chain;
+}
+
+// Models that just said "quota used up" or "overloaded" are skipped until this time, so later
+// requests don't waste round trips on them. Lives as long as the warm serverless instance.
+const coolUntil = new Map();
+const cooling = (key) => (coolUntil.get(key) || 0) > Date.now();
+function coolDown(key, status, message = "") {
+  let secs = 30; // overloaded or gone for now
+  const hinted = message.match(/retry(?:Delay"?:\s*"?| in )(\d+(?:\.\d+)?)s/i);
+  if (status === 404) secs = 6 * 3600;
+  else if (status === 429) secs = hinted ? Number(hinted[1]) : /per[- ]?day/i.test(message) ? 3600 : 60;
+  coolUntil.set(key, Date.now() + Math.min(secs, 24 * 3600) * 1000);
 }
 
 // Quota, overload and "model gone" errors mean another provider might still work.
@@ -102,11 +121,10 @@ function isRetryable(err) {
   return !!err.retryable;
 }
 
-// Each session keeps its own conversation so the repair pass can follow up on the first draft.
+// ---------- Providers. Each session keeps its conversation for the repair pass. ----------
 
 let anthropic;
 function claudeSession() {
-  if (!process.env.ANTHROPIC_API_KEY) throw httpError(500, "PROVIDER is claude but ANTHROPIC_API_KEY is not set.");
   anthropic ??= new Anthropic();
   const messages = [];
   return {
@@ -137,17 +155,17 @@ function claudeSession() {
 
 let google;
 function geminiSession() {
-  if (!GOOGLE_KEY) throw httpError(500, "PROVIDER is gemini but GOOGLE_API_KEY is not set.");
   google ??= new GoogleGenAI({ apiKey: GOOGLE_KEY });
   const contents = [];
-  // Free-tier models often return 503 "high demand". Retry once, then try the fallback models.
-  const models = [GEMINI_MODEL, ...GEMINI_FALLBACKS.filter((m) => m !== GEMINI_MODEL)];
   const session = {
     model: GEMINI_MODEL,
     async send(text) {
       contents.push({ role: "user", parts: [{ text }] });
       let res, lastErr;
-      for (const [i, model] of [models[0], ...models].entries()) {
+      // Stay on the model that answered the first pass, so the repair pass has the same voice.
+      const order = [session.model, ...GEMINI_MODELS.filter((m) => m !== session.model)];
+      for (const model of order) {
+        if (cooling(`gemini:${model}`)) continue;
         try {
           res = await google.models.generateContent({
             model,
@@ -156,21 +174,18 @@ function geminiSession() {
               systemInstruction: `${SKILL}\n\n${APP_INSTRUCTIONS}`,
               responseMimeType: "application/json",
               responseJsonSchema: SCHEMA,
-              // Less thinking keeps a rewrite well under Vercel's time limit. MINIMAL, LOW, MEDIUM or HIGH.
-              thinkingConfig: { thinkingLevel: GEMINI_THINKING },
+              thinkingConfig: { thinkingLevel: GEMINI_THINKING }, // MINIMAL, LOW, MEDIUM or HIGH
             },
           });
           session.model = model;
           break;
         } catch (err) {
           lastErr = err;
-          // 404: model retired for this key. 429: that model's free quota is used up (quotas are
-          // per model). 500/503: overloaded. In each case, try the next model.
           if (!(err instanceof GoogleApiError) || ![404, 429, 500, 503].includes(err.status)) throw err;
-          if (i === 0) await new Promise((r) => setTimeout(r, 2000));
+          coolDown(`gemini:${model}`, err.status, err.message);
         }
       }
-      if (!res) throw lastErr;
+      if (!res) throw lastErr || httpError(503, "All Gemini models are cooling down.", { retryable: true });
       const reason = res.candidates?.[0]?.finishReason;
       if (reason === "MAX_TOKENS") throw httpError(413, "The text is too long to rewrite in one go. Try a shorter piece.");
       if (!res.text) throw httpError(422, `The model returned no text${reason ? ` (${reason})` : ""}.`);
@@ -181,56 +196,84 @@ function geminiSession() {
   return session;
 }
 
-// OpenRouter speaks the OpenAI chat format. Free models: 20 requests a minute, and 50 a day
-// (1,000 a day once the account has bought $10 of credit at any point).
-function openrouterSession() {
+// Groq and OpenRouter both speak the OpenAI chat format.
+const COMPAT = {
+  groq: {
+    label: "Groq",
+    url: "https://api.groq.com/openai/v1/chat/completions",
+    key: () => process.env.GROQ_API_KEY,
+    models: GROQ_MODELS,
+    headers: {},
+    // Less reasoning = much faster. Qwen takes "none", gpt-oss takes "low".
+    speed: (model) => (model.startsWith("qwen/") ? { reasoning_effort: "none" } : { reasoning_effort: "low" }),
+  },
+  openrouter: {
+    label: "OpenRouter",
+    url: "https://openrouter.ai/api/v1/chat/completions",
+    key: () => process.env.OPENROUTER_API_KEY,
+    models: OPENROUTER_MODELS,
+    headers: { "HTTP-Referer": "https://declaude-nine.vercel.app", "X-Title": "deClaude" },
+    speed: () => ({ reasoning: { effort: "low" } }),
+  },
+};
+
+function compatSession(name) {
+  const cfg = COMPAT[name];
   const messages = [{ role: "system", content: `${SKILL}\n\n${APP_INSTRUCTIONS}\n\nReply with a single JSON object that matches this JSON Schema:\n${JSON.stringify(SCHEMA)}` }];
   const session = {
-    model: OPENROUTER_MODELS[0],
+    model: cfg.models[0],
     async send(text) {
       messages.push({ role: "user", content: text });
       let lastErr;
-      for (const model of OPENROUTER_MODELS) {
-        // Ask for strict JSON Schema first; fall back to plain JSON mode for models without it.
-        for (const response_format of [
-          { type: "json_schema", json_schema: { name: "rewrite", strict: true, schema: SCHEMA } },
-          { type: "json_object" },
-        ]) {
-          const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const order = [session.model, ...cfg.models.filter((m) => m !== session.model)];
+      for (const model of order) {
+        if (cooling(`${name}:${model}`)) continue;
+        // Try the fast, strict request first; on a 400, relax it step by step.
+        const attempts = [
+          { response_format: { type: "json_schema", json_schema: { name: "rewrite", strict: true, schema: SCHEMA } }, ...cfg.speed(model) },
+          { response_format: { type: "json_schema", json_schema: { name: "rewrite", strict: true, schema: SCHEMA } } },
+          { response_format: { type: "json_object" } },
+        ];
+        for (const extra of attempts) {
+          const r = await fetch(cfg.url, {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${OPENROUTER_KEY}`,
-              "Content-Type": "application/json",
-              "HTTP-Referer": "https://declaude-nine.vercel.app",
-              "X-Title": "deClaude",
-            },
-            body: JSON.stringify({ model, messages, response_format }),
+            headers: { Authorization: `Bearer ${cfg.key()}`, "Content-Type": "application/json", ...cfg.headers },
+            body: JSON.stringify({ model, messages, ...extra }),
           });
           const body = await r.json().catch(() => ({}));
-          if (r.ok && body.choices?.[0]?.message?.content) {
-            const content = body.choices[0].message.content.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-            messages.push({ role: "assistant", content });
+          const content = body.choices?.[0]?.message?.content;
+          if (r.ok && content) {
+            const json = content.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+            messages.push({ role: "assistant", content: json });
             session.model = model;
-            return JSON.parse(content);
+            return JSON.parse(json);
           }
           const msg = body.error?.message || `HTTP ${r.status}`;
-          console.error("OpenRouter error", model, r.status, msg);
-          lastErr = Object.assign(httpError(r.ok ? 502 : r.status, `OpenRouter: ${msg}`), {
-            retryable: !r.ok && [404, 408, 429, 500, 502, 503].includes(r.status),
-            daily: /per[- ]day/i.test(msg),
+          console.error(`${cfg.label} error`, model, r.status, msg);
+          lastErr = httpError(r.ok ? 502 : r.status, `${cfg.label}: ${msg}`, {
+            provider: name,
+            retryable: !r.ok && [404, 408, 413, 429, 500, 502, 503].includes(r.status),
+            daily: /per[- ]?day/i.test(msg),
           });
-          if (r.status === 401 || r.status === 402) throw lastErr; // bad key or no credit: stop
-          if (r.status !== 400) break; // only a 400 is worth retrying in plain JSON mode
+          if (r.status === 401 || r.status === 402 || r.status === 403) throw lastErr; // bad key or no credit
+          if (r.status !== 400) {
+            if (!r.ok) coolDown(`${name}:${model}`, r.status, msg);
+            break;
+          }
         }
       }
-      throw lastErr;
+      throw lastErr || httpError(503, `All ${cfg.label} models are cooling down.`, { provider: name, retryable: true });
     },
   };
   return session;
 }
 
-// Best-effort limiter. It resets whenever Vercel starts a fresh instance; the provider's
-// spend limit or free-tier quota is the real backstop.
+const SESSIONS = { claude: claudeSession, gemini: geminiSession, groq: () => compatSession("groq"), openrouter: () => compatSession("openrouter") };
+
+// ---------- Request handling ----------
+
+// Best-effort limiter. It resets whenever Vercel starts a fresh instance; the providers'
+// quotas and spend limits are the real backstop.
 const hits = new Map();
 function rateLimited(ip) {
   const now = Date.now();
@@ -247,7 +290,7 @@ function hintList(findings) {
     .join("\n");
 }
 
-// Replace any dash that survived both passes. The brief requires zero em dashes.
+// Replace any dash that survived. The brief requires zero em dashes.
 function stripDashes(text) {
   return text
     .replace(/\s*—\s*/g, ", ")
@@ -268,6 +311,42 @@ function clean(data) {
   };
 }
 
+async function rewriteWith(session, text, before) {
+  let data = clean(await session.send(
+    `<source_text>\n${text}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
+  ));
+  if (!data.rewrite) throw httpError(502, "The AI returned an empty rewrite. Try again.");
+
+  // One repair pass, only when it's worth a second call.
+  const fixSet = REPAIR_MODE === "all" ? ALL_FIX : HARD_FIX;
+  const leftover = detect(data.rewrite).filter((f) => fixSet.has(f.id));
+  const issues = preservationIssues(text, data.rewrite);
+  const lostFacts = issues.filter((i) => i.startsWith("numbers"));
+  const register = issues.filter((i) => !i.startsWith("numbers"));
+  const blocking = [...lostFacts, ...(REPAIR_MODE === "all" ? register : [])];
+  let repaired = false;
+  if (leftover.length || blocking.length) {
+    repaired = true;
+    const problems = [
+      leftover.length ? `Your rewrite still contains these patterns:\n${hintList(leftover)}` : "",
+      blocking.length ? `Your rewrite breaks the hard rules:\n${blocking.map((l) => `- ${l}`).join("\n")}\nAlso recheck that every list item, action and stated lesson from the source survived.` : "",
+    ].filter(Boolean).join("\n\n");
+    const fixed = clean(await session.send(
+      `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the changes list measured against the original source text, and kept.`,
+    ));
+    if (fixed.rewrite) data = fixed;
+  }
+
+  let autoFixedDashes = false;
+  if (/—|(?<!\d)–(?!\d)|\s--\s/.test(data.rewrite)) {
+    data.rewrite = stripDashes(data.rewrite);
+    autoFixedDashes = true;
+  }
+
+  const warnings = preservationIssues(text, data.rewrite);
+  return { ...data, before, after: score(data.rewrite), repaired, autoFixedDashes, warnings };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Use POST." });
 
@@ -286,17 +365,18 @@ export default async function handler(req, res) {
   const before = score(text);
   const started = Date.now();
 
-  let lastErr;
   let chain;
   try {
     chain = providerChain();
   } catch (err) {
     return res.status(err.status || 500).json({ error: err.message });
   }
+
+  let lastErr;
   const tried = [];
   for (const provider of chain) {
     try {
-      const session = { claude: claudeSession, gemini: geminiSession, openrouter: openrouterSession }[provider]();
+      const session = SESSIONS[provider]();
       const result = await rewriteWith(session, text, before);
       return res.status(200).json({
         ...result,
@@ -312,81 +392,34 @@ export default async function handler(req, res) {
       console.error(`${provider} unavailable, trying the next provider:`, err.status, err.message);
     }
   }
-  return sendError(res, lastErr);
+  return sendError(res, lastErr, tried);
 }
 
-async function rewriteWith(session, text, before) {
-  let data = clean(await session.send(
-    `<source_text>\n${text}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
-  ));
-  if (!data.rewrite) throw httpError(502, "The AI returned an empty rewrite. Try again.");
-
-  // One repair pass if hard patterns survived or facts/register were lost.
-  let repaired = false;
-  const leftover = detect(data.rewrite).filter((f) => MUST_FIX.has(f.id));
-  const lost = preservationIssues(text, data.rewrite);
-  if (leftover.length || lost.length) {
-    repaired = true;
-    const problems = [
-      leftover.length ? `Your rewrite still contains these patterns:\n${hintList(leftover)}` : "",
-      lost.length ? `Your rewrite breaks the hard rules on facts and register:\n${lost.map((l) => `- ${l}`).join("\n")}\nAlso recheck that every list item, action and stated lesson from the source survived.` : "",
-    ].filter(Boolean).join("\n\n");
-    const fixed = clean(await session.send(
-      `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the full changes list measured against the original source text, and kept.`,
-    ));
-    if (fixed.rewrite) data = fixed;
-  }
-
-  let autoFixedDashes = false;
-  if (/—|(?<!\d)–(?!\d)|\s--\s/.test(data.rewrite)) {
-    data.rewrite = stripDashes(data.rewrite);
-    autoFixedDashes = true;
-  }
-
-  return { ...data, before, after: score(data.rewrite), repaired, autoFixedDashes };
-}
-
-function sendError(res, err) {
+function sendError(res, err, tried) {
   if (err instanceof Anthropic.AuthenticationError) {
     return res.status(500).json({ error: "The server's Anthropic API key is missing or invalid." });
   }
-  if (err instanceof Anthropic.RateLimitError) {
-    return res.status(429).json({ error: "The AI service is busy. Wait a minute and try again." });
-  }
   if (err instanceof Anthropic.APIError) {
     console.error("Anthropic API error", err.status, err.message);
-    return res.status(502).json({ error: `The AI service returned an error (${err.status}).` });
-  }
-  if (err instanceof GoogleApiError) {
-    console.error("Gemini API error", err.status, err.message);
-    if (err.status === 429) {
-      const daily = /PerDay/i.test(err.message);
-      return res.status(429).json({
-        daily,
-        error: daily
-          ? "Today's free Gemini quota is used up on every model we can try. It resets at midnight US Pacific time."
-          : "Too many rewrites in the last minute on the free Gemini tier. Wait a minute and try again.",
-      });
-    }
-    if (err.status === 503 || err.status === 500) return res.status(503).json({ error: "Gemini's free models are overloaded right now. Try again in a minute." });
-    if (err.status === 400 || err.status === 403) return res.status(500).json({ error: `Gemini rejected the request (${err.status}). Check GOOGLE_API_KEY and GEMINI_MODEL.` });
-    return res.status(502).json({ error: `The AI service returned an error (${err.status}).` });
-  }
-  if (err?.message?.startsWith("OpenRouter:")) {
-    if (err.status === 429) {
-      return res.status(429).json({
-        daily: err.daily,
-        error: err.daily
-          ? "Today's free AI quota is used up on every provider we can try. Try again tomorrow."
-          : "Too many rewrites in the last minute on the free tier. Wait a minute and try again.",
-      });
-    }
-    if (err.status === 401) return res.status(500).json({ error: "The server's OpenRouter API key is missing or invalid." });
-    return res.status(502).json({ error: err.message });
+    return res.status(err.status === 429 ? 429 : 502).json({ error: `The AI service returned an error (${err.status}).` });
   }
   if (err instanceof SyntaxError) {
     return res.status(502).json({ error: "The AI reply wasn't valid JSON. Try again." });
   }
+  const status = err?.status;
+  if (status === 401 || status === 403) {
+    return res.status(500).json({ error: `${err.message}. Check the API key for ${err.provider || tried.at(-1)}.` });
+  }
+  if (isRetryable(err)) {
+    // Every provider in the chain was out of quota or overloaded.
+    const daily = err.daily || /PerDay|per[- ]?day/i.test(err.message || "");
+    return res.status(status === 429 ? 429 : 503).json({
+      daily,
+      error: daily
+        ? "Today's free AI quota is used up on every provider we can try. It resets around midnight US Pacific time."
+        : "The free AI models are busy right now. Wait a minute and try again.",
+    });
+  }
   console.error(err);
-  return res.status(err.status || 500).json({ error: err.message || "Something went wrong." });
+  return res.status(status || 500).json({ error: err?.message || "Something went wrong." });
 }
