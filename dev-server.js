@@ -13,7 +13,7 @@ const { default: rewrite } = await import("./api/rewrite.js");
 const PORT = Number(process.env.PORT || 3000);
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
 
-http.createServer(async (req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (url.pathname === "/api/rewrite") {
@@ -40,4 +40,6 @@ http.createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end("Not found");
   }
-}).listen(PORT, () => console.log(`deClaude running at http://localhost:${PORT}`));
+});
+server.requestTimeout = 0; // free-tier rewrites can take longer than Node's 5-minute default
+server.listen(PORT, () => console.log(`deClaude running at http://localhost:${PORT}`));

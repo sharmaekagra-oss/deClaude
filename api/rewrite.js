@@ -14,6 +14,7 @@ import { detect, score, PATTERNS } from "../app/detectors.js";
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
 const CLAUDE_EFFORT = process.env.CLAUDE_EFFORT || "medium";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const GEMINI_THINKING = (process.env.GEMINI_THINKING || "LOW").toUpperCase();
 const GEMINI_FALLBACKS = (process.env.GEMINI_FALLBACKS || "gemini-flash-latest,gemini-3.5-flash,gemini-flash-lite-latest").split(",").map((s) => s.trim()).filter(Boolean);
 const GOOGLE_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 const MAX_CHARS = 12000;
@@ -140,14 +141,17 @@ function geminiSession() {
               systemInstruction: `${SKILL}\n\n${APP_INSTRUCTIONS}`,
               responseMimeType: "application/json",
               responseJsonSchema: SCHEMA,
+              // Less thinking keeps a rewrite well under Vercel's time limit. MINIMAL, LOW, MEDIUM or HIGH.
+              thinkingConfig: { thinkingLevel: GEMINI_THINKING },
             },
           });
           session.model = model;
           break;
         } catch (err) {
           lastErr = err;
-          // 404: model retired for this key; 500/503: overloaded. Either way, try the next one.
-          if (!(err instanceof GoogleApiError) || ![404, 500, 503].includes(err.status)) throw err;
+          // 404: model retired for this key. 429: that model's free quota is used up (quotas are
+          // per model). 500/503: overloaded. In each case, try the next model.
+          if (!(err instanceof GoogleApiError) || ![404, 429, 500, 503].includes(err.status)) throw err;
           if (i === 0) await new Promise((r) => setTimeout(r, 2000));
         }
       }
