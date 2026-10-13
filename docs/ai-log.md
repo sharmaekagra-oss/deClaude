@@ -9,3 +9,4 @@ One page max in the final submission. Add entries as you go and trim at the end.
 | 2026-10-13 | Ekagra | Claude Code (Opus 5.5) | Built the 24-pattern list, SKILL.md, detectors, app and test scripts | "We'll figure out access later, let's build" |
 | 2026-10-13 | Ekagra | Claude Code subagent (Opus 5.5) | Generated the five test pieces in Claude's default style | "Write five short pieces... exactly as you normally would... Do not try to sound more or less human" (full prompts in samples-original.md) |
 | (runtime) | App | Claude API, `claude-opus-5-5` | Does each rewrite inside the app | System prompt = `skill/SKILL.md` + JSON output instructions in `api/rewrite.js` |
+| (runtime) | App | Gemini API free tier, `gemini-3.8-flash` | Alternative rewrite engine for the public link (`PROVIDER=gemini`) | Same system prompt as Claude |

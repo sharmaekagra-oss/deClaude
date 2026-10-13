@@ -161,7 +161,7 @@ function renderLists() {
     </li>`).join("");
   $("kept-wrap").hidden = !kept.length;
   $("kept").innerHTML = kept.map((k) => `<li><q>${esc(k.text)}</q> ${esc(k.why)}</li>`).join("");
-  const bits = [`Rewritten by ${result.model} in ${result.seconds}s.`];
+  const bits = [`Rewritten by ${result.model} (${result.provider === "gemini" ? "Google Gemini" : "Anthropic Claude"}) in ${result.seconds}s.`];
   if (result.repaired) bits.push("A second pass fixed patterns the first draft missed.");
   if (result.autoFixedDashes) bits.push("Leftover dashes were replaced automatically.");
   $("meta").textContent = bits.join(" ");

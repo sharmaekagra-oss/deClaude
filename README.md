@@ -39,7 +39,7 @@ To see the UI with a canned reply (no API key, no cost):
 npm run mock
 ```
 
-To run it for real, copy `.env.example` to `.env.local`, add your Anthropic API key, then:
+To run it for real, copy `.env.example` to `.env.local`, add an API key (`GOOGLE_API_KEY` for the free Gemini tier, `ANTHROPIC_API_KEY` for Claude, or both), then:
 
 ```bash
 npm run dev
@@ -51,11 +51,23 @@ Open http://localhost:3000 (or the port in `PORT`). Run the checks with `npm tes
 
 1. Go to vercel.com, sign in with GitHub, and click **Add New → Project**. Import `sharmaekagra-oss/deClaude`.
 2. Leave the framework as **Other**. `vercel.json` already sets the output folder (`app`) and the function settings.
-3. Under **Environment Variables**, add `ANTHROPIC_API_KEY`. Optionally add `APP_PASSCODE` (a word you give classmates) and `CLAUDE_MODEL`.
+3. Under **Environment Variables**, add `GOOGLE_API_KEY` (free) and/or `ANTHROPIC_API_KEY`. Optionally add `APP_PASSCODE` (a word you give classmates) and `PROVIDER` (`gemini` or `claude`).
 4. Click **Deploy**. Every push to `main` redeploys, and every pull request gets a preview link.
-5. In the Anthropic Console, set a monthly spend limit on the key.
+5. If you use Claude, set a monthly spend limit on the key in the Anthropic Console.
 
-**Model and cost.** The default is `claude-opus-5-5` ($4 per million input tokens, $20 per million output). A rewrite of a 300-word piece sends the SKILL.md (about 6,000 tokens, cached after the first call) plus the text. Most of the cost is the output: the rewrite, the change list and the model's thinking. Expect roughly 5 to 15 US cents per rewrite; check real usage in the Console after the first few runs. Setting `CLAUDE_MODEL=claude-haiku-5-5` costs about a fortieth as much, but test whether quality holds first.
+**Providers.** The app reads the same `skill/SKILL.md` whichever model runs it.
+
+| | Gemini (free tier) | Claude |
+|---|---|---|
+| Key | `GOOGLE_API_KEY` from aistudio.google.com | `ANTHROPIC_API_KEY` from console.anthropic.com |
+| Default model | `gemini-3.8-flash`, then `gemini-flash-latest`, `gemini-3.5-flash`, `gemini-flash-lite-latest` if a model is overloaded or retired | `claude-opus-5-5` |
+| Cost | Free within Google's quota | Roughly 5 to 15 US cents per rewrite |
+| Speed (first test) | About 140 s for a 270-word LinkedIn post | Not yet measured |
+| Note | Google may use free-tier inputs to improve its products. Don't paste private text. | The brief's SKILL.md is written for Claude, so use Claude for the official test runs. |
+
+With both keys set, Claude is used unless `PROVIDER=gemini`.
+
+**Claude model and cost.** The default is `claude-opus-5-5` ($4 per million input tokens, $20 per million output). A rewrite of a 300-word piece sends the SKILL.md (about 6,000 tokens, cached after the first call) plus the text. Most of the cost is the output: the rewrite, the change list and the model's thinking. Expect roughly 5 to 15 US cents per rewrite; check real usage in the Console after the first few runs. Setting `CLAUDE_MODEL=claude-haiku-5-5` costs about a fortieth as much, but test whether quality holds first.
 
 ## Repo layout
 
