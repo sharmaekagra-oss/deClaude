@@ -4,6 +4,8 @@ Paste AI-written text, get a version that reads like a person wrote it, and see 
 
 MICA OpenProject · 40 marks
 
+**Live app: https://declaude-nine.vercel.app** (ask the team for the class passcode)
+
 ## Deliverables
 
 | Deliverable | Location | Status | Owner |
@@ -11,7 +13,7 @@ MICA OpenProject · 40 marks
 | AI-writing pattern list (15+) | [docs/research/patterns.md](docs/research/patterns.md) | Done: 24 patterns, sourced | |
 | GitHub repo survey | [docs/research/repo_notes.md](docs/research/repo_notes.md) | Done: 21 repos | |
 | SKILL.md with before/after examples | [skill/SKILL.md](skill/SKILL.md) | Done: 8 short + 3 full examples, all pass our own detectors | |
-| Working app | `app/` + `api/` | Built, tested with a mock reply. **Needs a real API key run, then a Vercel deploy** | |
+| Working app | [declaude-nine.vercel.app](https://declaude-nine.vercel.app) | Live on Vercel, running on the Gemini free tier, passcode-protected | |
 | Test samples (5 Claude originals) | [docs/test-report/samples-original.md](docs/test-report/samples-original.md) | Done | |
 | Test report: before/after | `docs/test-report/results.md` | Run `scripts/run-tests.js` once the app has a key | |
 | Human-written controls | [docs/blind-test/human-controls.md](docs/blind-test/human-controls.md) | **Teammates to write (no AI)** | |
