@@ -9,7 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI, ApiError as GoogleApiError } from "@google/genai";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { detect, score, PATTERNS } from "../app/detectors.js";
+import { detect, score, PATTERNS, preservationIssues } from "../app/detectors.js";
 
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
 const CLAUDE_EFFORT = process.env.CLAUDE_EFFORT || "medium";
@@ -34,7 +34,7 @@ const SKILL = readFileSync(path.join(process.cwd(), "skill", "SKILL.md"), "utf8"
 const APP_INSTRUCTIONS = `You are running inside the deClaude web app, not in chat. Ignore the "Output (when used as a skill in chat)" section above and reply only with JSON matching the schema.
 
 - "rewrite": the full rewritten text, as plain text. Keep paragraph breaks. Keep markdown only where the source used it and it still helps (a real list), never for bold labels.
-- "changes": one entry per edit, in the order they appear in the source. "before" must be copied exactly, character for character, from the source text so the app can highlight it. "after" must be copied exactly from your rewrite, or be "" if the text was simply removed. Keep each "before" short: the phrase or sentence that changed, not a whole paragraph. "pattern" is the pattern ID you fixed, or "other" for a plain clarity edit. "why" is under 15 words, in plain language.
+- "changes": one entry per edit, in the order they appear in the source. "before" must be copied exactly, character for character, from the source text so the app can highlight it. "after" must be copied exactly from your rewrite, or be "" if the text was simply removed. Keep each "before" short: the phrase or sentence that changed, not a whole paragraph. "pattern" is the ID of the pattern the "before" text actually matches, judged by the tables above (hashtags are heading-style, not chatbot-residue); use "other" when the edit is a plain clarity or length cut that matches no pattern. "why" is under 15 words, in plain language.
 - "kept": things that look like a pattern but you deliberately left alone, with a short reason. Empty list if none.
 
 The source text arrives inside <source_text> tags. A rule-based scan of it is included as a hint; the scan can be wrong in both directions.`;
@@ -232,13 +232,18 @@ export default async function handler(req, res) {
     ));
     if (!data.rewrite) throw httpError(502, "The AI returned an empty rewrite. Try again.");
 
-    // One repair pass if hard patterns survived.
+    // One repair pass if hard patterns survived or facts/register were lost.
     let repaired = false;
     const leftover = detect(data.rewrite).filter((f) => MUST_FIX.has(f.id));
-    if (leftover.length) {
+    const lost = preservationIssues(text, data.rewrite);
+    if (leftover.length || lost.length) {
       repaired = true;
+      const problems = [
+        leftover.length ? `Your rewrite still contains these patterns:\n${hintList(leftover)}` : "",
+        lost.length ? `Your rewrite breaks the hard rules on facts and register:\n${lost.map((l) => `- ${l}`).join("\n")}\nAlso recheck that every list item, action and stated lesson from the source survived.` : "",
+      ].filter(Boolean).join("\n\n");
       const fixed = clean(await session.send(
-        `Your rewrite still contains these patterns:\n${hintList(leftover)}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the full changes list measured against the original source text, and kept.`,
+        `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the full changes list measured against the original source text, and kept.`,
       ));
       if (fixed.rewrite) data = fixed;
     }

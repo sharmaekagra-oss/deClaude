@@ -44,4 +44,19 @@ assert.ok(detect(flat).some((f) => f.id === "repeated-openers"), "repeated-opene
 // Code and URLs are ignored; number ranges keep their en dash
 assert.equal(detect("See https://example.com/robust—delve and `leverage()` for 2020–2024.").length, 0);
 
+// Reworded tells that slipped past the first Gemini run
+const has = (t, id) => detect(t).some((f) => f.id === id);
+assert.ok(has("Your job is no longer to be the best at the work, but to build a team.", "not-x-but-y"));
+assert.ok(has("Why First-Time Managers Struggle to Delegate\n\nMost people get promoted.", "heading-style"));
+assert.ok(!has("Subject: Request To Move The Deadline\n\nHi Neha,", "heading-style"), "email subject lines are not titles");
+const post = "One year done.\n\nI learned a lot.\n\nThanks to everyone.\n\nIf you went to business school, what do you wish you had known?";
+assert.ok(has(post, "generic-closer"), "closing engagement question");
+assert.ok(!has("Hi Neha,\n\nCan we move it?\n\nCan you make it?\n\nBest,\nArjun", "generic-closer"), "short email question is fine");
+
+// Fact and register checks
+import { preservationIssues } from "../app/detectors.js";
+assert.equal(preservationIssues("750 ml for ₹1,299", "750 ml for ₹1,299").length, 0);
+assert.match(preservationIssues("Grew 40% in 12 weeks", "Grew 40% quickly")[0], /12/);
+assert.equal(preservationIssues("I'm sure it's fine and I don't mind, we're ok", "I am sure it is fine and I do not mind, we are ok").length, 1);
+
 console.log("\nAll detector checks passed.");

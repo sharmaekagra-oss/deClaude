@@ -17,10 +17,11 @@ These apply to every rewrite. Breaking one is a failed rewrite even if the text 
 
 1. **No em dashes or en dashes.** Not one. Use a full stop, a comma, a colon or parentheses, or rebuild the sentence. Also no ` -- `. The only exception is an en dash inside a number range (2019–2024), and code, URLs and quotations, which you leave untouched.
 2. **Add no facts.** No new numbers, names, dates, quotes, customers, results, anecdotes or opinions. If a sentence is empty without an invented detail, cut it. Don't fill the gap.
-3. **Keep every real fact.** Every number, name, product spec, date, link and claim in the source must survive, with the same meaning and magnitude.
+3. **Keep every real fact.** Every number, name, product spec, date, link and claim in the source must survive, with the same meaning and magnitude. That includes each item of a real list ("backpack, gym bag, or laptop sleeve" does not become "bag"), each action the writer says they did ("planned and ran" does not become "ran"), and any lesson or reason the writer states. Cut the padding around a point, never the point.
 4. **Keep the genre.** An email keeps its greeting and sign-off. A product description keeps its specs. A cover letter stays a letter. Don't turn prose into bullets or bullets into prose unless the format itself was the problem.
 5. **Don't swap one tell for another.** Removing AI vocabulary and then writing "Simple. Fast. Done." just trades one tell for another. No staccato fragments, no punchy one-line endings, no fake casualness, no deliberate typos.
 6. **Cut more than you add.** A good rewrite is usually 10 to 35 percent shorter. It should almost never be longer.
+7. **Keep the writer's register.** If the source uses contractions (I'm, don't, it's), the rewrite does too. Don't make casual text formal or formal text casual. Expanding "I'm" to "I am" everywhere makes text stiffer, not more human.
 
 ## The 24 patterns
 
@@ -32,7 +33,7 @@ Each pattern has an ID. Use these IDs when you report changes.
 |---|---|---|
 | `em-dash` | — and – used as connectors, ` -- ` | Replace with a full stop, comma, colon or parentheses. Often the cleanest fix is two sentences. |
 | `bold-labels` | `**Label:** text` lines, bold sprinkled for emphasis | Remove the bold. Turn label lists into sentences, or plain bullets if it really is a list. |
-| `heading-style` | Title Case Headings, emoji or arrows in headings, a heading every two paragraphs | Sentence-case headings. Drop the emoji and arrows. Delete headings the text doesn't need. |
+| `heading-style` | Title Case Headings (including a plain title line or a whole line in bold), emoji or arrows in headings, a heading every two paragraphs, a row of hashtags | Sentence-case headings and titles. Drop the emoji, arrows and hashtag rows. Delete headings the text doesn't need. |
 
 > **Before:** Our app is fast — really fast — and it's free.
 > **After:** Our app is fast, and it's free.
@@ -58,7 +59,7 @@ Each pattern has an ID. Use these IDs when you report changes.
 | ID | What to look for | What to do |
 |---|---|---|
 | `rule-of-three` | Reflexive triads: "fast, simple, and reliable", three parallel clauses in a row | Keep the one or two items that matter. Keep a list of three only when there really are three things, like three specs. |
-| `not-x-but-y` | "It's not just X, it's Y", "not only... but also", "X isn't the problem. Y is." | State Y directly. |
+| `not-x-but-y` | "It's not just X, it's Y", "not only... but also", "X isn't the problem. Y is.", "X, not Y", "no longer X. It's Y" | State Y directly. Rewording the contrast ("no longer X, but Y") keeps the pattern; drop the X half instead. |
 | `stock-openers` | In today's fast-paced world, Here's the thing, Let's dive in, When it comes to, It's worth noting, At the end of the day, In a world where | Delete and start with the point. |
 | `template-phrases` | Whether you're X or Y, more than just, say goodbye to, look no further, that's where X comes in, take it to the next level, I'm thrilled to | Delete or say the plain thing. |
 | `transition-overuse` | Moreover, Furthermore, Additionally, Notably, Importantly starting sentences | Delete most of them. If two ideas connect, the order of sentences usually shows it. Use "and", "but", "so", "also" when you need a link. |
@@ -75,7 +76,7 @@ Each pattern has an ID. Use these IDs when you report changes.
 | `significance-inflation` | pivotal moment, testament to, plays a crucial role, enduring legacy, marks a milestone, shaping the future | Describe what happened. Let the reader judge how big it is. |
 | `vague-attribution` | Experts say, Studies show, Many believe, It is widely recognised | Name the source if the text names one. Otherwise state the claim plainly as the writer's, or cut it. Never invent a source. |
 | `chatbot-residue` | Great question! I hope this helps. Feel free to reach out. Don't hesitate to contact me. I'd be happy to. I hope this email finds you well. | Delete. In an email, a short normal closing ("Thanks," "Let me know by Friday") is fine. |
-| `generic-closer` | In conclusion, Ultimately, The future looks bright, Only time will tell, continues to evolve | End on the last real point or the next step. |
+| `generic-closer` | In conclusion, Ultimately, The future looks bright, Only time will tell, continues to evolve, and engagement bait at the end of a post ("What's one thing you wish you'd known?", "Agree?") | End on the last real point or the next step. Delete engagement-bait questions; rewording one keeps the pattern. |
 | `punchy-closer` | A one-line moral at the end of a paragraph: "Let that sink in." "And that changes everything." | Delete it. |
 
 > **Before:** Securing this partnership with Hexa Logistics on 3 June marks a pivotal moment for our company and stands as a testament to our team's four months of dedication. The future looks bright!
@@ -106,8 +107,8 @@ Each pattern has an ID. Use these IDs when you report changes.
 - **Email.** Get to the request in the first two lines. Cut "I hope this email finds you well" and "Please don't hesitate to reach out". Keep the greeting, the ask, any deadline and the sign-off.
 - **Blog post.** Delete the "In today's world" intro and the "In conclusion" outro. Cut headings down to the ones a reader would scan for. Keep the author's opinions; cut the hedges around them.
 - **Product description.** Replace adjectives with the specs that justify them. Keep every spec, size, price and material. Drop "elevate your", "the perfect companion", "look no further".
-- **LinkedIn post.** Remove the hook line ("Here's the thing nobody tells you:"), the one-word-per-line drama, emoji bullets and the "Agree?" ending. Keep the actual story and the lesson in one plain sentence.
-- **Cover letter.** Replace "I am thrilled to apply" with the role and why. Replace adjective self-descriptions ("passionate, dedicated, results-driven") with the evidence the source gives. Keep the employer name, role and every achievement exactly.
+- **LinkedIn post.** Remove the hook line ("Here's the thing nobody tells you:"), the one-word-per-line drama, emoji bullets, the hashtag row and the closing question that asks readers to comment ("Agree?", "What's one thing you wish you'd known?"). A reworded version of that question is still engagement bait, so delete it. Keep the actual story and the lessons.
+- **Cover letter.** Replace "I am thrilled to apply" with the role and why. Replace adjective self-descriptions ("passionate, dedicated, results-driven") with the evidence the source gives. Keep the employer name, role, every achievement, every action the writer took and any lesson they drew, exactly. Keep their contractions.
 
 ## Workflow
 
@@ -116,7 +117,9 @@ Each pattern has an ID. Use these IDs when you report changes.
 3. **Rewrite**, strongest problems first: chatbot residue, stock openers and closers, `not-x-but-y`, inflation, then word choice, then rhythm.
 4. **Check** your draft against the hard rules:
    - Search it for — and –. There must be none outside number ranges.
-   - Compare facts. Is anything added? Is anything missing?
+   - Compare facts. Is anything added? Is anything missing? Check every number, list item, action and stated lesson one by one.
+   - Did you keep the writer's contractions and register?
+   - Did any pattern survive in reworded form (a contrast, a closing question, a Title Case title)?
    - Read it aloud in your head. Does any sentence still sound like a brochure or a chatbot? Did you create new fragments or punchlines?
 5. **Report** the result.
 

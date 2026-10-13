@@ -81,6 +81,7 @@ const RULES = [
   ["not-x-but-y", /\b(?:is|are|was|were|feels?|becomes?)\s+(?:a|an|the)?\s*[^,.!?\n]{1,40},\s+not\s+(?:a|an|the|just)?\s*[^,.!?\n]{1,30}[.!?]/gi],
   // "Your job is no longer to X. It's to Y." / "doesn't make you X, it just makes Y"
   ["not-x-but-y", /\bno longer\b[^.!?\n]{1,60}\.\s*it'?s\b/gi],
+  ["not-x-but-y", /\bno longer\b[^.!?\n]{1,60},\s*but\b/gi],
   ["not-x-but-y", /\b(?:doesn'?t|don'?t|isn'?t)\b[^.!?\n]{1,50},\s*it (?:just|only|simply)\b/gi],
 
   ["stock-openers", /\bin today'?s\b|\bhere'?s the (?:thing|truth|kicker|deal)\b|\blet'?s (?:dive|delve|jump) in(?:to)?\b|\blet'?s break (?:it|this|that) down\b|\bwhen it comes to\b|\bit'?s (?:worth|important to) not(?:e|ing)\b|\bin a world where\b|\bat the end of the day\b|\bimagine (?:a|an) \w+ where\b|\bthe (?:truth|reality) is\b|\bin the (?:ever-evolving|fast-paced|rapidly changing|digital) \w+\b|\bbuckle up\b|\bpicture this\b/gi],
@@ -170,6 +171,32 @@ function headingStyle(text) {
   return out;
 }
 
+// A plain first line used as a Title Case title, e.g. "Why First-Time Managers Struggle to Delegate".
+function titleLine(text) {
+  const m = text.match(/^\s*([^\n]{3,90})\n/);
+  if (!m || /[.!?:,]$/.test(m[1].trim()) || /^#|\*\*/.test(m[1].trim())) return [];
+  const small = new Set(["a", "an", "the", "and", "or", "but", "of", "in", "on", "to", "for", "with", "at", "by", "vs"]);
+  const words = m[1].trim().split(/\s+/).filter((w) => /[a-z]/i.test(w));
+  const big = words.filter((w) => !small.has(w.toLowerCase()));
+  if (words.length > 12 || big.length < 3 || !big.every((w) => /^[^a-z]*[A-Z]/.test(w))) return [];
+  if (/^(?:subject|re|fwd|dear|hi|hello)\b/i.test(m[1].trim())) return [];
+  const start = m.index + m[0].indexOf(m[1]);
+  return [{ id: "heading-style", start, end: start + m[1].length }];
+}
+
+// A closing question that asks readers to comment: "If you've been through X, what's one thing...?"
+function engagementQuestion(text) {
+  const paras = [...text.matchAll(/[^\n]+/g)].filter((p) => p[0].trim() && !/^\s*#\w/.test(p[0]));
+  if (paras.length < 3) return [];
+  const last = paras[paras.length - 1];
+  const t = last[0].trim();
+  const words = t.split(/\s+/).length;
+  if (!t.endsWith("?") || words < 6 || !/\byou(?:r|'ve|'d|'re)?\b/i.test(t)) return [];
+  if (/^(?:best|thanks|regards|sincerely|cheers)\b/i.test(t)) return [];
+  const start = last.index + last[0].indexOf(t);
+  return [{ id: "generic-closer", start, end: start + t.length }];
+}
+
 // Sentences with their offsets. Headings and bullet lines count as their own sentence.
 export function sentences(text) {
   const out = [];
@@ -224,7 +251,8 @@ export function detect(text) {
       if (str.trim()) found.push({ id, start, end: start + str.length });
     }
   }
-  found.push(...ruleOfThree(src), ...stackedAdjectives(src), ...headingStyle(src), ...rhythm(src));
+  found.push(...ruleOfThree(src), ...stackedAdjectives(src), ...headingStyle(src), ...titleLine(src),
+    ...engagementQuestion(src), ...rhythm(src));
   // Longest first, then drop any match that overlaps an earlier one for the same pattern.
   found.sort((a, b) => a.start - b.start || b.end - a.end);
   const kept = [];
@@ -233,6 +261,24 @@ export function detect(text) {
     if (!clash) kept.push(f);
   }
   return kept.map((f) => ({ ...f, text: f.doc ? "" : text.slice(f.start, f.end) }));
+}
+
+// Checks a rewrite against its source for lost facts and a shifted register.
+// Not AI tells, so they don't count in the score; the server uses them to trigger the repair pass.
+export function preservationIssues(original, rewrite) {
+  const issues = [];
+  const nums = (t) => new Set((t.match(/\d[\d,]*(?:\.\d+)?/g) || []).map((n) => n.replace(/,/g, "")));
+  const after = nums(rewrite);
+  const lost = [...nums(original)].filter((n) => !after.has(n));
+  if (lost.length) issues.push(`numbers from the source are missing: ${lost.join(", ")}`);
+  const contractions = (t) => (t.match(/\b[a-z]+['’](?:m|re|s|ve|ll|d|t)\b/gi) || []).length;
+  const words = (t) => (t.match(/\b\w+\b/g) || []).length || 1;
+  const cBefore = contractions(original), cAfter = contractions(rewrite);
+  const expected = cBefore * (words(rewrite) / words(original));
+  if (cBefore >= 3 && cAfter < expected * 0.5) {
+    issues.push(`the source uses contractions (${cBefore}) but the rewrite has only ${cAfter}; keep the writer's register`);
+  }
+  return issues;
 }
 
 // Summary for the score panel.
