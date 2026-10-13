@@ -161,7 +161,9 @@ function renderLists() {
     </li>`).join("");
   $("kept-wrap").hidden = !kept.length;
   $("kept").innerHTML = kept.map((k) => `<li><q>${esc(k.text)}</q> ${esc(k.why)}</li>`).join("");
-  const bits = [`Rewritten by ${result.model} (${result.provider === "gemini" ? "Google Gemini" : "Anthropic Claude"}) in ${result.seconds}s.`];
+  const NAMES = { gemini: "Google Gemini", claude: "Anthropic Claude", openrouter: "OpenRouter" };
+  const bits = [`Rewritten by ${result.model} (${NAMES[result.provider] || result.provider}) in ${result.seconds}s.`];
+  if (result.fellBackFrom?.length) bits.push(`${result.fellBackFrom.map((p) => NAMES[p] || p).join(" and ")} hit a free-tier limit, so the next provider took over.`);
   if (result.repaired) bits.push("A second pass fixed patterns the first draft missed.");
   if (result.autoFixedDashes) bits.push("Leftover dashes were replaced automatically.");
   $("meta").textContent = bits.join(" ");

@@ -67,7 +67,9 @@ Open http://localhost:3000 (or the port in `PORT`). Run the checks with `npm tes
 | Speed (first test) | About 140 s for a 270-word LinkedIn post | Not yet measured |
 | Note | Google may use free-tier inputs to improve its products. Don't paste private text. | The brief's SKILL.md is written for Claude, so use Claude for the official test runs. |
 
-With both keys set, Claude is used unless `PROVIDER=gemini`.
+**OpenRouter (free backup).** `OPENROUTER_API_KEY` from openrouter.ai. Uses free `:free` models that can return JSON (default: `nvidia/nemotron-3-super-120b-a12b:free`, then two Gemma 4 models; change with `OPENROUTER_MODELS`). The limits are 20 requests a minute and 50 a day, or 1,000 a day once the account has bought $10 of credit. As of 13 October 2026 there are no Chinese models (DeepSeek, Qwen, GLM, Kimi) on the free list.
+
+**Fallback order.** `PROVIDER` is a comma-separated list tried in order, e.g. `gemini,openrouter`. When one provider is out of quota or overloaded, the next takes over, and the app says so under the result. With `PROVIDER` unset, every provider that has a key is used in the order Claude, Gemini, OpenRouter.
 
 **Claude model and cost.** The default is `claude-opus-5-5` ($4 per million input tokens, $20 per million output). A rewrite of a 300-word piece sends the SKILL.md (about 6,000 tokens, cached after the first call) plus the text. Most of the cost is the output: the rewrite, the change list and the model's thinking. Expect roughly 5 to 15 US cents per rewrite; check real usage in the Console after the first few runs. Setting `CLAUDE_MODEL=claude-haiku-5-5` costs about a fortieth as much, but test whether quality holds first.
 
