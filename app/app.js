@@ -16,8 +16,9 @@ try { pass.value = localStorage.getItem("declaude-pass") || ""; } catch {}
 let t;
 function updateLive() {
   const s = score(src.value);
+  const over = src.value.length > MAX_CHARS;
   live.innerHTML = s.words
-    ? `${s.words} words · <b>${s.total}</b> AI tell${s.total === 1 ? "" : "s"} found by the quick scan`
+    ? `${s.words} words · <b>${s.total}</b> AI tell${s.total === 1 ? "" : "s"} found by the quick scan${over ? ' · <b class="over">over the 2,000-word limit</b>' : ""}`
     : "0 words";
 }
 src.addEventListener("input", () => { clearTimeout(t); t = setTimeout(updateLive, 150); });
@@ -42,27 +43,44 @@ let baseName = "rewrite";
 const fileInput = $("file");
 const note = $("file-note");
 fileInput.accept = ACCEPT;
-function showNote(msg, warn = false) {
-  note.textContent = msg;
+const MIN_WORDS = 8;
+const countWords = (t) => (t.match(/\b\w+\b/g) || []).length;
+
+// A headline plus an optional list of limitations.
+function showNote(msg, items = [], warn = false) {
+  note.innerHTML = msg ? `<p>${esc(msg)}</p>${items.length ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}` : "";
   note.hidden = !msg;
   note.classList.toggle("warn", warn);
 }
+
+// Problems that would make the server refuse the text, or the result pointless.
+function limitProblem(text) {
+  const words = countWords(text);
+  if (!text.trim()) return "Paste some text or attach a file first.";
+  if (text.length > MAX_CHARS) {
+    return `This is ${words.toLocaleString()} words (${text.length.toLocaleString()} characters). The limit is about 2,000 words (12,000 characters), so cut it down to the part you want rewritten.`;
+  }
+  if (words < MIN_WORDS) return `That's only ${words} word${words === 1 ? "" : "s"}. Paste at least a couple of sentences so there's something to rewrite.`;
+  return "";
+}
+
 async function attach(file) {
   if (!file) return;
   showError("");
   showNote(`Reading ${file.name}…`);
   try {
-    const { text, name } = await readFile(file);
+    const { text, name, notes } = await readFile(file);
     src.value = text;
     baseName = name || "rewrite";
     $("results").hidden = true; // results belonged to the previous text
     result = null;
     updateLive();
-    const words = (text.match(/\b\w+\b/g) || []).length;
-    if (text.length > MAX_CHARS) {
-      showNote(`${file.name}: ${words.toLocaleString()} words. That's over the limit of about 2,000 words (12,000 characters), so cut it down to the section you want rewritten.`, true);
+    const words = countWords(text);
+    const problem = limitProblem(text);
+    if (problem) {
+      showNote(`${file.name}: ${problem}`, notes, true);
     } else {
-      showNote(`${file.name}: ${words.toLocaleString()} words loaded. Check the text looks right, then click deClaude it.`);
+      showNote(`${file.name}: ${words.toLocaleString()} words loaded. Check the text looks right, then click deClaude it.`, notes);
     }
   } catch (e) {
     showNote("");
@@ -91,7 +109,8 @@ function showError(msg) { err.textContent = msg; err.hidden = !msg; }
 
 go.addEventListener("click", async () => {
   const text = src.value.trim();
-  if (!text) return showError("Paste some text first.");
+  const problem = limitProblem(text);
+  if (problem) return showError(problem);
   showError("");
   go.disabled = true;
   $("loading").hidden = false;
@@ -255,32 +274,51 @@ for (const id of ["orig", "rew", "changes"]) {
   $(id).addEventListener("mouseout", (e) => { const el = e.target.closest("[data-n]"); if (el) setActive(el.dataset.n, false); });
 }
 
+// Buttons keep their icon; only the text label changes.
+function flash(btn, text, ok, ms = 1600) {
+  const span = btn.querySelector("span");
+  const was = span.textContent;
+  span.textContent = text;
+  btn.classList.toggle("done", ok);
+  setTimeout(() => { span.textContent = was; btn.classList.remove("done"); }, ms);
+}
+function showOutError(msg) { $("out-err").textContent = msg; $("out-err").hidden = !msg; }
+
 async function download(kind, btn) {
   if (!result) return;
-  const label = btn.textContent;
+  showOutError("");
+  const span = btn.querySelector("span");
+  const was = span.textContent;
   try {
     btn.disabled = true;
-    if (kind === "docx") { btn.textContent = "Preparing…"; await downloadDocx(result.rewrite, baseName); }
+    if (kind === "docx") { span.textContent = "Preparing…"; await downloadDocx(result.rewrite, baseName); }
     else downloadTxt(result.rewrite, baseName);
+    span.textContent = was;
+    flash(btn, "Downloaded", true);
   } catch (e) {
-    showError(e.message || "Download failed.");
+    span.textContent = was;
+    showOutError(`${e.message || "Download failed."} You can still use Copy and paste the rewrite into a document.`);
   } finally {
     btn.disabled = false;
-    btn.textContent = label;
   }
 }
 $("dl-docx").addEventListener("click", (e) => download("docx", e.currentTarget));
 $("dl-txt").addEventListener("click", (e) => download("txt", e.currentTarget));
 
-$("copy").addEventListener("click", async () => {
+$("copy").addEventListener("click", async (e) => {
   if (!result) return;
+  const btn = e.currentTarget;
   try {
     await navigator.clipboard.writeText(result.rewrite);
-    $("copy").textContent = "Copied";
+    flash(btn, "Copied", true);
   } catch {
-    $("copy").textContent = "Copy failed";
+    // Clipboard can be blocked (permissions, non-HTTPS). Select the text so Ctrl+C works.
+    const range = document.createRange();
+    range.selectNodeContents($("rew"));
+    getSelection().removeAllRanges();
+    getSelection().addRange(range);
+    flash(btn, "Press Ctrl+C", false, 3000);
   }
-  setTimeout(() => ($("copy").textContent = "Copy rewrite"), 1500);
 });
 
 updateLive();
