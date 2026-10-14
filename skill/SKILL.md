@@ -21,7 +21,8 @@ These apply to every rewrite. Breaking one is a failed rewrite even if the text 
 4. **Keep the genre.** An email keeps its greeting and sign-off. A product description keeps its specs. A cover letter stays a letter. Don't turn prose into bullets or bullets into prose unless the format itself was the problem.
 5. **Don't swap one tell for another.** Removing AI vocabulary and then writing "Simple. Fast. Done." just trades one tell for another. No staccato fragments, no punchy one-line endings, no fake casualness, no deliberate typos.
 6. **Cut more than you add.** A good rewrite is usually 10 to 35 percent shorter. It should almost never be longer.
-7. **Keep the writer's register.** If the source uses contractions (I'm, don't, it's), the rewrite does too. Don't make casual text formal or formal text casual. Expanding "I'm" to "I am" everywhere makes text stiffer, not more human.
+7. **Keep the writer's register and spelling.** If the source uses contractions (I'm, don't, it's), the rewrite does too. Don't make casual text formal or formal text casual. Expanding "I'm" to "I am" everywhere makes text stiffer, not more human. Keep the writer's spelling variety: "prioritise" and "behaviour" stay British/Indian spelling, not American.
+8. **Every sentence that carries content needs a counterpart.** Before you finish, go through the source sentence by sentence. Each one is either kept (reworded is fine), merged into another sentence, or cut because it was pure filler or an AI tell. A reason ("the client sent new requirements yesterday"), an instruction ("Not suitable for microwave or freezer") or a lesson is never filler.
 
 ## The 24 patterns
 

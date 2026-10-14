@@ -13,7 +13,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI, ApiError as GoogleApiError } from "@google/genai";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { detect, score, PATTERNS, preservationIssues } from "../app/detectors.js";
+import { detect, score, PATTERNS, preservationIssues, droppedSentences } from "../app/detectors.js";
 
 const list = (v, d) => (v || d).split(",").map((s) => s.trim()).filter(Boolean);
 
@@ -278,8 +278,9 @@ function compatSession(name, deadline) {
               }),
             });
           } catch (err) {
-            if (err.outOfTime || !isTimeout(err)) throw err;
-            lastErr = httpError(504, `${cfg.label}: timed out`, { provider: name, retryable: true });
+            // Timeouts and dropped connections ("fetch failed") are worth trying elsewhere.
+            if (err.outOfTime || !(isTimeout(err) || err instanceof TypeError)) throw err;
+            lastErr = httpError(504, `${cfg.label}: ${isTimeout(err) ? "timed out" : "connection failed"}`, { provider: name, retryable: true });
             coolDown(`${name}:${model}`, 503);
             break;
           }
@@ -375,6 +376,25 @@ function truncated(original, rewrite) {
   return "";
 }
 
+// If the writer spelled a word the British/Indian way ("prioritise", "behaviour") and the model
+// Americanised it, put the writer's spelling back.
+function keepSpelling(original, rewrite) {
+  const theirs = new Map();
+  // "-our" only for known words: a generic rule would turn "four" into "for" and back.
+  const OUR = "behavi|col|fav|hon|lab|neighb|flav|hum|rum|sav|endeav|harb|vap|arm|od|parl";
+  const re = new RegExp(`\\b(?:[A-Za-z]+(?:is(?:e|es|ed|ing|ation|ations)|ys(?:e|es|ed|ing))|(?:${OUR})our(?:s|ed|ing|ite|ites|able)?)\\b`, "gi");
+  for (const w of original.match(re) || []) {
+    const us = w.replace(/is(e|es|ed|ing|ation|ations)$/, "iz$1").replace(/ys(e|es|ed|ing)$/, "yz$1").replace(/our(s|ed|ing|ite|ites|able)?$/i, "or$1");
+    if (us !== w) theirs.set(us.toLowerCase(), w);
+  }
+  if (!theirs.size) return rewrite;
+  return rewrite.replace(/\b[A-Za-z]+\b/g, (w) => {
+    const mine = theirs.get(w.toLowerCase());
+    if (!mine) return w;
+    return w[0] === w[0].toUpperCase() ? mine[0].toUpperCase() + mine.slice(1) : mine.toLowerCase();
+  });
+}
+
 async function rewriteWith(session, text, before) {
   let data = clean(await session.send(
     `<source_text>\n${text}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
@@ -389,7 +409,8 @@ async function rewriteWith(session, text, before) {
   const issues = preservationIssues(text, data.rewrite);
   const lostFacts = issues.filter((i) => i.startsWith("numbers"));
   const register = issues.filter((i) => !i.startsWith("numbers"));
-  const blocking = [...lostFacts, ...(REPAIR_MODE === "all" ? register : [])];
+  const dropped = droppedSentences(text, data.rewrite).map((s) => `this sentence from the source has no counterpart in your rewrite: "${s}". If it carries a fact, reason, instruction or lesson, put that content back. If it was pure filler, leave it out and add it to "kept" with the reason it was cut`);
+  const blocking = [...lostFacts, ...dropped, ...(REPAIR_MODE === "all" ? register : [])];
   let repaired = false;
   if (leftover.length || blocking.length) {
     repaired = true;
@@ -403,16 +424,24 @@ async function rewriteWith(session, text, before) {
     if (fixed.rewrite) data = fixed;
   }
 
-  // Some models emit non-breaking hyphens (U+2011) and stray double spaces; normalise both.
-  data.rewrite = data.rewrite.replace(/‑/g, "-").replace(/(\S) {2,}(?=\S)/g, "$1 ");
-
+  // Dashes first: replacing one can leave a double space, which the clean-up below removes.
   let autoFixedDashes = false;
   if (/—|(?<!\d)–(?!\d)|\s--\s/.test(data.rewrite)) {
     data.rewrite = stripDashes(data.rewrite);
     autoFixedDashes = true;
   }
 
-  const warnings = preservationIssues(text, data.rewrite);
+  // Some models emit non-breaking hyphens/spaces and stray double spaces; normalise them.
+  data.rewrite = data.rewrite
+    .replace(/‑/g, "-")
+    .replace(/[  ]/g, " ")
+    .replace(/(\S) {2,}(?=\S)/g, "$1 ");
+  data.rewrite = keepSpelling(text, data.rewrite);
+
+  const warnings = [
+    ...preservationIssues(text, data.rewrite),
+    ...droppedSentences(text, data.rewrite).map((s) => `this sentence from the original may be missing: "${s}"`),
+  ];
   return { ...data, before, after: score(data.rewrite), repaired, autoFixedDashes, warnings };
 }
 

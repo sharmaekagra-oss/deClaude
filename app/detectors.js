@@ -263,6 +263,28 @@ export function detect(text) {
   return kept.map((f) => ({ ...f, text: f.doc ? "" : text.slice(f.start, f.end) }));
 }
 
+const STOP = new Set(("that this with from have been were will would could should their there about into than then them they what when which while your yours also just more most some such very only over much many make made each other being does doing done here where these those because after before same well even still back like").split(" "));
+const contentWords = (t) => (t.toLowerCase().match(/[a-z][a-z'’]{3,}/g) || []).filter((w) => !STOP.has(w)).map((w) => w.slice(0, 5));
+
+// Sentences of the source whose content doesn't appear anywhere in the rewrite, e.g. a reason
+// ("the client sent new requirements yesterday") or an instruction ("Hand wash recommended").
+// Sentences that contain an AI tell are skipped, because cutting those is often the point.
+export function droppedSentences(original, rewrite) {
+  const have = new Set(contentWords(rewrite));
+  const tells = detect(original).filter((f) => !f.doc);
+  const out = [];
+  for (const s of sentences(original)) {
+    const text = s.text.replace(/\*\*/g, "").trim();
+    if (/^(?:subject|dear|hi|hello|best|thanks|regards|sincerely|cheers)\b/i.test(text) || /^#/.test(text)) continue;
+    if (tells.some((f) => f.start < s.end && s.start < f.end)) continue;
+    const words = [...new Set(contentWords(text))];
+    if (words.length < 3) continue;
+    const kept = words.filter((w) => have.has(w)).length / words.length;
+    if (kept < 0.4) out.push(text);
+  }
+  return out;
+}
+
 // Checks a rewrite against its source for lost facts and a shifted register.
 // Not AI tells, so they don't count in the score; the server uses them to trigger the repair pass.
 export function preservationIssues(original, rewrite) {

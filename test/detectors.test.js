@@ -59,4 +59,12 @@ assert.equal(preservationIssues("750 ml for ₹1,299", "750 ml for ₹1,299").le
 assert.match(preservationIssues("Grew 40% in 12 weeks", "Grew 40% quickly")[0], /12/);
 assert.equal(preservationIssues("I'm sure it's fine and I don't mind, we're ok", "I am sure it is fine and I do not mind, we are ok").length, 1);
 
+// Dropped-sentence check: real losses from the test runs, and a faithful rewrite
+import { droppedSentences } from "../app/detectors.js";
+const email = "Hi Neha,\n\nI wanted to check about the deadline. The client sent over a new set of requirements yesterday, and a few of them change the scope.\n\nBest,\nA";
+assert.ok(droppedSentences(email, "Hi Neha,\n\nCan we move the deadline to Wednesday?\n\nBest,\nA").some((s) => s.startsWith("The client sent")), "lost reason is caught");
+assert.ok(!droppedSentences(email, "Hi Neha,\n\nThe client sent new requirements yesterday that change the scope, so can we move the deadline?\n\nBest,\nA").some((s) => s.startsWith("The client sent")), "reworded reason is fine");
+assert.equal(droppedSentences("Hand wash only. Not suitable for microwave or freezer.", "Hand wash only.").length, 1, "lost instruction is caught");
+assert.equal(droppedSentences("In today's fast-paced world, teams need tools. We sell a planner.", "We sell a planner.").length, 0, "cutting a sentence with a tell is allowed");
+
 console.log("\nAll detector checks passed.");
