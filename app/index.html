@@ -4,43 +4,50 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>deClaude</title>
-  <meta name="description" content="Paste AI-written text and get it back in plain human prose, with every change explained.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f1d1a'/%3E%3Cpath d='M9 16h14' stroke='%23f4efe6' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M7 9l18 14' stroke='%23d9534f' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta name="description" content="Paste the robot's homework. Get it back in plain human, with every edit marked.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600&family=Courier+Prime:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="site">
-    <div class="wrap">
-      <h1>de<span>Claude</span></h1>
-      <p class="tag">Paste text an AI wrote. Get it back the way a person would write it, with every change marked and explained.</p>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span><s>delve</s> · <s>tapestry</s> · <s>leverage</s> · <s>seamless</s> · <s>elevate</s> · <s>unlock your potential</s> · <s>in today's fast-paced world</s> · <s>it's not just X, it's Y</s> · <s>—</s> · <s>game-changer</s> · <s>testament to</s> · <s>let's dive in</s> · <s>I hope this email finds you well</s> · <s>robust</s> · <s>pivotal</s> · </span><span><s>delve</s> · <s>tapestry</s> · <s>leverage</s> · <s>seamless</s> · <s>elevate</s> · <s>unlock your potential</s> · <s>in today's fast-paced world</s> · <s>it's not just X, it's Y</s> · <s>—</s> · <s>game-changer</s> · <s>testament to</s> · <s>let's dive in</s> · <s>I hope this email finds you well</s> · <s>robust</s> · <s>pivotal</s> · </span>
     </div>
+  </div>
+
+  <header class="site wrap">
+    <h1 class="logo">de<span class="struck">Claude</span></h1>
+    <p class="tag">Paste the robot's homework. Get it back in plain human, with every edit marked.</p>
   </header>
 
   <main class="wrap">
-    <section class="input card" aria-labelledby="input-h">
-      <div class="input-head">
+    <section class="panel input" aria-labelledby="input-h">
+      <div class="panel-head">
         <h2 id="input-h">Your text</h2>
         <div class="input-tools">
-        <button id="attach" type="button" class="ghost small icon-btn" title="Attach a .docx, .pdf, .txt or .md file">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-          Attach file
-        </button>
-        <input id="file" type="file" hidden>
-        <label class="sample">
-          <span class="visually-hidden">Load a sample</span>
-          <select id="sample">
-            <option value="">Try a sample…</option>
-          </select>
-        </label>
+          <button id="attach" type="button" class="btn icon-btn" title="Attach a .docx, .pdf, .txt or .md file">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            <span>Attach file</span>
+          </button>
+          <input id="file" type="file" hidden>
+          <label class="sample">
+            <span class="visually-hidden">Load a sample</span>
+            <select id="sample">
+              <option value="">Try a sample</option>
+            </select>
+          </label>
         </div>
       </div>
       <div id="file-note" class="file-note" role="status" hidden></div>
-      <textarea id="src" rows="12" placeholder="Paste an email, blog post, product description, LinkedIn post or cover letter… or drop a .docx, .pdf, .txt or .md file here." spellcheck="true"></textarea>
-      <div class="input-foot">
+      <textarea id="src" rows="10" placeholder="Paste an email, blog post, product description, LinkedIn post or cover letter. Or drop a .docx, .pdf, .txt or .md file here." spellcheck="true"></textarea>
+      <div class="panel-foot">
         <p id="live" class="live" aria-live="polite">0 words</p>
         <div class="actions">
           <input id="pass" type="password" placeholder="Class passcode" autocomplete="off" hidden>
-          <button id="go" type="button" class="primary">deClaude it</button>
+          <button id="go" type="button" class="go">Strip it</button>
         </div>
       </div>
       <p id="err" class="err" role="alert" hidden></p>
@@ -55,31 +62,33 @@
       <h2 id="res-h" class="visually-hidden">Results</h2>
 
       <div class="scoreboard">
-        <div class="score before">
-          <p class="lbl">Before</p>
-          <p class="big"><span id="b-total">0</span> <small>AI tells</small></p>
+        <div class="score">
+          <p class="k">Before</p>
+          <p class="v" id="b-total">0</p>
           <p class="sub" id="b-sub"></p>
         </div>
-        <div class="arrow" aria-hidden="true">→</div>
-        <div class="score after">
-          <p class="lbl">After</p>
-          <p class="big"><span id="a-total">0</span> <small>AI tells</small></p>
+        <div class="score">
+          <p class="k">After</p>
+          <p class="v" id="a-total">0</p>
           <p class="sub" id="a-sub"></p>
         </div>
-        <div class="families" id="families" aria-label="AI tells by family, before and after"></div>
+        <div class="verdict">
+          <b id="verdict"></b>
+          <span id="families"></span>
+        </div>
       </div>
 
       <div class="toolbar">
         <div class="seg" role="tablist" aria-label="Highlight">
-          <button role="tab" aria-selected="true" data-mode="changes">Changes</button>
+          <button role="tab" aria-selected="true" data-mode="changes">Edits</button>
           <button role="tab" aria-selected="false" data-mode="tells">AI tells</button>
         </div>
         <div class="out-tools">
-          <button id="dl-docx" type="button" class="ghost icon-btn" title="Download the rewrite as a Word document">
+          <button id="dl-docx" type="button" class="btn icon-btn" title="Download the rewrite as a Word document">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span>Download .docx</span>
+            <span>.docx</span>
           </button>
-          <button id="dl-txt" type="button" class="ghost icon-btn" title="Download the rewrite as plain text">
+          <button id="dl-txt" type="button" class="btn icon-btn" title="Download the rewrite as plain text">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span>.txt</span>
           </button>
@@ -89,14 +98,16 @@
       <p id="doc-notes" class="doc-notes" hidden></p>
 
       <div class="columns">
-        <article class="col card">
-          <h3>Original</h3>
+        <article class="panel sheet">
+          <span class="stamp">AI draft</span>
+          <div class="panel-head"><h3>Original</h3><span class="mono" id="orig-count"></span></div>
           <div id="orig" class="text"></div>
         </article>
-        <article class="col card">
-          <div class="col-head">
+        <article class="panel sheet">
+          <span class="stamp ok" id="stamp-after">Human-ish</span>
+          <div class="panel-head">
             <h3>Rewrite</h3>
-            <button id="copy" type="button" class="ghost small icon-btn" title="Copy the rewrite to your clipboard">
+            <button id="copy" type="button" class="btn icon-btn" title="Copy the rewrite to your clipboard">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <span>Copy</span>
             </button>
@@ -105,28 +116,28 @@
         </article>
       </div>
 
-      <section class="card list-card">
-        <h3>What changed <span id="n-changes" class="count"></span></h3>
+      <section class="panel list">
+        <div class="panel-head"><h3>What changed <span id="n-changes"></span></h3></div>
         <ol id="changes" class="changes"></ol>
       </section>
 
-      <section id="kept-wrap" class="card list-card" hidden>
-        <h3>Left alone on purpose</h3>
+      <section id="kept-wrap" class="panel list" hidden>
+        <div class="panel-head"><h3>Left alone on purpose</h3></div>
         <ul id="kept" class="kept"></ul>
       </section>
 
       <p id="meta" class="meta"></p>
     </section>
 
-    <section class="legend card" aria-labelledby="legend-h">
-      <h2 id="legend-h">What it looks for</h2>
-      <p>24 patterns in five families, taken from Wikipedia's <a href="https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing" target="_blank" rel="noopener">Signs of AI writing</a> guide and the most-starred de-AI projects on GitHub. A rule-based scan counts them before and after. Claude does the rewrite, following our <a href="https://github.com/sharmaekagra-oss/deClaude/blob/main/skill/SKILL.md" target="_blank" rel="noopener">SKILL.md</a>.</p>
+    <section class="legend" aria-labelledby="legend-h">
+      <h2 id="legend-h">What it hunts for</h2>
+      <p>24 patterns in five families, from Wikipedia's <a href="https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing" target="_blank" rel="noopener">Signs of AI writing</a> guide and the most-starred de-AI projects on GitHub. A rule-based scan counts them before and after; an AI model does the rewrite, following our <a href="https://github.com/sharmaekagra-oss/deClaude/blob/main/skill/SKILL.md" target="_blank" rel="noopener">SKILL.md</a>.</p>
       <div id="legend" class="legend-grid"></div>
     </section>
   </main>
 
   <footer class="wrap foot">
-    <p>MICA OpenProject. A tell count is a signal, not proof that a person or an AI wrote something.</p>
+    <p>MICA OpenProject. A tell count is a signal, not proof that a person or a machine wrote something.</p>
   </footer>
 
   <script type="module" src="app.js"></script>

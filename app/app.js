@@ -188,14 +188,17 @@ function locate(text, items) {
   });
 }
 
-function paint(text, spans) {
+// kind: "pen" = struck out in the original, "ins" = new text in the rewrite (both numbered),
+// "hl" = an AI tell under the highlighter.
+function paint(text, spans, kind) {
   const list = spans.filter(Boolean).sort((a, b) => a.start - b.start || b.end - a.end);
   let html = "", at = 0;
   for (const s of list) {
     if (s.start < at) continue; // overlaps a span already drawn
-
     html += esc(text.slice(at, s.start));
-    html += `<mark class="hl fam-${s.fam}${s.del ? " del" : ""}" data-n="${s.n}" title="${esc(s.title)}"><sup>${s.n}</sup>${esc(text.slice(s.start, s.end))}</mark>`;
+    const num = kind === "hl" ? "" : `<span class="n" aria-hidden="true">${s.n}</span>`;
+    const tag = kind === "pen" ? "del" : kind === "ins" ? "ins" : "mark";
+    html += `${num}<${tag} class="${kind}" data-n="${s.n}" title="${esc(s.title)}">${esc(text.slice(s.start, s.end))}</${tag}>`;
     at = s.end;
   }
   return html + esc(text.slice(at));
@@ -205,19 +208,20 @@ function renderScore() {
   const { before, after } = result;
   $("b-total").textContent = before.total;
   $("a-total").textContent = after.total;
-  $("b-sub").textContent = `${before.per100} per 100 words · ${before.words} words`;
+  $("b-sub").textContent = `${before.words} words`;
   const delta = before.words ? Math.round(((after.words - before.words) / before.words) * 100) : 0;
-  $("a-sub").textContent = `${after.per100} per 100 words · ${after.words} words (${delta > 0 ? "+" : ""}${delta}%)`;
-  const max = Math.max(1, ...FAMILIES.map((f) => before.byFamily[f]));
-  $("families").innerHTML = FAMILIES.map((f) => `
-    <div class="fam fam-${f}">
-      <span>${f}</span>
-      <span class="bars">
-        <span class="b" style="width:${(before.byFamily[f] / max) * 100}%"></span>
-        <span class="a" style="width:${(after.byFamily[f] / max) * 100}%"></span>
-      </span>
-      <span class="n">${before.byFamily[f]} → ${after.byFamily[f]}</span>
-    </div>`).join("");
+  $("a-sub").textContent = `${after.words} words (${delta > 0 ? "+" : ""}${delta}%)`;
+  const cut = before.total - after.total;
+  $("verdict").textContent = after.total === 0 ? (before.total ? "Clean." : "Already clean.")
+    : after.total < before.total ? "Mostly clean." : "Still sus.";
+  const caught = FAMILIES.filter((f) => before.byFamily[f]).map((f) => `${before.byFamily[f]} ${f.toLowerCase()}`);
+  $("families").textContent = before.total
+    ? `Caught ${caught.join(" · ")}${cut > 0 ? `. ${cut} gone.` : "."}`
+    : "The quick scan found nothing to catch.";
+  const stamp = $("stamp-after");
+  stamp.textContent = after.total === 0 ? "Human-ish" : "Mostly human";
+  stamp.className = `stamp ${after.total === 0 ? "ok" : "meh"}`;
+  $("orig-count").textContent = `${before.total} tell${before.total === 1 ? "" : "s"}`;
 }
 
 function renderColumns() {
@@ -227,13 +231,13 @@ function renderColumns() {
     const items = changes.map((c, i) => ({ n: i + 1, fam: famOf(c.pattern), title: `${labelOf(c.pattern)}: ${c.why}`, before: c.before, after: c.after }));
     const left = locate(original, items.map((it) => ({ ...it, needle: it.before, del: true })));
     const right = locate(rewrite, items.map((it) => ({ ...it, needle: it.after })));
-    $("orig").innerHTML = paint(original, left);
-    $("rew").innerHTML = paint(rewrite, right);
+    $("orig").innerHTML = paint(original, left, "pen");
+    $("rew").innerHTML = paint(rewrite, right, "ins");
   } else {
-    const tag = (f, i) => ({ n: i + 1, fam: famOf(f.id), title: labelOf(f.id), start: f.start, end: f.end });
+    const tag = (f, i) => ({ n: i + 1, title: labelOf(f.id), start: f.start, end: f.end });
     const b = detect(original), a = detect(rewrite);
-    $("orig").innerHTML = paint(original, b.filter((f) => !f.doc).map(tag));
-    $("rew").innerHTML = paint(rewrite, a.filter((f) => !f.doc).map(tag));
+    $("orig").innerHTML = paint(original, b.filter((f) => !f.doc).map(tag), "hl");
+    $("rew").innerHTML = paint(rewrite, a.filter((f) => !f.doc).map(tag), "hl");
     for (const [name, list] of [["Original", b], ["Rewrite", a]]) {
       for (const f of list.filter((x) => x.doc)) notes.push(`${name}: ${labelOf(f.id)}, ${f.note}.`);
     }
@@ -249,11 +253,11 @@ function renderLists() {
   $("changes").innerHTML = !changes.length
     ? `<li class="empty">No changes needed. The text already reads like a person wrote it${result.after?.total ? `, though the quick scan still flags ${result.after.total} possible tell${result.after.total === 1 ? "" : "s"}; switch to "AI tells" to see them` : ""}.</li>`
     : changes.map((c, i) => `
-    <li class="fam-${famOf(c.pattern)}" data-n="${i + 1}">
-      <span class="num">${i + 1}</span>
+    <li data-n="${i + 1}">
+      <span class="n" aria-label="Edit ${i + 1}">${i + 1}</span>
       <span><span class="chip">${esc(labelOf(c.pattern))}</span></span>
       <span class="diff">
-        <del>${esc(c.before)}</del> → ${c.after ? `<ins>${esc(c.after)}</ins>` : `<span class="removed">removed</span>`}
+        <del>${esc(c.before)}</del> → ${c.after ? `<ins>${esc(c.after)}</ins>` : `<span class="removed">cut</span>`}
         <span class="why">${esc(c.why)}</span>
       </span>
     </li>`).join("");
