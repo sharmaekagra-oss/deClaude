@@ -25,8 +25,9 @@ const GEMINI_THINKING = (process.env.GEMINI_THINKING || "LOW").toUpperCase();
 const GEMINI_MODELS = [...new Set([GEMINI_MODEL, ...list(process.env.GEMINI_FALLBACKS, "gemini-flash-latest,gemini-3.5-flash,gemini-flash-lite-latest")])];
 // Free models that can return JSON, checked against each provider on 2026-10-13.
 const OPENROUTER_MODELS = list(process.env.OPENROUTER_MODELS, "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free");
-// gpt-oss-20b also works but rewrote too timidly in testing, so it isn't a default.
-const GROQ_MODELS = list(process.env.GROQ_MODELS, "openai/gpt-oss-120b,qwen/qwen3.8-27b");
+// qwen/qwen3.8-27b and openai/gpt-oss-20b also work, but in testing Qwen cut a rewrite off
+// mid-sentence and dropped facts, and gpt-oss-20b barely edited. Add them back via GROQ_MODELS.
+const GROQ_MODELS = list(process.env.GROQ_MODELS, "openai/gpt-oss-120b");
 const MAX_CHARS = 12000;
 const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_HOUR || 30);
 // "hard" (default): a second pass only for hard failures. "all": also for weaker leftovers and lost register.
@@ -251,11 +252,18 @@ function compatSession(name) {
             body: JSON.stringify({
               model,
               messages: [{ role: "system", content: extra.response_format.type === "json_object" ? systemWithSchema : system }, ...messages],
+              max_tokens: 8000,
               ...extra,
             }),
           });
           const body = await r.json().catch(() => ({}));
           const content = body.choices?.[0]?.message?.content;
+          if (r.ok && body.choices?.[0]?.finish_reason === "length") {
+            // Ran out of output room: the JSON or the rewrite is cut off. Try the next model.
+            lastErr = httpError(502, `${cfg.label}: reply was cut off`, { provider: name, retryable: true });
+            coolDown(`${name}:${model}`, 503);
+            break;
+          }
           if (r.ok && content) {
             const json = content.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
             messages.push({ role: "assistant", content: json });
@@ -325,11 +333,23 @@ function clean(data) {
   };
 }
 
+// Catches replies that stop mid-sentence or lose most of the text, which the tell count can't see.
+// Short last lines (sign-offs, names, placeholders like [Your name]) are allowed to lack a full stop.
+function truncated(original, rewrite) {
+  const words = (t) => (t.match(/\b\w+\b/g) || []).length;
+  if (words(rewrite) < words(original) * 0.4) return "lost more than 60% of the text";
+  const last = rewrite.trim().split("\n").pop().trim();
+  if (last.split(/\s+/).length >= 6 && !/[.!?:)\]"'’”…]$/.test(last)) return "stops mid-sentence";
+  return "";
+}
+
 async function rewriteWith(session, text, before) {
   let data = clean(await session.send(
     `<source_text>\n${text}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
   ));
   if (!data.rewrite) throw httpError(502, "The AI returned an empty rewrite. Try again.");
+  const cut = truncated(text, data.rewrite);
+  if (cut) throw httpError(502, `The rewrite ${cut}.`, { retryable: true });
 
   // One repair pass, only when it's worth a second call.
   const fixSet = REPAIR_MODE === "all" ? ALL_FIX : HARD_FIX;
