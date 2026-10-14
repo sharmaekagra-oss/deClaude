@@ -29,6 +29,10 @@ const OPENROUTER_MODELS = list(process.env.OPENROUTER_MODELS, "nvidia/nemotron-3
 // mid-sentence and dropped facts, and gpt-oss-20b barely edited. Add them back via GROQ_MODELS.
 const GROQ_MODELS = list(process.env.GROQ_MODELS, "openai/gpt-oss-120b");
 const MAX_CHARS = 12000;
+// Any single AI call is abandoned after this long, and a whole request stops trying new models
+// after REQUEST_BUDGET, so users get an answer (even "busy") well inside Vercel's 300 s limit.
+const CALL_TIMEOUT = Number(process.env.CALL_TIMEOUT_MS || 60_000);
+const REQUEST_BUDGET = Number(process.env.REQUEST_BUDGET_MS || 200_000);
 const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_HOUR || 30);
 // "hard" (default): a second pass only for hard failures. "all": also for weaker leftovers and lost register.
 const REPAIR_MODE = (process.env.REPAIR_MODE || "hard").toLowerCase();
@@ -121,12 +125,23 @@ function coolDown(key, status, message = "") {
   coolUntil.set(key, Date.now() + Math.min(secs, 24 * 3600) * 1000);
 }
 
-// Quota, overload and "model gone" errors mean another provider might still work.
+const RETRY_STATUS = [404, 408, 413, 429, 500, 502, 503, 504];
+const isTimeout = (err) => err?.name === "TimeoutError" || err?.name === "AbortError";
+
+// Quota, overload, timeout and "model gone" errors mean another provider might still work.
 function isRetryable(err) {
+  if (isTimeout(err)) return true;
   if (err instanceof Anthropic.RateLimitError) return true;
   if (err instanceof Anthropic.APIError) return err.status >= 500;
-  if (err instanceof GoogleApiError) return [404, 429, 500, 503].includes(err.status);
+  if (err instanceof GoogleApiError) return RETRY_STATUS.includes(err.status);
   return !!err.retryable;
+}
+
+// Time left for one call, capped by the request's overall deadline.
+function callSignal(deadline) {
+  const left = Math.min(CALL_TIMEOUT, deadline - Date.now());
+  if (left < 5000) throw httpError(503, "Ran out of time trying free models.", { retryable: true, outOfTime: true });
+  return AbortSignal.timeout(left);
 }
 
 // ---------- Providers. Each session keeps its conversation for the repair pass. ----------
@@ -162,7 +177,7 @@ function claudeSession() {
 }
 
 let google;
-function geminiSession() {
+function geminiSession(deadline) {
   google ??= new GoogleGenAI({ apiKey: GOOGLE_KEY });
   const contents = [];
   const session = {
@@ -183,13 +198,16 @@ function geminiSession() {
               responseMimeType: "application/json",
               responseJsonSchema: SCHEMA,
               thinkingConfig: { thinkingLevel: GEMINI_THINKING }, // MINIMAL, LOW, MEDIUM or HIGH
+              abortSignal: callSignal(deadline),
             },
           });
           session.model = model;
           break;
         } catch (err) {
           lastErr = err;
-          if (!(err instanceof GoogleApiError) || ![404, 429, 500, 503].includes(err.status)) throw err;
+          if (err.outOfTime) throw err;
+          if (isTimeout(err)) { coolDown(`gemini:${model}`, 503); continue; }
+          if (!(err instanceof GoogleApiError) || !RETRY_STATUS.includes(err.status)) throw err;
           coolDown(`gemini:${model}`, err.status, err.message);
         }
       }
@@ -225,7 +243,7 @@ const COMPAT = {
   },
 };
 
-function compatSession(name) {
+function compatSession(name, deadline) {
   const cfg = COMPAT[name];
   const system = `${SKILL_COMPACT}\n\n${APP_INSTRUCTIONS}`;
   // The schema text is only needed when the model can't take it as response_format.
@@ -246,16 +264,25 @@ function compatSession(name) {
           { response_format: { type: "json_object" } },
         ];
         for (const extra of attempts) {
-          const r = await fetch(cfg.url, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${cfg.key()}`, "Content-Type": "application/json", ...cfg.headers },
-            body: JSON.stringify({
-              model,
-              messages: [{ role: "system", content: extra.response_format.type === "json_object" ? systemWithSchema : system }, ...messages],
-              max_tokens: 8000,
-              ...extra,
-            }),
-          });
+          let r;
+          try {
+            r = await fetch(cfg.url, {
+              signal: callSignal(deadline),
+              method: "POST",
+              headers: { Authorization: `Bearer ${cfg.key()}`, "Content-Type": "application/json", ...cfg.headers },
+              body: JSON.stringify({
+                model,
+                messages: [{ role: "system", content: extra.response_format.type === "json_object" ? systemWithSchema : system }, ...messages],
+                max_tokens: 8000,
+                ...extra,
+              }),
+            });
+          } catch (err) {
+            if (err.outOfTime || !isTimeout(err)) throw err;
+            lastErr = httpError(504, `${cfg.label}: timed out`, { provider: name, retryable: true });
+            coolDown(`${name}:${model}`, 503);
+            break;
+          }
           const body = await r.json().catch(() => ({}));
           const content = body.choices?.[0]?.message?.content;
           if (r.ok && body.choices?.[0]?.finish_reason === "length") {
@@ -274,7 +301,7 @@ function compatSession(name) {
           console.error(`${cfg.label} error`, model, r.status, msg);
           lastErr = httpError(r.ok ? 502 : r.status, `${cfg.label}: ${msg}`, {
             provider: name,
-            retryable: !r.ok && [404, 408, 413, 429, 500, 502, 503].includes(r.status),
+            retryable: !r.ok && RETRY_STATUS.includes(r.status),
             daily: /per[- ]?day/i.test(msg),
           });
           if (r.status === 401 || r.status === 402 || r.status === 403) throw lastErr; // bad key or no credit
@@ -290,7 +317,12 @@ function compatSession(name) {
   return session;
 }
 
-const SESSIONS = { claude: claudeSession, gemini: geminiSession, groq: () => compatSession("groq"), openrouter: () => compatSession("openrouter") };
+const SESSIONS = {
+  claude: () => claudeSession(),
+  gemini: (deadline) => geminiSession(deadline),
+  groq: (deadline) => compatSession("groq", deadline),
+  openrouter: (deadline) => compatSession("openrouter", deadline),
+};
 
 // ---------- Request handling ----------
 
@@ -408,9 +440,10 @@ export default async function handler(req, res) {
 
   let lastErr;
   const tried = [];
+  const deadline = started + REQUEST_BUDGET;
   for (const provider of chain) {
     try {
-      const session = SESSIONS[provider]();
+      const session = SESSIONS[provider](deadline);
       const result = await rewriteWith(session, text, before);
       return res.status(200).json({
         ...result,
@@ -422,7 +455,7 @@ export default async function handler(req, res) {
     } catch (err) {
       lastErr = err;
       tried.push(provider);
-      if (!isRetryable(err)) break;
+      if (!isRetryable(err) || err.outOfTime) break;
       console.error(`${provider} unavailable, trying the next provider:`, err.status, err.message);
     }
   }
@@ -440,6 +473,10 @@ function sendError(res, err, tried) {
   if (err instanceof SyntaxError) {
     return res.status(502).json({ error: "The AI reply wasn't valid JSON. Try again." });
   }
+  if (err instanceof GoogleApiError && !isRetryable(err)) {
+    console.error("Gemini API error", err.status, err.message);
+    return res.status(502).json({ error: `Gemini rejected the request (${err.status}). Check GOOGLE_API_KEY and GEMINI_MODEL.` });
+  }
   const status = err?.status;
   if (status === 401 || status === 403) {
     return res.status(500).json({ error: `${err.message}. Check the API key for ${err.provider || tried.at(-1)}.` });
@@ -455,5 +492,8 @@ function sendError(res, err, tried) {
     });
   }
   console.error(err);
-  return res.status(status || 500).json({ error: err?.message || "Something went wrong." });
+  // Never pass raw upstream pages (HTML error screens, JSON dumps) through to the user.
+  const msg = err?.message || "";
+  const safe = msg && msg.length < 200 && !/[<{]/.test(msg) ? msg : "Something went wrong on the AI service. Try again.";
+  return res.status(status || 500).json({ error: safe });
 }
