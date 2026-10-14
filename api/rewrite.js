@@ -403,6 +403,9 @@ async function rewriteWith(session, text, before) {
     if (fixed.rewrite) data = fixed;
   }
 
+  // Some models emit non-breaking hyphens (U+2011) and stray double spaces; normalise both.
+  data.rewrite = data.rewrite.replace(/‑/g, "-").replace(/(\S) {2,}(?=\S)/g, "$1 ");
+
   let autoFixedDashes = false;
   if (/—|(?<!\d)–(?!\d)|\s--\s/.test(data.rewrite)) {
     data.rewrite = stripDashes(data.rewrite);
