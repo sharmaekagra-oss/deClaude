@@ -25,7 +25,8 @@ const GEMINI_THINKING = (process.env.GEMINI_THINKING || "LOW").toUpperCase();
 const GEMINI_MODELS = [...new Set([GEMINI_MODEL, ...list(process.env.GEMINI_FALLBACKS, "gemini-flash-latest,gemini-3.5-flash,gemini-flash-lite-latest")])];
 // Free models that can return JSON, checked against each provider on 2026-10-13.
 const OPENROUTER_MODELS = list(process.env.OPENROUTER_MODELS, "nvidia/nemotron-3-super-120b-a12b:free,google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free");
-const GROQ_MODELS = list(process.env.GROQ_MODELS, "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b");
+// gpt-oss-20b also works but rewrote too timidly in testing, so it isn't a default.
+const GROQ_MODELS = list(process.env.GROQ_MODELS, "openai/gpt-oss-120b,qwen/qwen3.8-27b");
 const MAX_CHARS = 12000;
 const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_HOUR || 30);
 // "hard" (default): a second pass only for hard failures. "all": also for weaker leftovers and lost register.
@@ -37,7 +38,13 @@ const ALL_FIX = new Set([...HARD_FIX, "ai-vocab", "promo-language", "hedge-stack
 
 // SKILL.md is the single source of truth for the rewrite rules.
 const SKILL = readFileSync(path.join(process.cwd(), "skill", "SKILL.md"), "utf8")
+  .replace(/\r\n/g, "\n")
   .replace(/^---[\s\S]*?---\s*/, "");
+// Free tiers cap tokens per minute, so Groq and OpenRouter get SKILL.md without the chat-only
+// output section and the three long worked examples (about 1,200 tokens lighter).
+const SKILL_COMPACT = SKILL
+  .replace(/\n## Output \(when used as a skill in chat\)[\s\S]*?(?=\n## )/, "\n")
+  .replace(/\n## Full examples[\s\S]*$/, "\n");
 
 const APP_INSTRUCTIONS = `You are running inside the deClaude web app, not in chat. Ignore the "Output (when used as a skill in chat)" section above and reply only with JSON matching the schema.
 
@@ -219,7 +226,10 @@ const COMPAT = {
 
 function compatSession(name) {
   const cfg = COMPAT[name];
-  const messages = [{ role: "system", content: `${SKILL}\n\n${APP_INSTRUCTIONS}\n\nReply with a single JSON object that matches this JSON Schema:\n${JSON.stringify(SCHEMA)}` }];
+  const system = `${SKILL_COMPACT}\n\n${APP_INSTRUCTIONS}`;
+  // The schema text is only needed when the model can't take it as response_format.
+  const systemWithSchema = `${system}\n\nReply with a single JSON object that matches this JSON Schema:\n${JSON.stringify(SCHEMA)}`;
+  const messages = []; // conversation without the system message
   const session = {
     model: cfg.models[0],
     async send(text) {
@@ -238,7 +248,11 @@ function compatSession(name) {
           const r = await fetch(cfg.url, {
             method: "POST",
             headers: { Authorization: `Bearer ${cfg.key()}`, "Content-Type": "application/json", ...cfg.headers },
-            body: JSON.stringify({ model, messages, ...extra }),
+            body: JSON.stringify({
+              model,
+              messages: [{ role: "system", content: extra.response_format.type === "json_object" ? systemWithSchema : system }, ...messages],
+              ...extra,
+            }),
           });
           const body = await r.json().catch(() => ({}));
           const content = body.choices?.[0]?.message?.content;
