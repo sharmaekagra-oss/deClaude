@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deClaude mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Caveat:wght@600&family=Courier+Prime:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@1,900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9e9e6; color: #111; font: 15px/1.5 system-ui, sans-serif; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  .label { font: 700 13px/1 "JetBrains Mono", monospace; letter-spacing: .02em; margin: 56px 0 6px; }
+  .label + p { margin: 0 0 14px; color: #555; font-size: 14px; max-width: 70ch; }
+  .frame { border: 1px solid #bbb; overflow: hidden; }
+  mark { color: inherit; }
+
+  /* ---------- A. Red pen ---------- */
+  .rp { background: #fffdf6; padding: 36px 40px 40px; font-family: "Courier Prime", monospace; background-image: repeating-linear-gradient(#fffdf6 0 27px, #e8eef7 27px 28px); }
+  .rp h1 { font: 700 44px/1 "Courier Prime", monospace; margin: 0; letter-spacing: -1px; }
+  .rp h1 s { text-decoration: none; position: relative; color: #888; }
+  .rp h1 s::after { content: ""; position: absolute; left: -4px; right: -4px; top: 48%; height: 5px; background: #d7261e; transform: rotate(-6deg); border-radius: 3px; }
+  .rp .sub { font-size: 16px; margin: 10px 0 26px; }
+  .rp .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .rp .sheet { background: #fff; border: 1px solid #cfc9b8; padding: 22px 22px 26px; position: relative; font-size: 16px; line-height: 1.75; box-shadow: 2px 3px 0 #e4dfd0; }
+  .rp .sheet h3 { font: 700 13px "Courier Prime"; letter-spacing: .12em; margin: 0 0 10px; color: #777; }
+  .rp del { text-decoration: none; background: linear-gradient(transparent 52%, #d7261e 52%, #d7261e 60%, transparent 60%); }
+  .rp .n { font: 600 18px "Caveat", cursive; color: #d7261e; border: 2px solid #d7261e; border-radius: 50%; display: inline-grid; place-items: center; width: 22px; height: 22px; line-height: 1; margin: 0 2px; transform: rotate(-8deg); vertical-align: 2px; }
+  .rp .hl { background: linear-gradient(100deg, transparent 2%, #fff36b 4%, #fff36b 96%, transparent 98%); padding: 0 2px; }
+  .rp .caret { color: #d7261e; font: 600 22px "Caveat"; position: relative; top: 6px; }
+  .rp .stamp { position: absolute; top: -14px; right: 18px; font: 700 15px "Courier Prime"; letter-spacing: .14em; color: #d7261e; border: 3px double #d7261e; padding: 3px 10px; transform: rotate(6deg); background: #fffdf6cc; }
+  .rp .stamp.ok { color: #1f5d2c; border-color: #1f5d2c; transform: rotate(-4deg); }
+  .rp .margin { font: 600 20px/1.2 "Caveat", cursive; color: #d7261e; margin-top: 16px; }
+  .rp .bar { display: flex; align-items: center; gap: 14px; margin: 0 0 26px; }
+  .rp .btn { font: 700 15px "Courier Prime"; padding: 10px 18px; border: 2px solid #111; background: #fff; cursor: pointer; }
+  .rp .btn.go { background: #d7261e; color: #fff; border-color: #d7261e; }
+  .rp .score { font: 600 30px "Caveat", cursive; color: #d7261e; margin-left: auto; }
+
+  /* ---------- B. Zine ---------- */
+  .zn { background: #f2f0eb; padding: 36px 40px 44px; position: relative; font-family: "Courier Prime", monospace; filter: contrast(1.05); }
+  .zn::before { content: ""; position: absolute; inset: 0; opacity: .18; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .zn .ransom { display: flex; gap: 4px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 8px; }
+  .zn .ransom span { display: inline-block; padding: 2px 8px; line-height: 1; }
+  .zn .r1 { font: 64px "Anton"; background: #111; color: #f2f0eb; transform: rotate(-3deg); }
+  .zn .r2 { font: italic 900 58px "Playfair Display"; background: #fff; border: 2px solid #111; transform: rotate(2deg); }
+  .zn .r3 { font: 700 52px "Courier Prime"; transform: rotate(-1deg); }
+  .zn .r4 { font: 62px "Archivo Black"; background: #111; color: #f2f0eb; transform: rotate(4deg); }
+  .zn .cw { display: inline-flex; gap: 4px; align-items: flex-end; position: relative; }
+  .zn .cw::after { content: ""; position: absolute; left: -10px; right: -10px; top: 44%; height: 14px; background: #e3241b; transform: rotate(-5deg); }
+  .zn .tag { font: 700 18px "Courier Prime"; margin: 10px 0 26px; }
+  .zn .tag b { background: #111; color: #f2f0eb; padding: 0 6px; }
+  .zn .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+  .zn .paper { background: #fff; border: 2px solid #111; padding: 22px; font-size: 16px; line-height: 1.7; position: relative; }
+  .zn .paper:nth-child(1) { transform: rotate(-1.2deg); }
+  .zn .paper:nth-child(2) { transform: rotate(1deg); }
+  .zn .tape { position: absolute; top: -12px; left: 40%; width: 90px; height: 24px; background: #e9e2b8cc; transform: rotate(-5deg); border: 1px solid #00000014; }
+  .zn h3 { font: 26px "Anton"; margin: 0 0 8px; letter-spacing: .02em; }
+  .zn del { text-decoration: none; background: #111; color: #111; }
+  .zn .cut { background: #111; color: #fff; padding: 0 4px; }
+  .zn .bottom { display: flex; gap: 16px; align-items: center; margin-top: 30px; }
+  .zn .btn { font: 26px "Anton"; letter-spacing: .04em; background: #111; color: #f2f0eb; border: 0; padding: 10px 24px; transform: rotate(-2deg); }
+  .zn .score { font: 700 18px "Courier Prime"; }
+  .zn .score b { font: 40px "Anton"; vertical-align: -6px; }
+
+  /* ---------- C. Brutalist ---------- */
+  .br { background: #fff; font-family: "Space Grotesk", sans-serif; }
+  .br .ticker { background: #111; color: #e4ff1a; font: 700 14px "JetBrains Mono"; white-space: nowrap; overflow: hidden; padding: 8px 0; border-bottom: 3px solid #111; }
+  .br .ticker span { display: inline-block; padding-left: 100%; animation: tick 30s linear infinite; }
+  @keyframes tick { to { transform: translateX(-100%); } }
+  .br .inner { padding: 30px 40px 40px; }
+  .br h1 { font: 700 72px/0.9 "Space Grotesk"; letter-spacing: -3px; margin: 0; }
+  .br h1 .x { background: #e4ff1a; padding: 0 6px; }
+  .br .sub { font: 400 14px "JetBrains Mono"; margin: 12px 0 26px; }
+  .br .box { border: 3px solid #111; box-shadow: 8px 8px 0 #111; background: #fff; }
+  .br .head { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #111; padding: 8px 14px; font: 700 13px "JetBrains Mono"; }
+  .br .body { padding: 16px 18px; font-size: 17px; line-height: 1.65; }
+  .br .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 30px; }
+  .br .row { display: flex; gap: 0; }
+  .br .btn { font: 700 15px "JetBrains Mono"; border: 3px solid #111; background: #fff; padding: 10px 16px; box-shadow: 4px 4px 0 #111; }
+  .br .btn.go { background: #e4ff1a; font-size: 18px; padding: 12px 26px; }
+  .br .tell { background: #e4ff1a; outline: 2px solid #111; padding: 0 3px; }
+  .br .scorebar { display: flex; gap: 0; margin-top: 30px; border: 3px solid #111; }
+  .br .scorebar div { padding: 12px 16px; font: 700 15px "JetBrains Mono"; border-right: 3px solid #111; }
+  .br .scorebar .big { font: 700 44px "Space Grotesk"; padding: 4px 18px; }
+  .br .scorebar div:last-child { border-right: 0; flex: 1; background: #111; color: #e4ff1a; display: flex; align-items: center; }
+
+  /* ---------- D. Hybrid: brutalist + red pen ---------- */
+  .hy { background: #fbfaf5; font-family: "Space Grotesk", sans-serif; }
+  .hy .ticker { background: #111; color: #fbfaf5; font: 700 13px "JetBrains Mono"; white-space: nowrap; overflow: hidden; padding: 7px 0; }
+  .hy .ticker span { display: inline-block; padding-left: 100%; animation: tick 34s linear infinite; }
+  .hy .ticker s { color: #ff4a3d; text-decoration-thickness: 2px; }
+  .hy .inner { padding: 30px 40px 40px; }
+  .hy h1 { font: 400 76px/0.9 "Anton"; letter-spacing: 0; margin: 0; text-transform: uppercase; }
+  .hy h1 .c { position: relative; color: #9a968b; }
+  .hy h1 .c::after { content: ""; position: absolute; left: -8px; right: -8px; top: 46%; height: 9px; background: #e3241b; transform: rotate(-5deg); border-radius: 4px; }
+  .hy .sub { font: 400 15px "JetBrains Mono"; margin: 14px 0 24px; }
+  .hy .input { border: 3px solid #111; background: #fff; box-shadow: 7px 7px 0 #111; }
+  .hy .input .head, .hy .card .head { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #111; padding: 7px 12px; font: 700 12px "JetBrains Mono"; letter-spacing: .04em; }
+  .hy .btn { font: 700 13px "JetBrains Mono"; border: 2px solid #111; background: #fff; padding: 6px 11px; box-shadow: 3px 3px 0 #111; display: inline-flex; gap: 6px; align-items: center; }
+  .hy .ta { padding: 14px 16px; font: 15px/1.7 "Courier Prime", monospace; min-height: 76px; }
+  .hy .foot { display: flex; justify-content: space-between; align-items: center; border-top: 3px solid #111; padding: 10px 12px; font: 700 13px "JetBrains Mono"; }
+  .hy .go { font: 400 26px "Anton"; letter-spacing: .03em; background: #e3241b; color: #fff; border: 3px solid #111; padding: 6px 26px; box-shadow: 5px 5px 0 #111; }
+  .hy .score { display: grid; grid-template-columns: auto auto 1fr; gap: 0; margin: 32px 0 26px; border: 3px solid #111; background: #fff; }
+  .hy .score > div { padding: 10px 18px; border-right: 3px solid #111; }
+  .hy .score .k { font: 700 12px "JetBrains Mono"; }
+  .hy .score .v { font: 400 46px/1 "Anton"; }
+  .hy .score .verdict { border-right: 0; background: #111; color: #fbfaf5; display: flex; align-items: center; gap: 14px; font: 700 15px "JetBrains Mono"; }
+  .hy .score .verdict b { font: 400 30px "Anton"; color: #fff36b; letter-spacing: .02em; }
+  .hy .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .hy .card { border: 3px solid #111; background: #fff; box-shadow: 7px 7px 0 #111; position: relative; }
+  .hy .card .body { padding: 16px 18px 20px; font: 16px/1.85 "Courier Prime", monospace; }
+  .hy del { text-decoration: none; background: linear-gradient(transparent 50%, #e3241b 50%, #e3241b 58%, transparent 58%); }
+  .hy .hl { background: linear-gradient(100deg, transparent 1%, #fff36b 3%, #fff36b 97%, transparent 99%); }
+  .hy .n { font: 600 17px "Caveat", cursive; color: #e3241b; border: 2px solid #e3241b; border-radius: 50%; display: inline-grid; place-items: center; width: 21px; height: 21px; line-height: 1; transform: rotate(-8deg); margin-right: 2px; vertical-align: 1px; }
+  .hy .stamp { position: absolute; top: -18px; left: 110px; font: 400 17px "Anton"; letter-spacing: .08em; color: #e3241b; border: 3px solid #e3241b; padding: 1px 10px; transform: rotate(5deg); background: #fbfaf5; }
+  .hy .stamp.ok { color: #111; border-color: #111; transform: rotate(-3deg); background: #fff36b; }
+  .hy .changes { margin-top: 28px; border: 3px solid #111; background: #fff; }
+  .hy .changes .head { border-bottom: 3px solid #111; padding: 7px 12px; font: 700 12px "JetBrains Mono"; }
+  .hy .ch { display: grid; grid-template-columns: 34px 170px 1fr; gap: 12px; padding: 12px; border-bottom: 2px dashed #111; align-items: baseline; }
+  .hy .ch:last-child { border-bottom: 0; }
+  .hy .chip { font: 700 11px "JetBrains Mono"; border: 2px solid #111; padding: 2px 6px; background: #fff36b; }
+  .hy .why { font: 600 19px/1.1 "Caveat", cursive; color: #e3241b; display: block; margin-top: 2px; }
+  .hy .diff { font: 15px "Courier Prime", monospace; }
+
+  @media (max-width: 620px) { .rp .cols, .zn .cols, .br .cols, .hy .cols { grid-template-columns: 1fr; } .rp, .zn, .br .inner, .hy .inner { padding: 24px 18px; } .hy h1, .br h1 { font-size: 48px; } .hy .ch { grid-template-columns: 28px 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="label">A · Red pen (the human editor)</div>
+  <p>Paper, typewriter text, a cranky copy editor's red pen and highlighter. Warm and analogue.</p>
+  <div class="frame rp">
+    <h1>de<s>Claude</s></h1>
+    <p class="sub">paste the robot's homework. we'll mark it up.</p>
+    <div class="bar">
+      <button class="btn">+ attach file</button>
+      <button class="btn go">MARK IT UP</button>
+      <span class="score">11 tells → 0. clean.</span>
+    </div>
+    <div class="cols">
+      <div class="sheet">
+        <span class="stamp">AI DRAFT</span>
+        <h3>ORIGINAL</h3>
+        <span class="n">1</span><del>Elevate your morning ritual with the AeroBrew Pro</del> <span class="n">2</span><del>— the perfect companion for coffee lovers who demand excellence.</del> <span class="n">3</span><del>Crafted with <span class="hl">meticulous</span> attention to detail,</del> this <span class="n">4</span><del>sleek, modern, and intuitive</del> kettle <span class="n">5</span><del>boasts</del> a precision gooseneck spout and a 1 L stainless steel body.
+        <div class="margin">↳ 3 adjectives, zero facts. cut.</div>
+      </div>
+      <div class="sheet">
+        <span class="stamp ok">EDITED BY A HUMAN (SORT OF)</span>
+        <h3>REWRITE</h3>
+        <span class="caret">‸</span>The AeroBrew Pro is a 1 L stainless steel pour-over kettle <span class="caret">‸</span>with a gooseneck spout.
+        <div class="margin">↳ every spec kept. nothing invented.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="label">B · Zine / photocopy punk</div>
+  <p>Black and white, grain, tape, ransom-note headline. The most rebellious; readability is the price.</p>
+  <div class="frame zn">
+    <div class="ransom"><span class="r3">de</span><span class="cw"><span class="r1">C</span><span class="r2">l</span><span class="r4">A</span><span class="r3">U</span><span class="r1">D</span><span class="r2">e</span></span></div>
+    <p class="tag">no <b>delve</b>. no <b>tapestry</b>. no em dashes. paste it in.</p>
+    <div class="cols">
+      <div class="paper"><span class="tape"></span>
+        <h3>THE MACHINE WROTE THIS</h3>
+        <del>Elevate your morning ritual with</del> the AeroBrew Pro <del>— the perfect companion for coffee lovers who demand excellence. Crafted with meticulous attention to detail, this sleek, modern, and intuitive</del> kettle <span class="cut">boasts</span> a precision gooseneck spout and a 1 L stainless steel body.
+      </div>
+      <div class="paper"><span class="tape"></span>
+        <h3>A PERSON WOULD WRITE THIS</h3>
+        The AeroBrew Pro is a 1 L stainless steel pour-over kettle with a gooseneck spout.
+      </div>
+    </div>
+    <div class="bottom"><button class="btn">STRIP IT</button><span class="score"><b>11</b> tells found. <b>0</b> left.</span></div>
+  </div>
+
+  <div class="label">C · Brutalist</div>
+  <p>Raw web: white, black, thick borders, hard shadows, one acid colour, monospace labels, a ticker of banned words.</p>
+  <div class="frame br">
+    <div class="ticker"><span>DELVE · TAPESTRY · LEVERAGE · SEAMLESS · ELEVATE · UNLOCK · ROBUST · PIVOTAL · TESTAMENT · GAME-CHANGER · IN TODAY'S FAST-PACED WORLD · IT'S NOT JUST X, IT'S Y · — · DELVE · TAPESTRY · LEVERAGE ·</span></div>
+    <div class="inner">
+      <h1>de<span class="x">Claude</span>.</h1>
+      <p class="sub">// paste text a machine wrote. get back text a person would.</p>
+      <div class="row" style="gap:16px">
+        <button class="btn">[+] ATTACH</button>
+        <button class="btn go">STRIP IT →</button>
+      </div>
+      <div class="scorebar"><div>BEFORE<br><span class="big">11</span></div><div>AFTER<br><span class="big">0</span></div><div>BUSTED: 6 WORDS · 4 TEMPLATES · 1 DASH</div></div>
+      <div class="cols">
+        <div class="box"><div class="head"><span>ORIGINAL.TXT</span><span>11 TELLS</span></div>
+          <div class="body"><span class="tell">Elevate</span> your morning ritual with the AeroBrew Pro <span class="tell">—</span> the perfect companion for coffee lovers who demand excellence. Crafted with <span class="tell">meticulous</span> attention to detail, this <span class="tell">sleek, modern, and intuitive</span> kettle <span class="tell">boasts</span> a precision gooseneck spout and a 1 L stainless steel body.</div></div>
+        <div class="box"><div class="head"><span>REWRITE.TXT</span><span>[COPY] [↓ .DOCX]</span></div>
+          <div class="body">The AeroBrew Pro is a 1 L stainless steel pour-over kettle with a gooseneck spout.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="label">D · Recommended: brutalist structure + red pen</div>
+  <p>Brutalist layout for clarity and speed; the editor's red pen and highlighter for the human part. Three colours only: ink, red pen, highlighter.</p>
+  <div class="frame hy">
+    <div class="ticker"><span><s>delve</s> · <s>tapestry</s> · <s>leverage</s> · <s>seamless</s> · <s>elevate</s> · <s>unlock your potential</s> · <s>in today's fast-paced world</s> · <s>it's not just X, it's Y</s> · <s>—</s> · <s>game-changer</s> · <s>testament to</s> · <s>let's dive in</s> ·</span></div>
+    <div class="inner">
+      <h1>de<span class="c">Claude</span></h1>
+      <p class="sub">Paste the robot's homework. Get it back in plain human, with every edit marked.</p>
+      <div class="input">
+        <div class="head"><span>YOUR TEXT</span><span style="display:flex;gap:8px"><span class="btn">⌇ ATTACH FILE</span><span class="btn">TRY A SAMPLE ▾</span></span></div>
+        <div class="ta">Elevate your morning ritual with the AeroBrew Pro — the perfect companion for coffee lovers who demand excellence…</div>
+        <div class="foot"><span>72 WORDS · <span style="background:#fff36b;padding:0 4px">11 TELLS</span> FOUND</span><button class="go">STRIP IT</button></div>
+      </div>
+      <div class="score">
+        <div><div class="k">BEFORE</div><div class="v">11</div></div>
+        <div><div class="k">AFTER</div><div class="v">0</div></div>
+        <div class="verdict"><b>CLEAN.</b> 6 words · 4 templates · 1 dash · −42% length</div>
+      </div>
+      <div class="cols">
+        <div class="card">
+          <span class="stamp">AI DRAFT</span>
+          <div class="head"><span>ORIGINAL</span><span>11 TELLS</span></div>
+          <div class="body"><span class="n">1</span><del>Elevate your morning ritual with the AeroBrew Pro</del> <span class="n">2</span><del>— the perfect companion for coffee lovers who demand excellence.</del> <span class="n">3</span><del>Crafted with <span class="hl">meticulous</span> attention to detail,</del> this <span class="n">4</span><del><span class="hl">sleek, modern, and intuitive</span></del> kettle <span class="n">5</span><del>boasts</del> a precision gooseneck spout and a 1 L stainless steel body.</div>
+        </div>
+        <div class="card">
+          <span class="stamp ok">HUMAN-ISH</span>
+          <div class="head"><span>REWRITE</span><span style="display:flex;gap:8px"><span class="btn">⧉ COPY</span><span class="btn">↓ .DOCX</span><span class="btn">↓ .TXT</span></span></div>
+          <div class="body"><span class="n">1</span>The AeroBrew Pro is a 1 L stainless steel pour-over kettle <span class="n">5</span>with a gooseneck spout.</div>
+        </div>
+      </div>
+      <div class="changes">
+        <div class="head">WHAT CHANGED (5)</div>
+        <div class="ch"><span class="n">1</span><span><span class="chip">PROMO LANGUAGE</span></span><span class="diff"><del>Elevate your morning ritual with the AeroBrew Pro</del> → The AeroBrew Pro is a 1 L … kettle<span class="why">brochure opener. say what it is.</span></span></div>
+        <div class="ch"><span class="n">2</span><span><span class="chip">EM DASH</span></span><span class="diff"><del>— the perfect companion for coffee lovers…</del> → removed<span class="why">dash + empty praise. gone.</span></span></div>
+        <div class="ch"><span class="n">4</span><span><span class="chip">STACKED ADJECTIVES</span></span><span class="diff"><del>sleek, modern, and intuitive</del> → removed<span class="why">3 adjectives, 0 facts.</span></span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
