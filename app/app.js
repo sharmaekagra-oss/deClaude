@@ -44,7 +44,7 @@ const fileInput = $("file");
 const note = $("file-note");
 fileInput.accept = ACCEPT;
 const MIN_WORDS = 8;
-const countWords = (t) => (t.match(/\b\w+\b/g) || []).length;
+const countWords = (t) => (t.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length; // any script, not just Latin
 
 // A headline plus an optional list of limitations.
 function showNote(msg, items = [], warn = false) {
@@ -107,6 +107,14 @@ $("legend").innerHTML = FAMILIES.map((f) => `
 
 function showError(msg) { err.textContent = msg; err.hidden = !msg; }
 
+function httpMessage(status) {
+  if (status === 504 || status === 408) return "The rewrite took too long and timed out. Try again, or try a shorter text.";
+  if (status === 413) return "That text is too long for the server. Cut it down and try again.";
+  if (status === 429) return "Too many rewrites right now. Wait a minute and try again.";
+  if (status >= 500) return `The server had a problem (error ${status}). Try again in a minute.`;
+  return `Something went wrong (error ${status}). Try again.`;
+}
+
 go.addEventListener("click", async () => {
   const text = src.value.trim();
   const problem = limitProblem(text);
@@ -125,17 +133,28 @@ go.addEventListener("click", async () => {
   tick();
   const timer = setInterval(tick, 1000);
   try {
-    const res = await fetch("/api/rewrite", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-passcode": pass.value },
-      body: JSON.stringify({ text }),
-    });
-    const data = await res.json().catch(() => ({ error: `Server error (${res.status}).` }));
+    let res;
+    try {
+      res = await fetch("/api/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-passcode": pass.value },
+        body: JSON.stringify({ text }),
+      });
+    } catch {
+      throw new Error("Couldn't reach the deClaude server. Check your internet connection and try again.");
+    }
+    // A non-JSON reply means the hosting platform answered, not our code (usually a timeout).
+    const data = await res.json().catch(() => ({ error: httpMessage(res.status) }));
     if (!res.ok) {
       if (data.needsPasscode) { pass.hidden = false; pass.focus(); }
-      throw new Error(data.error || `Server error (${res.status}).`);
+      throw new Error(data.error || httpMessage(res.status));
+    }
+    if (typeof data.rewrite !== "string" || !data.rewrite.trim()) {
+      throw new Error("The AI sent back an empty rewrite. Try again.");
     }
     try { localStorage.setItem("declaude-pass", pass.value); } catch {}
+    data.changes = (Array.isArray(data.changes) ? data.changes : []).filter((c) => c && typeof c.before === "string" && c.before.trim());
+    data.kept = Array.isArray(data.kept) ? data.kept : [];
     result = { ...data, original: text };
     render();
   } catch (e) {
@@ -227,7 +246,9 @@ function renderColumns() {
 function renderLists() {
   const { changes, kept } = result;
   $("n-changes").textContent = `(${changes.length})`;
-  $("changes").innerHTML = changes.map((c, i) => `
+  $("changes").innerHTML = !changes.length
+    ? `<li class="empty">No changes needed. The text already reads like a person wrote it${result.after?.total ? `, though the quick scan still flags ${result.after.total} possible tell${result.after.total === 1 ? "" : "s"}; switch to "AI tells" to see them` : ""}.</li>`
+    : changes.map((c, i) => `
     <li class="fam-${famOf(c.pattern)}" data-n="${i + 1}">
       <span class="num">${i + 1}</span>
       <span><span class="chip">${esc(labelOf(c.pattern))}</span></span>

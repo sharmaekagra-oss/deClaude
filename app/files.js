@@ -50,7 +50,7 @@ async function readPdf(buffer, notes) {
   }
   // PDFs break lines inside paragraphs; join those lines back up, keep blank-line breaks.
   const text = pages.join("\n\n").replace(/([^\n])\n(?!\n)/g, "$1 ");
-  const words = (text.match(/\b\w+\b/g) || []).length;
+  const words = (text.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length;
   if (words > 120 && !/\n\n/.test(text.trim())) {
     notes.push("PDFs don't store paragraphs, so the text came through as one block. Add paragraph breaks if they matter.");
   } else {
@@ -117,7 +117,9 @@ export async function readFile(file) {
       ? "No text found in that PDF. It's probably a scanned image, which needs OCR (text recognition) first."
       : "That file has no text in it.");
   }
-  return { text, name: file.name.replace(/\.[^.]+$/, ""), notes };
+  // Safe for a download file name on any OS: no path or reserved characters, not too long.
+  const name = file.name.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, "-").replace(/^[-.\s]+|[-.\s]+$/g, "").slice(0, 60) || "document";
+  return { text, name, notes };
 }
 
 function save(blob, filename) {

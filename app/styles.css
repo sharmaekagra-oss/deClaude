@@ -190,6 +190,10 @@ mark.del { text-decoration: line-through; text-decoration-color: color-mix(in sr
   padding: 10px 8px; border-radius: 8px; border-top: 1px solid var(--line);
 }
 .changes li:first-child { border-top: 0; }
+.changes li.empty { display: block; color: var(--ink-2); font-size: 0.95rem; }
+/* Long unbroken strings (links, hashes) must wrap instead of widening the page. */
+.changes li > *, .kept li { min-width: 0; }
+.diff, .kept li, .meta, .doc-notes, .file-note, .err, .live { overflow-wrap: anywhere; }
 .changes .num { font: 600 0.8rem var(--sans); color: var(--c); font-variant-numeric: tabular-nums; }
 .chip {
   display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px;

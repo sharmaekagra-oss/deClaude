@@ -294,7 +294,7 @@ export function preservationIssues(original, rewrite) {
   const lost = [...nums(original)].filter((n) => !after.has(n));
   if (lost.length) issues.push(`numbers from the source are missing: ${lost.join(", ")}`);
   const contractions = (t) => (t.match(/\b[a-z]+['’](?:m|re|s|ve|ll|d|t)\b/gi) || []).length;
-  const words = (t) => (t.match(/\b\w+\b/g) || []).length || 1;
+  const words = (t) => (t.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length || 1;
   const cBefore = contractions(original), cAfter = contractions(rewrite);
   const expected = cBefore * (words(rewrite) / words(original));
   if (cBefore >= 3 && cAfter < expected * 0.5) {
@@ -306,7 +306,7 @@ export function preservationIssues(original, rewrite) {
 // Summary for the score panel.
 export function score(text) {
   const findings = detect(text);
-  const words = (text.match(/\b\w+\b/g) || []).length;
+  const words = (text.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length; // any script, not just Latin
   const byFamily = Object.fromEntries(FAMILIES.map((f) => [f, 0]));
   const byPattern = {};
   for (const f of findings) {

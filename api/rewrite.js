@@ -360,7 +360,7 @@ function clean(data) {
   return {
     rewrite: str(data?.rewrite),
     changes: (Array.isArray(data?.changes) ? data.changes : [])
-      .filter((c) => c && typeof c.before === "string")
+      .filter((c) => c && typeof c.before === "string" && c.before.trim())
       .map((c) => ({ pattern: PATTERN_IDS.includes(c.pattern) ? c.pattern : "other", before: c.before, after: str(c.after), why: str(c.why) })),
     kept: (Array.isArray(data?.kept) ? data.kept : []).filter((k) => k && typeof k.text === "string").map((k) => ({ text: k.text, why: str(k.why) })),
   };
@@ -368,11 +368,14 @@ function clean(data) {
 
 // Catches replies that stop mid-sentence or lose most of the text, which the tell count can't see.
 // Short last lines (sign-offs, names, placeholders like [Your name]) are allowed to lack a full stop.
+// Word counts work in any script (Hindi, Arabic, Chinese...), not just Latin letters.
+// Sentence endings include the Hindi danda (।), CJK full stops (。！？) and Arabic/Urdu marks (؟ ۔).
 function truncated(original, rewrite) {
-  const words = (t) => (t.match(/\b\w+\b/g) || []).length;
-  if (words(rewrite) < words(original) * 0.4) return "lost more than 60% of the text";
+  const words = (t) => (t.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length;
+  // Fluffy short posts can rightly lose most of their words, so only judge longer texts.
+  if (words(original) >= 80 && words(rewrite) < words(original) * 0.35) return "lost more than 65% of the text";
   const last = rewrite.trim().split("\n").pop().trim();
-  if (last.split(/\s+/).length >= 6 && !/[.!?:)\]"'’”…]$/.test(last)) return "stops mid-sentence";
+  if (last.split(/\s+/).length >= 6 && !/[.!?:)\]"'’”…।॥。！？؟۔]$/u.test(last)) return "stops mid-sentence";
   return "";
 }
 
