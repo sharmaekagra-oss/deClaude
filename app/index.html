@@ -20,14 +20,19 @@
     <section class="input card" aria-labelledby="input-h">
       <div class="input-head">
         <h2 id="input-h">Your text</h2>
+        <div class="input-tools">
+        <button id="attach" type="button" class="ghost small">Attach file</button>
+        <input id="file" type="file" hidden>
         <label class="sample">
           <span class="visually-hidden">Load a sample</span>
           <select id="sample">
             <option value="">Try a sample…</option>
           </select>
         </label>
+        </div>
       </div>
-      <textarea id="src" rows="12" placeholder="Paste an email, blog post, product description, LinkedIn post or cover letter…" spellcheck="true"></textarea>
+      <p id="file-note" class="file-note" hidden></p>
+      <textarea id="src" rows="12" placeholder="Paste an email, blog post, product description, LinkedIn post or cover letter… or drop a .docx, .pdf, .txt or .md file here." spellcheck="true"></textarea>
       <div class="input-foot">
         <p id="live" class="live" aria-live="polite">0 words</p>
         <div class="actions">
@@ -66,7 +71,11 @@
           <button role="tab" aria-selected="true" data-mode="changes">Changes</button>
           <button role="tab" aria-selected="false" data-mode="tells">AI tells</button>
         </div>
-        <button id="copy" type="button" class="ghost">Copy rewrite</button>
+        <div class="out-tools">
+          <button id="copy" type="button" class="ghost">Copy rewrite</button>
+          <button id="dl-docx" type="button" class="ghost">Download .docx</button>
+          <button id="dl-txt" type="button" class="ghost">.txt</button>
+        </div>
       </div>
       <p id="doc-notes" class="doc-notes" hidden></p>
 

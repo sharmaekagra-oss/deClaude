@@ -25,7 +25,8 @@ MICA OpenProject · 40 marks
 1. **Quick scan (in the browser).** `app/detectors.js` runs regex and sentence-length checks for the 24 patterns and counts tells as you type.
 2. **Rewrite (on the server).** `api/rewrite.js` sends the text to Claude with `skill/SKILL.md` as the system prompt, plus the scan results as hints. Claude returns the rewrite and a list of changes, each tagged with a pattern ID.
 3. **Check.** The server scans the rewrite. If hard patterns survived (em dashes, stock openers, chatbot residue and so on), Claude gets one repair pass. Any dash that still survives is replaced automatically, because the brief requires zero.
-4. **Show.** The page shows a before/after tell count by family, the original and the rewrite side by side with numbered highlights linking each change, and the list of changes with reasons. An "AI tells" toggle shows the raw scan on both versions.
+4. **Files.** "Attach file" (or drag and drop) reads `.docx`, `.pdf`, `.txt` and `.md` in the browser with mammoth.js and pdf.js; the file is never uploaded, only its text is sent for rewriting. The rewrite downloads as `.docx` or `.txt`. Formatting (bold, headings, tables) isn't kept, scanned PDFs need OCR first, and the 2,000-word limit still applies.
+5. **Show.** The page shows a before/after tell count by family, the original and the rewrite side by side with numbered highlights linking each change, and the list of changes with reasons. An "AI tells" toggle shows the raw scan on both versions.
 
 ## Run it locally
 

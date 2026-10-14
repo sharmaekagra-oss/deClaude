@@ -109,6 +109,12 @@ button { font: inherit; cursor: pointer; border-radius: 8px; }
 .ghost:hover { border-color: var(--ink-3); }
 .err { margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--err-bg); color: var(--err); font-size: 0.92rem; }
 
+.input-tools, .out-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.small { padding: 5px 12px; font-size: 0.88rem; }
+.file-note { margin: -4px 0 10px; font-size: 0.88rem; color: var(--ink-2); }
+.file-note.warn { color: var(--err); }
+textarea.drop { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
 /* Loading */
 .loading { margin: 24px 0; text-align: center; color: var(--ink-2); font-size: 0.92rem; }
 .loading .bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; max-width: 320px; margin: 0 auto 10px; }
@@ -136,7 +142,8 @@ button { font: inherit; cursor: pointer; border-radius: 8px; }
 .fam .bars .a { background: var(--c); }
 .fam .n { font-variant-numeric: tabular-nums; text-align: right; }
 
-.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.seg button { white-space: nowrap; }
 .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 3px; }
 .seg button { border: 0; background: transparent; color: var(--ink-2); padding: 6px 14px; font-size: 0.9rem; }
 .seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
@@ -209,7 +216,9 @@ mark.del { text-decoration: line-through; text-decoration-color: color-mix(in sr
 @media (max-width: 480px) {
   .site h1 { font-size: 2rem; }
   .legend-grid { grid-template-columns: 1fr; }
-  .input-foot, .toolbar { align-items: stretch; }
+  .input-foot { align-items: stretch; }
+  .out-tools { width: 100%; }
+  .out-tools .ghost { flex: 1 1 auto; padding: 7px 8px; white-space: nowrap; font-size: 0.85rem; }
   .actions { width: 100%; }
   .primary { flex: 1; }
 }

@@ -1,4 +1,5 @@
 import { detect, score, PATTERNS, FAMILIES } from "./detectors.js";
+import { ACCEPT, readFile, downloadTxt, downloadDocx } from "./files.js";
 
 const $ = (id) => document.getElementById(id);
 const src = $("src"), live = $("live"), go = $("go"), pass = $("pass"), err = $("err");
@@ -28,10 +29,57 @@ fetch("samples.json").then((r) => r.json()).then((list) => {
   sel.addEventListener("change", () => {
     if (sel.value === "") return;
     src.value = list[sel.value].text;
+    baseName = list[sel.value].label.toLowerCase().replace(/\W+/g, "-");
+    showNote("");
     updateLive();
     sel.value = "";
   });
 }).catch(() => {});
+
+// Attach a file (button or drag and drop). Text is extracted in the browser.
+const MAX_CHARS = 12000;
+let baseName = "rewrite";
+const fileInput = $("file");
+const note = $("file-note");
+fileInput.accept = ACCEPT;
+function showNote(msg, warn = false) {
+  note.textContent = msg;
+  note.hidden = !msg;
+  note.classList.toggle("warn", warn);
+}
+async function attach(file) {
+  if (!file) return;
+  showError("");
+  showNote(`Reading ${file.name}…`);
+  try {
+    const { text, name } = await readFile(file);
+    src.value = text;
+    baseName = name || "rewrite";
+    $("results").hidden = true; // results belonged to the previous text
+    result = null;
+    updateLive();
+    const words = (text.match(/\b\w+\b/g) || []).length;
+    if (text.length > MAX_CHARS) {
+      showNote(`${file.name}: ${words.toLocaleString()} words. That's over the limit of about 2,000 words (12,000 characters), so cut it down to the section you want rewritten.`, true);
+    } else {
+      showNote(`${file.name}: ${words.toLocaleString()} words loaded. Check the text looks right, then click deClaude it.`);
+    }
+  } catch (e) {
+    showNote("");
+    showError(e.message);
+  }
+  fileInput.value = "";
+}
+$("attach").addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => attach(fileInput.files[0]));
+src.addEventListener("dragover", (e) => { e.preventDefault(); src.classList.add("drop"); });
+src.addEventListener("dragleave", () => src.classList.remove("drop"));
+src.addEventListener("drop", (e) => {
+  if (!e.dataTransfer?.files?.length) return; // plain text drops behave as normal
+  e.preventDefault();
+  src.classList.remove("drop");
+  attach(e.dataTransfer.files[0]);
+});
 
 // Legend
 $("legend").innerHTML = FAMILIES.map((f) => `
@@ -206,6 +254,23 @@ for (const id of ["orig", "rew", "changes"]) {
   $(id).addEventListener("mouseover", (e) => { const el = e.target.closest("[data-n]"); if (el) setActive(el.dataset.n, true); });
   $(id).addEventListener("mouseout", (e) => { const el = e.target.closest("[data-n]"); if (el) setActive(el.dataset.n, false); });
 }
+
+async function download(kind, btn) {
+  if (!result) return;
+  const label = btn.textContent;
+  try {
+    btn.disabled = true;
+    if (kind === "docx") { btn.textContent = "Preparing…"; await downloadDocx(result.rewrite, baseName); }
+    else downloadTxt(result.rewrite, baseName);
+  } catch (e) {
+    showError(e.message || "Download failed.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+$("dl-docx").addEventListener("click", (e) => download("docx", e.currentTarget));
+$("dl-txt").addEventListener("click", (e) => download("txt", e.currentTarget));
 
 $("copy").addEventListener("click", async () => {
   if (!result) return;
