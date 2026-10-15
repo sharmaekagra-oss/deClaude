@@ -15,10 +15,11 @@ MICA OpenProject · 40 marks
 | SKILL.md with before/after examples | [skill/SKILL.md](skill/SKILL.md) | Done: 8 short + 3 full examples, all pass our own detectors | |
 | Working app | [declaude-nine.vercel.app](https://declaude-nine.vercel.app) | Live on Vercel, running on the Gemini free tier, passcode-protected | |
 | Test samples (5 Claude originals) | [docs/test-report/samples-original.md](docs/test-report/samples-original.md) | Done | |
-| Test report: before/after | `docs/test-report/results.md` | Run `scripts/run-tests.js` once the app has a key | |
+| **Test report** (submission) | [docs/test-report/REPORT.md](docs/test-report/REPORT.md) | Done except the blind-test section; rebuild with `node scripts/build-report.js` once results are in | |
+| Raw test runs and detector test | [results.md](docs/test-report/results.md) · [detectors.md](docs/test-report/detectors.md) | Done | |
 | Human-written controls | [docs/blind-test/human-controls.md](docs/blind-test/human-controls.md) | **Teammates to write (no AI)** | |
 | Blind test: 5+ classmates | [docs/blind-test/PROTOCOL.md](docs/blind-test/PROTOCOL.md) | Protocol and scripts ready. Needs real responses | |
-| One-page AI tools and prompts log | [docs/ai-log.md](docs/ai-log.md) | Keep adding as you go | |
+| One-page AI tools and prompts log | [docs/ai-log.md](docs/ai-log.md) | Done (one page); add a line if you use AI for your part | |
 | Presentation deck (10 slides) | Live at [declaude-nine.vercel.app/deck](https://declaude-nine.vercel.app/deck/) · source [app/deck/index.html](app/deck/index.html) · [PDF](app/deck/deClaude-deck.pdf) | Done; blind-test slide waits for real results | |
 
 ## How it works
