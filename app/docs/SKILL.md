@@ -87,7 +87,8 @@ Each pattern has an ID. Use these IDs when you report changes.
 
 | ID | What to look for | What to do |
 |---|---|---|
-| `uniform-rhythm` | Every sentence is roughly the same length, so the text has a steady beat; every paragraph is the same size | Let length follow meaning. Join two short related sentences. Break up a long one. In any paragraph of four or more sentences, aim for at least one short sentence (under 8 words) and one long one (over 22), unless it would sound forced. Vary paragraph length too. A mix of 6-word and 25-word sentences reads as human. || `repeated-openers` | Three or more sentences in a row starting the same way ("This... This... This...") | Rebuild so the subjects vary naturally. |
+| `uniform-rhythm` | Every sentence is roughly the same length, so the text has a steady beat; every paragraph is the same size | Let length follow meaning. Join two short related sentences. Break up a long one. In any paragraph of four or more sentences, aim for at least one short sentence (under 8 words) and one long one (over 22), unless it would sound forced. Vary paragraph length too. A mix of 6-word and 25-word sentences reads as human. |
+| `repeated-openers` | Three or more sentences in a row starting the same way ("This... This... This...") | Rebuild so the subjects vary naturally. |
 | `generic-filler` | A sentence that could move unchanged to any other company, product or person: "Communication is key to any successful team." Also the most predictable phrase every time: "plays a key role", "end to end", "a strong foundation", "tied closely to". | The portability test: if it fits anywhere, it says nothing. Cut it. When the first phrase that comes to mind is the stock one, use the plainer or more specific one this writer would use. Predictable wording is what AI detectors measure and what makes text forgettable. Never swap in rare words for their own sake. |
 
 > **Before:** Our platform helps teams work better. It keeps chat and files in one place. It makes collaboration easier for everyone. It is designed with modern teams in mind.
@@ -100,6 +101,7 @@ Each pattern has an ID. Use these IDs when you report changes.
 - **One weak sighting isn't proof.** One "really" in a casual email is normal. Act on weak patterns (`intensifiers`, `transition-overuse`, `rule-of-three`, `copula-avoidance`) when they cluster or when the fix is clearly better.
 - **Real lists stay lists.** Three product specs are three specs. The rule-of-three pattern is about rhetorical triads, not data.
 - **Leave alone:** quotations, names, titles, product names, code, URLs, legal or medical wording, and anything the user marks as fixed.
+- **Passages marked "keep as is" are copied character for character**, em dashes and AI words included. They are usually quotes or examples of bad writing that the text is talking about (a slide that shows "delve" crossed out is making a point, not using the word). Edit the text around them, never the passages.
 - **If the text is already clean, change little.** Returning it almost untouched is a correct answer.
 
 ## Genre notes
@@ -109,6 +111,7 @@ Each pattern has an ID. Use these IDs when you report changes.
 - **Product description.** Replace adjectives with the specs that justify them. Keep every spec, size, price and material. Drop "elevate your", "the perfect companion", "look no further".
 - **LinkedIn post.** Remove the hook line ("Here's the thing nobody tells you:"), the one-word-per-line drama, emoji bullets, the hashtag row and the closing question that asks readers to comment ("Agree?", "What's one thing you wish you'd known?"). A reworded version of that question is still engagement bait, so delete it. Keep the actual story and the lessons.
 - **Cover letter.** Replace "I am thrilled to apply" with the role and why. Replace adjective self-descriptions ("passionate, dedicated, results-driven") with the evidence the source gives. Keep the employer name, role, every achievement, every action the writer took and any lesson they drew, exactly. Keep their contractions.
+- **Slides.** Text from a deck comes with a `--- Slide N ---` line before each slide. Keep every marker exactly, in order, and keep each slide's content under its own marker; never move a point to another slide or merge slides. Slides are headlines, labels and bullets, so fragments are correct here: keep one line per bullet and don't turn bullets into paragraphs. Edit the words on each line (stock adjectives, inflated claims, bold labels, em dashes), keep every number and name, and leave short labels like "The brief" alone.
 
 ## Workflow
 

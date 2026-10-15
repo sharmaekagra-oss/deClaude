@@ -67,4 +67,23 @@ assert.ok(!droppedSentences(email, "Hi Neha,\n\nThe client sent new requirements
 assert.equal(droppedSentences("Hand wash only. Not suitable for microwave or freezer.", "Hand wash only.").length, 1, "lost instruction is caught");
 assert.equal(droppedSentences("In today's fast-paced world, teams need tools. We sell a planner.", "We sell a planner.").length, 0, "cutting a sentence with a tell is allowed");
 
+// "Keep as is": quotes and examples aren't counted
+const quoting = "Our slide lists tells like delve, robust and seamless as examples.";
+assert.ok(detect(quoting).some((f) => f.id === "ai-vocab"));
+assert.equal(detect(quoting, { keep: ["delve, robust and seamless"] }).length, 0, "kept passage is not flagged");
+assert.equal(score(quoting, { keep: ["not in the text"] }).total, detect(quoting).length, "keep that isn't in the text changes nothing");
+
+// Tuning: headings, names and articles are not tells
+assert.ok(!has("Claude Code for research. Groq, Gemini and OpenRouter run the rewrites.", "rule-of-three"), "a list of names");
+assert.ok(has("Happier, healthier, and more productive teams.", "rule-of-three"), "a rhetorical triad still fires");
+assert.ok(!has("The brief\nThe app\nThe results\nWe built it in a week.", "repeated-openers"), "heading lines are not sentences");
+assert.ok(!has("The app is free. The model is slow. The test ran twice.", "repeated-openers"), "'The' alone is ordinary");
+assert.ok(has("This is fast. This is cheap. This is easy.", "repeated-openers"), "This... This... This... still fires");
+
+// Slides: markers are ignored, labels with lists don't count, rhythm isn't judged
+const deck = ["--- Slide 1 ---", "Keep every fact, list item and lesson", "Scan, rewrite and check", "--- Slide 2 ---",
+  ...Array.from({ length: 7 }, (_, i) => `Point ${i} has exactly the same length as the rest.`)].join("\n");
+assert.ok(!detect(deck).some((f) => ["rule-of-three", "uniform-rhythm"].includes(f.id)), "slide labels and rhythm");
+assert.ok(has("--- Slide 1 ---\nOur sleek, modern, and intuitive kettle.", "stacked-adjectives"), "word-level tells still fire on slides");
+
 console.log("\nAll detector checks passed.");

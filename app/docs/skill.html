@@ -262,6 +262,11 @@ description: Rewrite AI-generated text so it reads like a person wrote it. Remov
 <td>Let length follow meaning. Join two short related sentences. Break up a long one. In any paragraph of four or more sentences, aim for at least one short sentence (under 8 words) and one long one (over 22), unless it would sound forced. Vary paragraph length too. A mix of 6-word and 25-word sentences reads as human.</td>
 </tr>
 <tr>
+<td><code>repeated-openers</code></td>
+<td>Three or more sentences in a row starting the same way (&quot;This... This... This...&quot;)</td>
+<td>Rebuild so the subjects vary naturally.</td>
+</tr>
+<tr>
 <td><code>generic-filler</code></td>
 <td>A sentence that could move unchanged to any other company, product or person: &quot;Communication is key to any successful team.&quot; Also the most predictable phrase every time: &quot;plays a key role&quot;, &quot;end to end&quot;, &quot;a strong foundation&quot;, &quot;tied closely to&quot;.</td>
 <td>The portability test: if it fits anywhere, it says nothing. Cut it. When the first phrase that comes to mind is the stock one, use the plainer or more specific one this writer would use. Predictable wording is what AI detectors measure and what makes text forgettable. Never swap in rare words for their own sake.</td>
@@ -277,6 +282,7 @@ description: Rewrite AI-generated text so it reads like a person wrote it. Remov
 <li><strong>One weak sighting isn&#39;t proof.</strong> One &quot;really&quot; in a casual email is normal. Act on weak patterns (<code>intensifiers</code>, <code>transition-overuse</code>, <code>rule-of-three</code>, <code>copula-avoidance</code>) when they cluster or when the fix is clearly better.</li>
 <li><strong>Real lists stay lists.</strong> Three product specs are three specs. The rule-of-three pattern is about rhetorical triads, not data.</li>
 <li><strong>Leave alone:</strong> quotations, names, titles, product names, code, URLs, legal or medical wording, and anything the user marks as fixed.</li>
+<li><strong>Passages marked &quot;keep as is&quot; are copied character for character</strong>, em dashes and AI words included. They are usually quotes or examples of bad writing that the text is talking about (a slide that shows &quot;delve&quot; crossed out is making a point, not using the word). Edit the text around them, never the passages.</li>
 <li><strong>If the text is already clean, change little.</strong> Returning it almost untouched is a correct answer.</li>
 </ul>
 <h2>Genre notes</h2>
@@ -286,6 +292,7 @@ description: Rewrite AI-generated text so it reads like a person wrote it. Remov
 <li><strong>Product description.</strong> Replace adjectives with the specs that justify them. Keep every spec, size, price and material. Drop &quot;elevate your&quot;, &quot;the perfect companion&quot;, &quot;look no further&quot;.</li>
 <li><strong>LinkedIn post.</strong> Remove the hook line (&quot;Here&#39;s the thing nobody tells you:&quot;), the one-word-per-line drama, emoji bullets, the hashtag row and the closing question that asks readers to comment (&quot;Agree?&quot;, &quot;What&#39;s one thing you wish you&#39;d known?&quot;). A reworded version of that question is still engagement bait, so delete it. Keep the actual story and the lessons.</li>
 <li><strong>Cover letter.</strong> Replace &quot;I am thrilled to apply&quot; with the role and why. Replace adjective self-descriptions (&quot;passionate, dedicated, results-driven&quot;) with the evidence the source gives. Keep the employer name, role, every achievement, every action the writer took and any lesson they drew, exactly. Keep their contractions.</li>
+<li><strong>Slides.</strong> Text from a deck comes with a <code>--- Slide N ---</code> line before each slide. Keep every marker exactly, in order, and keep each slide&#39;s content under its own marker; never move a point to another slide or merge slides. Slides are headlines, labels and bullets, so fragments are correct here: keep one line per bullet and don&#39;t turn bullets into paragraphs. Edit the words on each line (stock adjectives, inflated claims, bold labels, em dashes), keep every number and name, and leave short labels like &quot;The brief&quot; alone.</li>
 </ul>
 <h2>Workflow</h2>
 <ol>

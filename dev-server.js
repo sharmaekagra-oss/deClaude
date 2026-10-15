@@ -9,19 +9,21 @@ import { fileURLToPath } from "node:url";
 process.chdir(path.dirname(fileURLToPath(import.meta.url)));
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 const { default: rewrite } = await import("./api/rewrite.js");
+const { default: ocr } = await import("./api/ocr.js");
 
 const PORT = Number(process.env.PORT || 3000);
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".pdf": "application/pdf", ".md": "text/markdown" };
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  if (url.pathname === "/api/rewrite") {
+  if (url.pathname === "/api/rewrite" || url.pathname === "/api/ocr") {
     let raw = "";
     for await (const chunk of req) raw += chunk;
     try { req.body = raw ? JSON.parse(raw) : {}; } catch { req.body = {}; }
     res.status = (code) => { res.statusCode = code; return res; };
     res.json = (obj) => { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(obj)); };
+    if (url.pathname === "/api/ocr") return ocr(req, res);
     // MOCK=1 returns a canned response so the UI can be tested without an API key.
     if (process.env.MOCK === "1") {
       const { score } = await import("./app/detectors.js");

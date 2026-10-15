@@ -105,14 +105,41 @@ const RULES = [
   ["punchy-closer", /\blet that sink in\b|(?:^|[.!?]\s+)(?:full stop|period)\.|\band that'?s (?:the point|okay|everything|what matters|the magic|the secret)\b|\bthis changes everything\b|\bread that again\b|\bit'?s (?:that|as) simple(?: as that)?\b|\bmake no mistake\b|\bthe rest is history\b/gim],
 ];
 
-// Replace code, URLs and emails with spaces so offsets stay aligned but they never match.
+// Slide decks arrive with one marker line per slide. Text with markers is judged as slides:
+// fragments and labels are normal there, so rhythm checks and list triads on labels are skipped.
+export const SLIDE_MARK = /^[ \t]*--- Slide \d+ ---[ \t]*$/gm;
+export const isSlides = (text) => new RegExp(SLIDE_MARK.source, "m").test(text || "");
+
+// Replace code, URLs, emails and slide markers with spaces so offsets stay aligned but they never match.
 function mask(text) {
   const blank = (m) => m.replace(/[^\n]/g, " ");
   return text
     .replace(/```[\s\S]*?```/g, blank)
     .replace(/`[^`\n]+`/g, blank)
     .replace(/https?:\/\/\S+/g, blank)
-    .replace(/\S+@\S+\.\S+/g, blank);
+    .replace(/\S+@\S+\.\S+/g, blank)
+    .replace(SLIDE_MARK, blank);
+}
+
+// A line with no sentence ending: a heading, label or slide bullet.
+const ENDS_SENTENCE = /[.!?:;]["')\]’”]*$/;
+function lineAt(text, i) {
+  const start = text.lastIndexOf("\n", i - 1) + 1;
+  const end = text.indexOf("\n", i);
+  return text.slice(start, end < 0 ? text.length : end).trim();
+}
+
+// Every place a "keep as is" passage occurs. Findings inside these are quotes or examples, not tells.
+export function keepSpans(text, keep = []) {
+  const spans = [];
+  for (const k of keep) {
+    const needle = typeof k === "string" ? k.trim() : "";
+    if (!needle) continue;
+    for (let i = text.indexOf(needle); i >= 0; i = text.indexOf(needle, i + needle.length)) {
+      spans.push({ start: i, end: i + needle.length });
+    }
+  }
+  return spans;
 }
 
 function stackedAdjectives(text) {
@@ -130,14 +157,18 @@ function stackedAdjectives(text) {
   return out;
 }
 
-// "X, Y, and Z" with short items. Skips clause chains like "we stopped, I listened, and..."
-function ruleOfThree(text) {
+// "X, Y, and Z" with short items. Skips clause chains like "we stopped, I listened, and...",
+// lists of names ("Groq, Gemini and OpenRouter"), lists with numbers, and labels on slides.
+function ruleOfThree(text, slides) {
   const out = [];
   const item = "\\w+(?:[ -]\\w+){0,2}";
   const re = new RegExp(`\\b(${item}),\\s+(${item}),?\\s+(?:and|or)\\s+(${item})\\b`, "g");
   const subject = /^(?:i|we|you|he|she|they|it|there)\b/i;
   for (const m of text.matchAll(re)) {
     if ([m[2], m[3]].some((s) => subject.test(s))) continue;
+    if ([m[2], m[3]].every((s) => /^[A-Z]/.test(s))) continue; // names, not a rhetorical triad
+    if (/\d/.test(m[0])) continue; // data
+    if (slides && !ENDS_SENTENCE.test(lineAt(text, m.index))) continue;
     out.push({ id: "rule-of-three", start: m.index, end: m.index + m[0].length });
   }
   return out;
@@ -208,22 +239,30 @@ export function sentences(text) {
     if (!trimmed || /^#/.test(trimmed)) continue;
     const words = trimmed.split(/\s+/).filter((w) => /\w/.test(w));
     if (!words.length) continue;
-    out.push({ start: m.index + lead, end: m.index + lead + trimmed.length, text: trimmed, words: words.length });
+    // A fragment is a whole line with no sentence ending: a heading, label or bullet.
+    const fragment = !/[.!?]["')\]’”]*$/.test(trimmed);
+    out.push({ start: m.index + lead, end: m.index + lead + trimmed.length, text: trimmed, words: words.length, fragment });
   }
   return out;
 }
 
-function rhythm(text) {
+// Headings and labels ("The brief", "The app") aren't sentences, so they don't count towards rhythm.
+// Slides are all fragments by nature, so their sentence-length spread isn't judged.
+function rhythm(text, slides) {
   const out = [];
-  const sents = sentences(text).filter((s) => s.words >= 3);
-  if (sents.length >= 6) {
+  const sents = sentences(text).filter((s) => s.words >= 3 && !s.fragment);
+  if (sents.length >= 6 && !slides) {
     const n = sents.map((s) => s.words);
     const mean = n.reduce((a, b) => a + b, 0) / n.length;
     const sd = Math.sqrt(n.reduce((a, b) => a + (b - mean) ** 2, 0) / n.length);
     const cv = sd / mean;
     if (cv < 0.45) out.push({ id: "uniform-rhythm", start: 0, end: 0, doc: true, note: `sentence-length variation ${cv.toFixed(2)} (human prose is usually above 0.45)` });
   }
-  const first = sents.map((s) => s.text.split(/\s+/)[0].toLowerCase().replace(/[^a-z']/g, ""));
+  // "The..." three times is ordinary English; for articles, compare the first two words.
+  const first = sents.map((s) => {
+    const w = s.text.toLowerCase().split(/\s+/).map((x) => x.replace(/[^a-z']/g, ""));
+    return ["the", "a", "an"].includes(w[0]) ? `${w[0]} ${w[1] || ""}` : w[0];
+  });
   for (let i = 2; i < first.length; i++) {
     if (first[i] && first[i] === first[i - 1] && first[i] === first[i - 2]) {
       for (const j of [i - 2, i - 1, i]) {
@@ -237,7 +276,9 @@ function rhythm(text) {
 }
 
 // Returns [{id, start, end, text, doc?, note?}] sorted by position, deduplicated.
-export function detect(text) {
+// opts.keep: passages the writer marked "keep as is" (quotes, examples); nothing inside them is flagged.
+export function detect(text, opts = {}) {
+  const slides = isSlides(text);
   const src = mask(text || "");
   const found = [];
   for (const [id, re] of RULES) {
@@ -251,12 +292,14 @@ export function detect(text) {
       if (str.trim()) found.push({ id, start, end: start + str.length });
     }
   }
-  found.push(...ruleOfThree(src), ...stackedAdjectives(src), ...headingStyle(src), ...titleLine(src),
-    ...engagementQuestion(src), ...rhythm(src));
+  found.push(...ruleOfThree(src, slides), ...stackedAdjectives(src), ...headingStyle(src), ...titleLine(src),
+    ...engagementQuestion(src), ...rhythm(src, slides));
   // Longest first, then drop any match that overlaps an earlier one for the same pattern.
   found.sort((a, b) => a.start - b.start || b.end - a.end);
+  const quoted = keepSpans(text || "", opts.keep);
   const kept = [];
   for (const f of found) {
+    if (!f.doc && quoted.some((q) => f.start < q.end && q.start < f.end)) continue;
     const clash = kept.some((k) => k.id === f.id && !f.doc && !k.doc && f.start < k.end && k.start < f.end);
     if (!clash) kept.push(f);
   }
@@ -269,9 +312,9 @@ const contentWords = (t) => (t.toLowerCase().match(/[a-z][a-z'’]{3,}/g) || [])
 // Sentences of the source whose content doesn't appear anywhere in the rewrite, e.g. a reason
 // ("the client sent new requirements yesterday") or an instruction ("Hand wash recommended").
 // Sentences that contain an AI tell are skipped, because cutting those is often the point.
-export function droppedSentences(original, rewrite) {
+export function droppedSentences(original, rewrite, opts = {}) {
   const have = new Set(contentWords(rewrite));
-  const tells = detect(original).filter((f) => !f.doc);
+  const tells = detect(original, opts).filter((f) => !f.doc);
   const out = [];
   for (const s of sentences(original)) {
     const text = s.text.replace(/\*\*/g, "").trim();
@@ -304,8 +347,8 @@ export function preservationIssues(original, rewrite) {
 }
 
 // Summary for the score panel.
-export function score(text) {
-  const findings = detect(text);
+export function score(text, opts = {}) {
+  const findings = detect(text, opts);
   const words = (text.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length; // any script, not just Latin
   const byFamily = Object.fromEntries(FAMILIES.map((f) => [f, 0]));
   const byPattern = {};

@@ -13,7 +13,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI, ApiError as GoogleApiError } from "@google/genai";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { detect, score, PATTERNS, preservationIssues, droppedSentences } from "../app/detectors.js";
+import { detect, score, PATTERNS, preservationIssues, droppedSentences, isSlides, SLIDE_MARK } from "../app/detectors.js";
 
 const list = (v, d) => (v || d).split(",").map((s) => s.trim()).filter(Boolean);
 
@@ -58,7 +58,7 @@ const APP_INSTRUCTIONS = `You are running inside the deClaude web app, not in ch
 - "kept": at most 3 things that look like a pattern but you deliberately left alone, with a short reason. Empty list if none.
 - "yourTurn": at most 3 sentences from your rewrite that still read as if anyone could have written them, where a detail only the writer knows would make the text theirs. "sentence" must be copied exactly from your rewrite. "ask" is one short question to the writer (at most 14 words), such as "Which formats stalled, and what did you switch to?". Ask; never answer it yourself or invent the detail. Empty list if the text is already specific.
 
-The source text arrives inside <source_text> tags. A rule-based scan of it is included as a hint; the scan can be wrong in both directions.`;
+The source text arrives inside <source_text> tags. A rule-based scan of it is included as a hint; the scan can be wrong in both directions. Placeholders like [[keep-1]] stand for passages the writer marked "keep as is" (quotes or examples): copy each placeholder into the rewrite exactly, in the same place, and never list one as a change. If the source has "--- Slide N ---" lines, follow the Slides genre note.`;
 
 const PATTERN_IDS = [...Object.keys(PATTERNS), "other"];
 
@@ -384,10 +384,12 @@ function clean(data) {
 // Short last lines (sign-offs, names, placeholders like [Your name]) are allowed to lack a full stop.
 // Word counts work in any script (Hindi, Arabic, Chinese...), not just Latin letters.
 // Sentence endings include the Hindi danda (।), CJK full stops (。！？) and Arabic/Urdu marks (؟ ۔).
+// Slides end on fragments by design, so only the lost-text check applies to them.
 function truncated(original, rewrite) {
   const words = (t) => (t.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length;
   // Fluffy short posts can rightly lose most of their words, so only judge longer texts.
   if (words(original) >= 80 && words(rewrite) < words(original) * 0.35) return "lost more than 65% of the text";
+  if (isSlides(original)) return "";
   const last = rewrite.trim().split("\n").pop().trim();
   if (last.split(/\s+/).length >= 6 && !/[.!?:)\]"'’”…।॥。！？؟۔]$/u.test(last)) return "stops mid-sentence";
   return "";
@@ -418,22 +420,61 @@ function retryAfterSeconds(err) {
   return m ? Math.ceil(Number(m[1] || m[2])) : null;
 }
 
-async function rewriteWith(session, text, before, deadline) {
+const markers = (t) => (t.match(SLIDE_MARK) || []).map((m) => m.trim());
+
+// "Keep as is" passages travel to the model as placeholders ([[keep-1]]) and are put back in code,
+// so neither the model nor the clean-up below (dash stripping, spelling) can change them.
+function placeholders(keep) {
+  const sorted = [...keep].sort((a, b) => b.length - a.length); // longest first, so nested passages work
+  return {
+    hide: (t) => sorted.reduce((s, k, i) => s.split(k).join(`[[keep-${i + 1}]]`), t),
+    show: (t) => t.replace(/\[\[keep-(\d+)\]\]/g, (m, n) => sorted[n - 1] ?? m),
+    tokens: (t) => [...new Set(t.match(/\[\[keep-\d+\]\]/g) || [])],
+  };
+}
+
+// Placeholders and slide markers the writer relies on surviving intact. Both texts are as the model sees them.
+function structureIssues(hidden, rewrite, ph) {
+  const issues = [];
+  const lost = ph.tokens(hidden).filter((tk) => !rewrite.includes(tk));
+  if (lost.length) issues.push(`these placeholders stand for passages the writer marked "keep as is" and must appear in the rewrite exactly, in the same place: ${lost.join(", ")}`);
+  const want = markers(hidden), got = markers(rewrite);
+  if (want.length && want.join("\n") !== got.join("\n")) {
+    issues.push(`the source has ${want.length} slide markers (--- Slide 1 --- to --- Slide ${want.length} ---); keep every one exactly, in order, with each slide's content under its own marker`);
+  }
+  return issues;
+}
+
+// Puts the kept passages back everywhere the app shows text from the model.
+function reveal(data, ph) {
+  return {
+    ...data,
+    rewrite: ph.show(data.rewrite),
+    changes: data.changes.map((c) => ({ ...c, before: ph.show(c.before), after: ph.show(c.after) })),
+    kept: data.kept.map((k) => ({ ...k, text: ph.show(k.text) })),
+    yourTurn: data.yourTurn.map((y) => ({ ...y, sentence: ph.show(y.sentence) })),
+  };
+}
+
+async function rewriteWith(session, text, before, deadline, keep = []) {
+  const ph = placeholders(keep);
+  const hidden = ph.hide(text);
   let data = clean(await session.send(
-    `<source_text>\n${text}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
+    `<source_text>\n${hidden}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
   ));
   if (!data.rewrite) throw httpError(502, "The AI returned an empty rewrite. Try again.");
-  const cut = truncated(text, data.rewrite);
+  const cut = truncated(hidden, data.rewrite);
   if (cut) throw httpError(502, `The rewrite ${cut}.`, { retryable: true });
 
   // One repair pass, only when it's worth a second call.
   const fixSet = REPAIR_MODE === "all" ? ALL_FIX : HARD_FIX;
-  const leftover = detect(data.rewrite).filter((f) => fixSet.has(f.id));
-  const issues = preservationIssues(text, data.rewrite);
+  const draft = ph.show(data.rewrite);
+  const leftover = detect(draft, { keep }).filter((f) => fixSet.has(f.id));
+  const issues = preservationIssues(text, draft);
   const lostFacts = issues.filter((i) => i.startsWith("numbers"));
   const register = issues.filter((i) => !i.startsWith("numbers"));
-  const dropped = droppedSentences(text, data.rewrite).map((s) => `this sentence from the source has no counterpart in your rewrite: "${s}". If it carries a fact, reason, instruction or lesson, put that content back. If it was pure filler, leave it out and add it to "kept" with the reason it was cut`);
-  const blocking = [...lostFacts, ...dropped, ...(REPAIR_MODE === "all" ? register : [])];
+  const dropped = droppedSentences(text, draft, { keep }).map((s) => `this sentence from the source has no counterpart in your rewrite: "${ph.hide(s)}". If it carries a fact, reason, instruction or lesson, put that content back. If it was pure filler, leave it out and add it to "kept" with the reason it was cut`);
+  const blocking = [...lostFacts, ...dropped, ...structureIssues(hidden, data.rewrite, ph), ...(REPAIR_MODE === "all" ? register : [])];
   let repaired = false;
   let repairSkipped = false;
   if (leftover.length || blocking.length) {
@@ -447,7 +488,7 @@ async function rewriteWith(session, text, before, deadline) {
     for (let attempt = 0; attempt < 2 && !repaired && !repairSkipped; attempt++) {
       try {
         const fixed = clean(await session.send(ask));
-        if (fixed.rewrite && !truncated(text, fixed.rewrite)) data = fixed;
+        if (fixed.rewrite && !truncated(hidden, fixed.rewrite)) data = fixed;
         repaired = true;
       } catch (err) {
         if (!isRetryable(err)) throw err;
@@ -462,25 +503,42 @@ async function rewriteWith(session, text, before, deadline) {
     }
   }
 
-  // Dashes first: replacing one can leave a double space, which the clean-up below removes.
   let autoFixedDashes = false;
-  if (/—|(?<!\d)–(?!\d)|\s--\s/.test(data.rewrite)) {
-    data.rewrite = stripDashes(data.rewrite);
-    autoFixedDashes = true;
-  }
+  // Runs while kept passages are still placeholders, so it can't touch them.
+  const tidyUp = (t) => {
+    // Dashes first: replacing one can leave a double space, which the clean-up below removes.
+    if (/—|(?<!\d)–(?!\d)|\s--\s/.test(t)) {
+      t = stripDashes(t);
+      autoFixedDashes = true;
+    }
 
-  // Some models emit non-breaking hyphens/spaces and stray double spaces; normalise them.
-  data.rewrite = data.rewrite
-    .replace(/‑/g, "-")
-    .replace(/[  ]/g, " ")
-    .replace(/(\S) {2,}(?=\S)/g, "$1 ");
-  data.rewrite = keepSpelling(text, data.rewrite);
+    // Some models emit non-breaking hyphens/spaces and stray double spaces; normalise them.
+    t = t
+      .replace(/‑/g, "-")
+      .replace(/[  ]/g, " ")
+      .replace(/(\S) {2,}(?=\S)/g, "$1 ");
+    return keepSpelling(text, t);
+  };
+  data.rewrite = tidyUp(data.rewrite).replace(/[ \t]+$/gm, "");
+  const slidesOff = structureIssues(hidden, data.rewrite, ph).some((s) => s.includes("slide markers"));
+  data = reveal(data, ph);
 
+  const lostKeep = keep.filter((k) => !data.rewrite.includes(k));
   const warnings = [
     ...preservationIssues(text, data.rewrite),
-    ...droppedSentences(text, data.rewrite).map((s) => `this sentence from the original may be missing: "${s}"`),
+    ...droppedSentences(text, data.rewrite, { keep }).map((s) => `this sentence from the original may be missing: "${s}"`),
+    ...(lostKeep.length ? [`${lostKeep.length} "keep as is" passage${lostKeep.length > 1 ? "s" : ""} didn't survive: ${lostKeep.map((k) => `"${k.length > 60 ? `${k.slice(0, 57)}...` : k}"`).join(", ")}`] : []),
+    ...(slidesOff ? ["the slide markers changed, so some text may have moved to another slide"] : []),
   ];
-  return { ...data, before, after: score(data.rewrite), repaired, repairSkipped, autoFixedDashes, warnings };
+  return { ...data, before, after: score(data.rewrite, { keep }), repaired, repairSkipped, autoFixedDashes, warnings };
+}
+
+// "Keep as is" passages from the client: short strings that actually occur in the text.
+function keepList(raw, text) {
+  if (!Array.isArray(raw)) return [];
+  const out = raw.filter((k) => typeof k === "string").map((k) => k.trim())
+    .filter((k) => k.length >= 2 && k.length <= 600 && text.includes(k));
+  return [...new Set(out)].slice(0, 40);
 }
 
 export default async function handler(req, res) {
@@ -498,7 +556,8 @@ export default async function handler(req, res) {
   if (!text) return res.status(400).json({ error: "Paste some text first." });
   if (text.length > MAX_CHARS) return res.status(413).json({ error: `Keep it under ${MAX_CHARS.toLocaleString()} characters (about 2,000 words).` });
 
-  const before = score(text);
+  const keep = keepList(req.body?.keep, text);
+  const before = score(text, { keep });
   const started = Date.now();
 
   let chain;
@@ -514,7 +573,7 @@ export default async function handler(req, res) {
   for (const provider of chain) {
     try {
       const session = SESSIONS[provider](deadline);
-      const result = await rewriteWith(session, text, before, deadline);
+      const result = await rewriteWith(session, text, before, deadline, keep);
       return res.status(200).json({
         ...result,
         provider,

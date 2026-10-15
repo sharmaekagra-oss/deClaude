@@ -5,6 +5,9 @@
     "api/rewrite.js": {
       "maxDuration": 300,
       "includeFiles": "skill/SKILL.md"
+    },
+    "api/ocr.js": {
+      "maxDuration": 300
     }
   }
 }

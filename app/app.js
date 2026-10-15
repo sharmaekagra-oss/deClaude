@@ -1,5 +1,5 @@
 import { detect, score, PATTERNS, FAMILIES } from "./detectors.js";
-import { ACCEPT, readFile, downloadTxt, downloadDocx } from "./files.js";
+import { ACCEPT, readFile, readWithAI, canReadWithAI, downloadTxt, downloadDocx } from "./files.js";
 
 const $ = (id) => document.getElementById(id);
 const src = $("src"), live = $("live"), go = $("go"), pass = $("pass"), err = $("err");
@@ -12,10 +12,44 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">"
 
 try { pass.value = localStorage.getItem("declaude-pass") || ""; } catch {}
 
+// "Keep as is": quotes and examples the writer wants left exactly as written. They aren't
+// counted as tells, the rewrite must copy them unchanged, and the server checks that it did.
+let keep = [];
+function renderKeeps() {
+  $("keeps").hidden = !keep.length;
+  $("keep-list").innerHTML = keep.map((k, i) => `<li><q>${esc(k.length > 80 ? `${k.slice(0, 77)}…` : k)}</q><button type="button" data-i="${i}" title="Stop keeping this" aria-label="Stop keeping this passage">×</button></li>`).join("");
+}
+function addKeep(text) {
+  const k = text.trim();
+  if (k.length < 2 || keep.includes(k)) return false;
+  keep.push(k);
+  renderKeeps();
+  updateLive();
+  return true;
+}
+$("keep-list").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-i]");
+  if (!b) return;
+  keep.splice(+b.dataset.i, 1);
+  renderKeeps();
+  updateLive();
+  if (result) renderColumns();
+});
+$("keep").addEventListener("click", () => {
+  const picked = src.value.slice(src.selectionStart, src.selectionEnd);
+  if (!picked.trim()) return showError("Select a quote or example in your text first, then click Keep as is.");
+  showError("");
+  addKeep(picked);
+});
+
 // Live count while typing
 let t;
 function updateLive() {
-  const s = score(src.value);
+  // Kept passages that were edited away no longer apply.
+  const before = keep.length;
+  keep = keep.filter((k) => src.value.includes(k));
+  if (keep.length !== before) renderKeeps();
+  const s = score(src.value, { keep });
   const over = src.value.length > MAX_CHARS;
   live.innerHTML = s.words
     ? `${s.words} words · <b>${s.total}</b> AI tell${s.total === 1 ? "" : "s"} found by the quick scan${over ? ' · <b class="over">over the 2,000-word limit</b>' : ""}`
@@ -31,6 +65,9 @@ fetch("samples.json").then((r) => r.json()).then((list) => {
     if (sel.value === "") return;
     src.value = list[sel.value].text;
     baseName = list[sel.value].label.toLowerCase().replace(/\W+/g, "-");
+    keep = [];
+    renderKeeps();
+    lastFile = null;
     showNote("");
     updateLive();
     sel.value = "";
@@ -46,9 +83,12 @@ fileInput.accept = ACCEPT;
 const MIN_WORDS = 8;
 const countWords = (t) => (t.match(/[\p{L}\p{M}\p{N}]+/gu) || []).length; // any script, not just Latin
 
-// A headline plus an optional list of limitations.
-function showNote(msg, items = [], warn = false) {
-  note.innerHTML = msg ? `<p>${esc(msg)}</p>${items.length ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}` : "";
+// A headline plus an optional list of limitations, and for PDFs and images a "Read with AI" button.
+function showNote(msg, items = [], warn = false, offerAI = false) {
+  const ai = offerAI
+    ? `<div class="note-actions"><button id="read-ai" type="button" class="btn icon-btn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>Read with AI</span></button><span>Better for designed slides and scans, and spots crossed-out text. Uses free AI quota.</span></div>`
+    : "";
+  note.innerHTML = msg ? `<p>${esc(msg)}</p>${items.length ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}${ai}` : "";
   note.hidden = !msg;
   note.classList.toggle("warn", warn);
 }
@@ -64,30 +104,58 @@ function limitProblem(text) {
   return "";
 }
 
+// Puts newly read text in the box and reports what happened.
+function loaded(file, { text, name, notes }) {
+  src.value = text;
+  baseName = name || "rewrite";
+  $("results").hidden = true; // results belonged to the previous text
+  result = null;
+  renderKeeps();
+  updateLive();
+  const problem = limitProblem(text);
+  const offerAI = canReadWithAI(file);
+  if (problem) showNote(`${file.name}: ${problem}`, notes, true, offerAI);
+  else showNote(`${file.name}: ${countWords(text).toLocaleString()} words loaded. Check the text looks right, then click Strip it.`, notes, false, offerAI);
+}
+
+let lastFile = null;
 async function attach(file) {
   if (!file) return;
   showError("");
   showNote(`Reading ${file.name}…`);
   try {
-    const { text, name, notes } = await readFile(file);
-    src.value = text;
-    baseName = name || "rewrite";
-    $("results").hidden = true; // results belonged to the previous text
-    result = null;
-    updateLive();
-    const words = countWords(text);
-    const problem = limitProblem(text);
-    if (problem) {
-      showNote(`${file.name}: ${problem}`, notes, true);
-    } else {
-      showNote(`${file.name}: ${words.toLocaleString()} words loaded. Check the text looks right, then click deClaude it.`, notes);
-    }
+    const read = await readFile(file, (msg) => showNote(`${file.name}: ${msg}`));
+    keep = [];
+    lastFile = file;
+    loaded(file, read);
   } catch (e) {
     showNote("");
     showError(e.message);
+    // A scan the browser couldn't read may still be readable by the AI reader.
+    if (canReadWithAI(file)) { lastFile = file; showNote(`${file.name}: the normal reader found nothing usable.`, [], true, true); }
   }
   fileInput.value = "";
 }
+
+// Layer 3 of reading: a vision model, only when the user asks for it.
+note.addEventListener("click", async (e) => {
+  const btn = e.target.closest("#read-ai");
+  if (!btn || !lastFile) return;
+  const file = lastFile;
+  showError("");
+  btn.disabled = true;
+  try {
+    const read = await readWithAI(file, pass.value, (msg) => showNote(`${file.name}: ${msg}`));
+    try { localStorage.setItem("declaude-pass", pass.value); } catch {}
+    keep = read.keep;
+    loaded(file, read);
+    note.querySelector(".note-actions")?.remove(); // already read with AI; the notes stay
+  } catch (err) {
+    if (err.needsPasscode) { pass.hidden = false; pass.focus(); }
+    showNote(`${file.name}: the AI reader didn't finish.`, [], true, true);
+    showError(err.needsPasscode ? "Enter the class passcode (next to Strip it), then click Read with AI again." : err.message);
+  }
+});
 $("attach").addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => attach(fileInput.files[0]));
 src.addEventListener("dragover", (e) => { e.preventDefault(); src.classList.add("drop"); });
@@ -138,7 +206,7 @@ go.addEventListener("click", async () => {
       res = await fetch("/api/rewrite", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-passcode": pass.value },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, keep }),
       });
     } catch {
       throw new Error("Couldn't reach the deClaude server. Check your internet connection and try again.");
@@ -235,13 +303,14 @@ function renderColumns() {
     $("rew").innerHTML = paint(rewrite, right, "ins");
   } else {
     const tag = (f, i) => ({ n: i + 1, title: labelOf(f.id), start: f.start, end: f.end });
-    const b = detect(original), a = detect(rewrite);
+    const b = detect(original, { keep }), a = detect(rewrite, { keep });
     $("orig").innerHTML = paint(original, b.filter((f) => !f.doc).map(tag), "hl");
     $("rew").innerHTML = paint(rewrite, a.filter((f) => !f.doc).map(tag), "hl");
     for (const [name, list] of [["Original", b], ["Rewrite", a]]) {
       for (const f of list.filter((x) => x.doc)) notes.push(`${name}: ${labelOf(f.id)}, ${f.note}.`);
     }
     if (!a.length) notes.push("The rewrite has no tells left that the quick scan can find.");
+    if (b.some((f) => !f.doc)) notes.push("Click a highlight in the original to keep it as is (a quote or an example), then Strip it again.");
   }
   $("doc-notes").textContent = notes.join(" ");
   $("doc-notes").hidden = !notes.length;
@@ -328,8 +397,19 @@ $("edit").addEventListener("click", () => (editing ? exitEdit() : enterEdit()));
 $("rew-edit").addEventListener("input", (e) => {
   result.rewrite = e.target.value;
   result.edited = true;
-  result.after = score(result.rewrite);
+  result.after = score(result.rewrite, { keep });
   renderScore();
+});
+
+// In "AI tells" view, clicking a flagged phrase in the original marks it "keep as is".
+$("orig").addEventListener("click", (e) => {
+  const m = e.target.closest("mark.hl");
+  if (!m || mode !== "tells") return;
+  if (addKeep(m.textContent)) {
+    renderColumns();
+    $("doc-notes").textContent = `Keeping "${m.textContent}" as is. Click Strip it to rewrite with it kept.`;
+    $("doc-notes").hidden = false;
+  }
 });
 $("turn").addEventListener("click", (e) => {
   const li = e.target.closest("li[data-i]");

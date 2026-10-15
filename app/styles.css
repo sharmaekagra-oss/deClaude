@@ -97,6 +97,15 @@ textarea.drop { outline: 3px dashed var(--pen); outline-offset: -8px; }
 .file-note p { margin: 0; }
 .file-note ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 3px; }
 .file-note.warn p { color: var(--pen); font-weight: 700; }
+.file-note .note-actions { margin-top: 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.keeps { padding: 10px 14px; border-top: 2px dashed var(--ink-3); }
+.keeps-k { margin: 0 0 8px; font: 700 12px var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
+.keeps-k span { font-weight: 400; text-transform: none; color: var(--ink-2); margin-left: 6px; }
+#keep-list { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+#keep-list li { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; border: 2px solid var(--ink); background: var(--sheet); padding: 2px 4px 2px 8px; font: 14px/1.4 var(--type); }
+#keep-list q { overflow-wrap: anywhere; quotes: "\201C" "\201D"; }
+#keep-list button { border: 0; background: none; color: var(--pen); font: 700 16px/1 var(--mono); padding: 2px 4px; }
+#orig mark.hl { cursor: copy; }
 .err { margin: 0; padding: 10px 14px; font: 700 13px/1.5 var(--mono); color: var(--pen); background: var(--err-bg); border-top: var(--bw) solid var(--ink); overflow-wrap: anywhere; }
 #out-err { border: var(--bw) solid var(--ink); margin-bottom: 14px; }
 

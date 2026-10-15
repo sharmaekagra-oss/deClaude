@@ -28,7 +28,11 @@
       <div class="panel-head">
         <h2 id="input-h">Your text</h2>
         <div class="input-tools">
-          <button id="attach" type="button" class="btn icon-btn" title="Attach a .docx, .pdf, .txt or .md file">
+          <button id="keep" type="button" class="btn icon-btn" title="Select a quote or example in your text, then click to keep it exactly as written">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <span>Keep as is</span>
+          </button>
+          <button id="attach" type="button" class="btn icon-btn" title="Attach a .docx, .pdf, .txt, .md, .jpg or .png file">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
             <span>Attach file</span>
           </button>
@@ -42,7 +46,11 @@
         </div>
       </div>
       <div id="file-note" class="file-note" role="status" hidden></div>
-      <textarea id="src" rows="10" placeholder="Paste an email, blog post, product description, LinkedIn post or cover letter. Or drop a .docx, .pdf, .txt or .md file here." spellcheck="true"></textarea>
+      <textarea id="src" rows="10" placeholder="Paste an email, blog post, product description, LinkedIn post, cover letter or slides. Or drop a .docx, .pdf, .txt, .md, .jpg or .png file here." spellcheck="true"></textarea>
+      <div id="keeps" class="keeps" hidden>
+        <p class="keeps-k">Keep as is <span>not rewritten, not counted</span></p>
+        <ul id="keep-list"></ul>
+      </div>
       <div class="panel-foot">
         <p id="live" class="live" aria-live="polite">0 words</p>
         <div class="actions">
