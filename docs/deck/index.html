@@ -8,19 +8,45 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: 1600x900 slides on sage paper, scaled to fit; brutalist ink boxes, one red pen, one highlighter. */
+/* Layout: 1600x900 slides on ink-dark paper, scaled to fit; brutalist chalk boxes, one red pen, one highlighter.
+   Deliberately dark-only: it's a projector deck, same palette as the site's dark mode. */
 :root {
-  --paper: #eef1ec; --sheet: #f9fbf7; --ink: #232a3a; --ink-2: #4b5365; --ink-3: #7c8393;
-  --pen: #d9503c; --hl: #ffe27a; --bar: #232a3a; --on-bar: #eef1ec; --void: #dfe4dc;
+  --paper: #161a22; --sheet: #1d2230; --sheet-2: #232a3a; --ink: #e6e9e2; --ink-2: #b6bcc7; --ink-3: #848b98;
+  --pen: #ff7a63; --pen-deep: #8a2f22; --hl: #f2d466; --on-hl: #161a22; --bar: #0b0e14; --on-bar: #e6e9e2;
+  --shadow-c: #05070b; --void: #0b0e14; --grid: rgb(230 233 226 / .035);
   --display: "Anton", "Arial Narrow", Impact, sans-serif;
   --type: "Courier Prime", "Courier New", monospace;
   --mono: "JetBrains Mono", Consolas, monospace;
   --hand: "Caveat", "Segoe Print", cursive;
-  color-scheme: light;
+  color-scheme: dark;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--void); color: var(--ink); font-family: var(--type); overflow: hidden; }
+
+/* Paper texture: a faint ruled grid plus grain, and the slide number as a ghost numeral. */
+.slide::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 220px 220px, 48px 48px, 48px 48px; }
+.slide::after { content: attr(data-num); position: absolute; right: 60px; bottom: -70px; z-index: 0; pointer-events: none;
+  font: 400 420px/1 var(--display); color: transparent; -webkit-text-stroke: 2px rgb(230 233 226 / .07); }
+.slide > * { position: relative; z-index: 1; }
+
+/* Flair: slides wipe in left to right like a pen stroke; the highlighter swipes; scribbles draw; numbers count. */
+.slide.active { animation: wipe .55s cubic-bezier(.7,0,.2,1) both; }
+@keyframes wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.slide.active .hlt.swipe { background: linear-gradient(var(--hl), var(--hl)) no-repeat 0 0 / 100% 100%; animation: swipe .6s .7s cubic-bezier(.6,0,.2,1) both; }
+@keyframes swipe { from { background-size: 0% 100%; } to { background-size: 100% 100%; } }
+.scribble { position: absolute; pointer-events: none; overflow: visible; z-index: 2; }
+.scribble path { fill: none; stroke: var(--pen); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1000; stroke-dashoffset: 0; }
+.slide.active .scribble path { animation: scrib 1s cubic-bezier(.6,0,.3,1) both; animation-delay: var(--d, .9s); }
+@keyframes scrib { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+.qr { background: var(--ink) !important; }
+.dot { color: var(--pen); }
+.ring { position: relative; display: inline-block; }
+.ring > .scribble { left: -26%; top: -16%; width: 152%; height: 132%; }
 
 /* Stage */
 .viewport { position: fixed; inset: 0; overflow: hidden; }
@@ -38,20 +64,22 @@ p { margin: 0; }
 .body { font: 22px/1.5 var(--type); color: var(--ink-2); }
 .mono { font: 700 15px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .hand { font: 700 32px/1.05 var(--hand); color: var(--pen); }
-.hlt { background: var(--hl); padding: 0 6px; }
+.hlt { background: var(--hl); color: var(--on-hl); padding: 0 6px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
-/* Boxes */
-.box { background: var(--sheet); border: 3px solid var(--ink); box-shadow: 6px 6px 0 rgb(35 42 58 / .85); position: relative; }
+/* Boxes: chalk outlines, hard black shadows; .pop gets a red-pen shadow for the slide's key box. */
+.box { background: var(--sheet); border: 3px solid var(--ink); box-shadow: 7px 7px 0 var(--shadow-c); position: relative; }
+.box.pop { box-shadow: 8px 8px 0 var(--pen-deep); }
 .box-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--ink); padding: 10px 18px; font: 700 15px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .box-body { padding: 20px 22px; }
-.darkbar { background: var(--bar); color: var(--on-bar); padding: 22px 30px; display: flex; align-items: center; gap: 28px; }
+.darkbar { background: var(--bar); color: var(--on-bar); padding: 22px 30px; display: flex; align-items: center; gap: 28px; border: 3px solid var(--ink-3); box-shadow: 7px 7px 0 var(--pen-deep); }
 
 /* Red pen */
 .strike { position: relative; display: inline; }
 .strike { background: linear-gradient(var(--pen), var(--pen)) no-repeat 0 58% / 100% 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .n { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 3px solid var(--pen); border-radius: 50%; color: var(--pen); font: 700 24px/1 var(--hand); transform: rotate(-8deg); flex: none; background: var(--sheet); }
 .stamp { position: absolute; font: 400 30px/1.1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--pen); border: 4px solid var(--pen); background: var(--sheet); padding: 4px 16px; transform: rotate(5deg); }
-.stamp.ok { color: var(--ink); border-color: var(--ink); background: var(--hl); transform: rotate(-4deg); }
+.stamp.ok { color: var(--on-hl); border-color: var(--on-hl); background: var(--hl); transform: rotate(-4deg); box-shadow: 5px 5px 0 var(--shadow-c); }
+.stamp { box-shadow: 5px 5px 0 var(--shadow-c); }
 .stamp.wait { color: var(--pen); border-style: dashed; }
 
 /* Logo */
@@ -74,11 +102,12 @@ p { margin: 0; }
 @keyframes drawx { from { transform: rotate(-5deg) scaleX(0); } to { transform: rotate(-5deg) scaleX(1); } }
 @keyframes thunk { from { opacity: 0; scale: 1.6; } to { opacity: 1; scale: 1; } }
 @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@media (prefers-reduced-motion: reduce) { .slide.active * { animation: none !important; } .ticker .track { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .slide.active, .slide.active * { animation: none !important; } .ticker .track { animation: none; } }
 
 /* Nav */
 .nav { position: fixed; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; align-items: center; z-index: 5; font: 700 13px var(--mono); }
-.nav button { font: 700 13px var(--mono); background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); padding: 6px 10px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+.nav button { font: 700 13px var(--mono); background: var(--sheet); color: var(--ink); border: 2px solid var(--ink); padding: 6px 10px; cursor: pointer; box-shadow: 2px 2px 0 var(--shadow-c); }
+.nav span { color: var(--ink); }
 .nav button:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
 .nav span { background: var(--sheet); border: 2px solid var(--ink); padding: 6px 10px; }
 .progress { position: fixed; left: 0; top: 0; height: 5px; background: var(--pen); z-index: 5; transition: width .3s; }
@@ -91,11 +120,12 @@ p { margin: 0; }
   .stage { transform: none !important; position: static; width: 1600px; height: auto; }
   .slide { display: block !important; position: relative; width: 1600px; height: 900px; page-break-after: always; break-after: page; }
   .nav, .progress { display: none; }
-  * { animation: none !important; }
+  *, *::before, *::after { animation: none !important; }
   .ticker .track { transform: translateX(-12%); }
+  .logo .c::after { transform: rotate(-5deg) !important; }
   /* Gradient strikes and highlights print unreliably; use plain equivalents in the PDF. */
   .strike { background: none !important; text-decoration: line-through; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
-  .feats b { background: var(--hl) !important; }
+  .hlt.swipe { background: var(--hl) !important; }
   .under { box-shadow: none; text-decoration: underline; text-decoration-color: var(--pen); text-decoration-thickness: 3px; text-underline-offset: 4px; }
 }
 </style>
@@ -113,14 +143,14 @@ p { margin: 0; }
     <p style="font: 40px/1.35 var(--type); margin-top: 44px; max-width: 30ch;">Paste the robot's homework.<br>Get it back in plain human, with every edit marked.</p>
   </div>
   <div style="position: absolute; left: 96px; right: 96px; bottom: 84px; display: flex; justify-content: space-between; align-items: flex-end; gap: 40px;">
-    <div style="display: grid; gap: 14px;">
-      <p class="mono" style="color: var(--ink-2);">MICA OpenProject · 2026</p>
-      <p style="font: 400 34px var(--display); text-transform: uppercase; letter-spacing: .02em;"><span class="hlt" id="team">Team: add names here</span></p>
+    <div style="display: grid; gap: 12px; max-width: 860px;">
+      <p class="mono" style="color: var(--ink-2);">MICA OpenProject · 2026 · <span style="color: var(--pen);">Group 1</span></p>
+      <p style="font: 400 34px/1.25 var(--display); text-transform: uppercase; letter-spacing: .02em;">Aakansha Johari <span class="dot">·</span> Shivam Singh <span class="dot">·</span> Akshat Jha<br>Eishita Mehta <span class="dot">·</span> Ekagra Sharma</p>
     </div>
     <div style="display: flex; gap: 22px; align-items: flex-end;">
       <div style="text-align: right;">
         <p class="hand" style="font-size: 36px;">try it on your phone ↘</p>
-        <p class="mono" style="font-size: 20px; margin-top: 8px;">declaude-nine.vercel.app</p>
+        <p class="mono" style="font-size: 20px; margin-top: 8px; white-space: nowrap;">declaude-nine.vercel.app</p>
       </div>
       <div class="box qr" data-size="150" style="padding: 12px;"></div>
     </div>
@@ -133,10 +163,10 @@ p { margin: 0; }
   <h2>Make AI text<br>read human</h2>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;">
     <div>
-      <p style="font: 36px/1.45 var(--type);">"Build an app and a SKILL.md that deClaude AI-generated content <span class="hlt">so no one can tell it is AI</span>: no em dashes, fewer adjectives, etc."</p>
+      <p style="font: 36px/1.45 var(--type);">"Build an app and a SKILL.md that deClaude AI-generated content <span class="hlt swipe">so no one can tell it is AI</span>: no em dashes, fewer adjectives, etc."</p>
       <p class="hand" style="font-size: 40px; margin-top: 30px; transform: rotate(-2deg);">our bar: would a person reading it notice?<br>AI detectors were never the target.</p>
     </div>
-    <div class="box">
+    <div class="box pop">
       <div class="box-head"><span>Deliverable</span><span>Status</span></div>
       <div style="display: grid;">
         <div class="row-check"><span>15+ AI-writing patterns</span><b class="tag ok">24 found</b></div>
@@ -152,7 +182,7 @@ p { margin: 0; }
     .row-check { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 15px 20px; border-bottom: 2px dashed var(--ink-3); font: 23px var(--type); }
     .row-check:last-child { border-bottom: 0; }
     .tag { font: 700 15px var(--mono); letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--ink); padding: 4px 10px; white-space: nowrap; }
-    .tag.ok { background: var(--hl); }
+    .tag.ok { background: var(--hl); color: var(--on-hl); border-color: var(--hl); }
     .tag.wait { color: var(--pen); border-color: var(--pen); border-style: dashed; }
   </style>
 </section>
@@ -160,11 +190,12 @@ p { margin: 0; }
 <!-- 3. Research -->
 <section class="slide" data-title="Research">
   <p class="kicker">Research</p>
-  <h2>We read 21 repos first</h2>
+  <h2>We read <span class="ring"><span class="count" data-to="21">21</span><svg class="scribble" style="--d:.7s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span> repos first</h2>
   <div style="display: grid; grid-template-columns: 640px 1fr; gap: 56px;">
     <div class="box">
       <div class="box-head"><span>Most-starred de-AI tools on GitHub</span><span>Stars</span></div>
-      <div class="box-body" style="display: grid; gap: 16px;" id="repos"></div>
+      <div class="box-body" style="display: grid; gap: 18px;" id="repos"></div>
+      <p class="hand" style="padding: 4px 22px 22px; font-size: 30px;">↳ we read the READMEs, prompt files, pattern lists and issues of all 21, then borrowed what held up.</p>
     </div>
     <div style="display: grid; gap: 22px;">
       <div class="finding"><h3>Word lists are going stale</h3><p class="body">Wikipedia's field guide now files <span class="strike draw" style="animation-delay:.4s">em-dash overuse</span> under "historical indicators". Models learned to avoid the famous words.</p></div>
@@ -192,7 +223,7 @@ p { margin: 0; }
     <div class="box fam"><div class="box-head">Rhythm</div><div class="box-body"><p><span class="strike">same-length sentences</span></p><p><span class="strike">This… This… This…</span></p><p><span class="strike">fits-anywhere filler</span></p></div></div>
   </div>
   <div class="darkbar" style="margin-top: 40px;">
-    <span style="font: 400 120px/0.85 var(--display); color: var(--hl); white-space: nowrap; flex: none;">0<span style="font-size: 54px; color: var(--on-bar);"> / 32</span></span>
+    <span style="font: 400 120px/0.85 var(--display); color: var(--hl); white-space: nowrap; flex: none;"><span class="ring">0<svg class="scribble" style="--d:1s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span><span style="font-size: 54px; color: var(--on-bar);"> / 32</span></span>
     <p style="font: 25px/1.45 var(--type);">tells in Claude's own drafts were "AI words". The top offender was <b style="color: var(--hl);">bold lead-ins (11)</b>, then groups of three (6). The tells have moved from words to structure.</p>
   </div>
   <style>
@@ -223,7 +254,7 @@ p { margin: 0; }
         <div class="box-head">Before</div>
         <p class="box-body" style="font: 25px/1.7 var(--type);"><span class="strike draw" style="animation-delay:.3s">Nestled in the heart of</span> Bandra on Hill Road, our cafe <span class="strike draw" style="animation-delay:.5s">boasts a truly vibrant, welcoming, and cozy atmosphere with just</span> 12 tables.</p>
       </div>
-      <div class="box">
+      <div class="box pop">
         <span class="stamp ok" style="right: 26px; top: -24px; --d: 1s;">Human-ish</span>
         <div class="box-head">After</div>
         <p class="box-body" style="font: 25px/1.7 var(--type);">Our cafe is on Hill Road in Bandra and has 12 tables.</p>
@@ -274,7 +305,7 @@ p { margin: 0; }
   <h2>The app</h2>
   <span class="stamp" style="right: 110px; top: 92px; font-size: 52px; --d: .4s;">Live demo</span>
   <div style="display: grid; grid-template-columns: 960px 1fr; gap: 50px; align-items: start;">
-    <div class="shot box">
+    <div class="shot box pop">
       <div class="score-row"><div><small>Before</small><b>11</b></div><div><small>After</small><b>0</b></div><div class="v"><b>Clean.</b> Caught 1 punctuation · 6 words · 4 templates</div></div>
       <div class="two">
         <div class="mini"><div class="box-head">Original</div><p><span class="n">1</span><span class="strike">Elevate your morning ritual with the AeroBrew Pro</span> <span class="n">2</span><span class="strike">— the perfect companion for coffee lovers.</span> <span class="n">3</span><span class="strike">Crafted with meticulous attention to detail,</span> this <span class="n">4</span><span class="strike">sleek, modern, and intuitive</span> kettle…</p></div>
@@ -306,14 +337,14 @@ p { margin: 0; }
     .feats { margin: 0; padding: 0; list-style: none; display: grid; gap: 20px; font: 25px/1.35 var(--type); }
     .feats li { padding-left: 34px; position: relative; }
     .feats li::before { content: "✓"; position: absolute; left: 0; color: var(--pen); font: 700 26px var(--mono); }
-    .feats b { font-weight: 700; color: var(--ink); background: linear-gradient(transparent 62%, var(--hl) 62%); }
+    .feats b { font-weight: 700; color: var(--hl); }
   </style>
 </section>
 
 <!-- 8. Results -->
 <section class="slide" data-title="Results">
   <p class="kicker">5 Claude-written pieces · Groq gpt-oss-120b</p>
-  <h2>32 tells <span style="color: var(--pen);">→</span> 10</h2>
+  <h2><span class="count" data-to="32">32</span> tells <span style="color: var(--pen);">→</span> <span class="ring"><span class="count" data-to="10" data-from="32">10</span><svg class="scribble" style="--d:1.2s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span></h2>
   <div style="display: grid; grid-template-columns: 1fr 640px; gap: 56px; align-items: start;">
     <div>
       <div class="legend-row"><span><i class="sw before"></i>AI tells before</span><span><i class="sw after"></i>after</span></div>
@@ -324,7 +355,7 @@ p { margin: 0; }
         <div><b>2–4s</b><span>per rewrite</span></div>
       </div>
     </div>
-    <div class="box">
+    <div class="box pop">
       <span class="stamp" style="right: 22px; top: -26px; --d: .9s;">11 → 2</span>
       <div class="box-head">LinkedIn post · what got cut</div>
       <div class="box-body cuts">
@@ -367,18 +398,18 @@ p { margin: 0; }
       <div class="ver"><b class="tagv">O</b><div><h3>Claude's original</h3><p class="body">Unedited, from plain prompts.</p></div></div>
       <div class="ver"><b class="tagv r">R</b><div><h3>deClaude rewrite</h3><p class="body">The same piece after the app.</p></div></div>
       <div class="ver"><b class="tagv h">H</b><div><h3>Human-written</h3><p class="body">Teammates, same prompts, no AI.</p></div></div>
-      <p style="font: 22px/1.5 var(--type); margin-top: 8px;">Two forms, so nobody reads two versions of the same piece. Each classmate reads <b>10 short pieces</b> and answers: <span class="hlt">person or AI?</span> and how sure, 1 to 5.</p>
+      <p style="font: 22px/1.5 var(--type); margin-top: 8px;">Two forms, so nobody reads two versions of the same piece. Each classmate reads <b>10 short pieces</b> and answers: <span class="hlt swipe">person or AI?</span> and how sure, 1 to 5.</p>
     </div>
-    <div class="box" id="blind">
+    <div class="box pop" id="blind">
       <div class="box-head"><span>Called "AI" by classmates</span><span id="blind-n">n = waiting</span></div>
       <div class="box-body" id="blind-body"></div>
     </div>
   </div>
   <style>
     .ver { display: grid; grid-template-columns: 70px 1fr; gap: 20px; align-items: center; }
-    .tagv { display: grid; place-items: center; width: 64px; height: 64px; border: 3px solid var(--ink); font: 400 38px var(--display); background: var(--sheet); box-shadow: 4px 4px 0 var(--ink); }
-    .tagv.r { background: var(--pen); color: #fff; }
-    .tagv.h { background: var(--hl); }
+    .tagv { display: grid; place-items: center; width: 64px; height: 64px; border: 3px solid var(--ink); font: 400 38px var(--display); background: var(--sheet); box-shadow: 5px 5px 0 var(--shadow-c); }
+    .tagv.r { background: var(--pen); color: var(--on-hl); }
+    .tagv.h { background: var(--hl); color: var(--on-hl); }
     .ver h3 { font-size: 34px; margin: 0 0 4px; }
     .ver .body { font-size: 20px; }
     .brow2 { display: grid; grid-template-columns: 60px 1fr 90px; gap: 14px; align-items: center; margin-bottom: 18px; font: 700 18px var(--mono); }
@@ -446,7 +477,7 @@ document.getElementById("bars").innerHTML = RESULTS.map(([label, b, a], i) => `
 const bb = document.getElementById("blind-body");
 if (BLIND) {
   document.getElementById("blind-n").textContent = `${BLIND.respondents} people · ${BLIND.judgments} guesses`;
-  const rows = [["O", "#232a3a"], ["R", "#d9503c"], ["H", "#ffe27a"]];
+  const rows = [["O", "var(--ink-3)"], ["R", "var(--pen)"], ["H", "var(--hl)"]];
   bb.innerHTML = rows.map(([k, c]) => `<div class="brow2"><b>${k}</b><div class="track2"><i class="grow" style="width:${BLIND[k].ai}%; background:${c}"></i></div><span>${BLIND[k].ai}%</span></div>`).join("")
     + `<p class="mono" style="color: var(--ink-2); margin-top: 6px;">Share of pieces each version had judged "AI"</p>`;
 } else {
@@ -458,7 +489,7 @@ if (BLIND) {
 // QR codes for the live app.
 document.querySelectorAll(".qr").forEach((el) => {
   const s = +el.dataset.size;
-  try { new QRCode(el, { text: "https://declaude-nine.vercel.app", width: s, height: s, colorDark: "#232a3a", colorLight: "#f9fbf7", correctLevel: QRCode.CorrectLevel.M }); }
+  try { new QRCode(el, { text: "https://declaude-nine.vercel.app", width: s, height: s, colorDark: "#161a22", colorLight: "#e6e9e2", correctLevel: QRCode.CorrectLevel.M }); }
   catch { el.innerHTML = `<p class="mono" style="width:${s}px">declaude-nine.vercel.app</p>`; }
 });
 
@@ -470,9 +501,28 @@ function show(n) {
   slides.forEach((s, k) => s.classList.toggle("active", k === i));
   document.getElementById("count").textContent = `${i + 1} / ${slides.length}`;
   document.getElementById("progress").style.width = `${((i + 1) / slides.length) * 100}%`;
+  countUp(slides[i]);
   try { history.replaceState(null, "", `#${i + 1}`); } catch {}
 }
-slides.forEach((s, k) => s.insertAdjacentHTML("beforeend", `<div class="foot"><span><b>deClaude</b> · ${s.dataset.title}</span><span>${k + 1} / ${slides.length}</span></div>`));
+slides.forEach((s, k) => {
+  s.dataset.num = String(k + 1).padStart(2, "0");
+  s.insertAdjacentHTML("beforeend", `<div class="foot"><span><b>deClaude</b> · ${s.dataset.title}</span><span>${k + 1} / ${slides.length}</span></div>`);
+});
+
+// Numbers count to their final value when a slide appears (the final value is what's in the HTML).
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function countUp(slide) {
+  if (calm) return;
+  slide.querySelectorAll(".count").forEach((el) => {
+    const to = +el.dataset.to, from = +(el.dataset.from || 0), t0 = performance.now(), dur = 900;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
 document.getElementById("prev").onclick = () => show(i - 1);
 document.getElementById("next").onclick = () => show(i + 1);
 addEventListener("keydown", (e) => {

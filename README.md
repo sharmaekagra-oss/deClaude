@@ -19,6 +19,7 @@ MICA OpenProject · 40 marks
 | Human-written controls | [docs/blind-test/human-controls.md](docs/blind-test/human-controls.md) | **Teammates to write (no AI)** | |
 | Blind test: 5+ classmates | [docs/blind-test/PROTOCOL.md](docs/blind-test/PROTOCOL.md) | Protocol and scripts ready. Needs real responses | |
 | One-page AI tools and prompts log | [docs/ai-log.md](docs/ai-log.md) | Keep adding as you go | |
+| Presentation deck (10 slides) | [docs/deck/index.html](docs/deck/index.html) + [PDF](docs/deck/deClaude-deck.pdf) | Done; blind-test slide waits for real results | |
 
 ## How it works
 
