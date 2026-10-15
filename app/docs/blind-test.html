@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blind-test protocol · deClaude</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#eef1ec; --sheet:#f9fbf7; --ink:#232a3a; --ink-2:#4b5365; --ink-3:#7c8393; --pen:#d9503c; --hl:#ffe27a; --on-hl:#232a3a; --bar:#232a3a; --on-bar:#eef1ec; --shadow:4px 4px 0 rgb(35 42 58 / .85); color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 "Space Grotesk", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--pen); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.top { background: var(--bar); color: var(--on-bar); }
+.top .in, .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+.top .in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 10px; font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+.logo { font: 400 26px/1 Anton, Impact, sans-serif; text-decoration: none; letter-spacing: .02em; }
+.logo s { color: #848b98; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
+.top nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; opacity: .85; }
+.top nav a:hover, .top nav a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: var(--pen); }
+.wrap { padding-block: 36px 70px; }
+.kicker { font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--pen); margin: 0 0 6px; }
+h1, h2, h3, h4 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(40px, 7vw, 68px); margin: 0 0 22px; }
+h2 { font-size: 32px; margin: 46px 0 14px; padding-top: 14px; border-top: 3px solid var(--ink); }
+h3 { font-size: 23px; margin: 30px 0 10px; }
+h4 { font-size: 19px; margin: 22px 0 8px; }
+p, li { max-width: 72ch; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+strong { font-weight: 700; }
+code { font: 14px "JetBrains Mono", monospace; background: var(--sheet); border: 1px solid var(--ink-3); padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 14px 16px; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 5px solid var(--pen); background: var(--sheet); font: 15.5px/1.7 "Courier Prime", "Courier New", monospace; white-space: normal; }
+blockquote p { margin: 6px 0; }
+.table { overflow-x: auto; margin: 16px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1.5px dashed var(--ink-3); }
+th { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; background: var(--bar); color: var(--on-bar); border-bottom: 0; }
+tr:last-child td { border-bottom: 0; }
+td { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin: -6px 0 26px; }
+.btn { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .04em; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 var(--ink); padding: 6px 10px; text-decoration: none; }
+.btn:hover { background: var(--hl); color: var(--on-hl); }
+.front { border: 2.5px dashed var(--pen); padding: 10px 14px; margin: 0 0 20px; font: 14px "JetBrains Mono", monospace; color: var(--ink-2); white-space: pre-wrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+.card { display: block; text-decoration: none; background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 16px 18px 18px; }
+.card:hover { box-shadow: 6px 6px 0 var(--pen); }
+.card .tag { font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border: 2px solid var(--ink); background: var(--hl); color: var(--on-hl); }
+.card .tag.r { background: transparent; color: var(--ink-2); }
+.card h3 { margin: 12px 0 6px; font-size: 26px; }
+.card p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
+@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="logo" href="../">de<s>Claude</s></a><nav><a href="./">All</a><a href="report.html">Report</a><a href="skill.html">SKILL.md</a><a href="ai-log.html">AI log</a><a href="patterns.html">Patterns</a><a href="detectors.html">Detectors</a><a href="../">App</a><a href="../deck/">Deck</a></nav></div></header>
+<main class="wrap">
+<p class="kicker">Testing</p>
+<h1>Blind test protocol</h1>
+<div class="meta"><a class="btn" href="https://github.com/sharmaekagra-oss/deClaude/blob/main/docs/blind-test/PROTOCOL.md">View on GitHub</a></div>
+<p><strong>Question:</strong> after deClaude, can classmates still tell the text was written by AI?</p>
+<p><strong>Rule:</strong> every response in this folder must come from a real classmate. Don&#39;t fill in, estimate or simulate missing answers. If fewer people respond than planned, report the real number.</p>
+<h2>Design</h2>
+<p>The brief says &quot;guess which versions were AI-written&quot;. Both the original and the rewrite come from AI, so on its own a &quot;which is AI?&quot; question has no right answer. We add a <strong>human baseline</strong>: teammates write their own version of each of the five pieces, from the same prompt, without using AI. That lets us compare how often each version gets called &quot;AI&quot;.</p>
+<p>Three versions of each of the five content types:</p>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Version</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>O</td>
+<td>Original Claude output</td>
+<td><code>docs/test-report/samples-original.md</code></td>
+</tr>
+<tr>
+<td>R</td>
+<td>deClaude rewrite</td>
+<td><code>docs/test-report/results.md</code> (after running <code>scripts/run-tests.js</code>)</td>
+</tr>
+<tr>
+<td>H</td>
+<td>Human-written control</td>
+<td><code>human-controls.md</code> (teammates write these, no AI help)</td>
+</tr>
+</tbody></table></div>
+<p><strong>Two forms, so nobody sees the same piece twice.</strong> If a classmate reads both the original and the rewrite of the same email, they can just compare them. So:</p>
+<div class="table"><table>
+<thead>
+<tr>
+<th></th>
+<th>Email</th>
+<th>Blog</th>
+<th>Product</th>
+<th>LinkedIn</th>
+<th>Cover letter</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Form A</strong></td>
+<td>O</td>
+<td>R</td>
+<td>O</td>
+<td>R</td>
+<td>O</td>
+</tr>
+<tr>
+<td><strong>Form B</strong></td>
+<td>R</td>
+<td>O</td>
+<td>R</td>
+<td>O</td>
+<td>R</td>
+</tr>
+</tbody></table></div>
+<p>Both forms also include all five H pieces. Each person reads 10 short pieces in random order (the script shuffles them) and answers, for each one:</p>
+<ol>
+<li><em>Was this written by a person or by AI?</em> (Person / AI)</li>
+<li><em>How sure are you?</em> (1 = guessing, 5 = certain)</li>
+<li><em>Optional: what gave it away?</em> (free text, which tells us which patterns people actually notice)</li>
+</ol>
+<p><strong>Who:</strong> at least 5 classmates per form (10+ total) if you can. The brief&#39;s minimum is 5 people in total, which still works but gives wide error bars. Assign people to forms alternately (first person A, second B, and so on).</p>
+<p><strong>Don&#39;t tell them</strong> which pieces are human, how many are AI, or what the project is about until they have submitted.</p>
+<h2>Making the forms</h2>
+<ol>
+<li>Write the five human controls in <code>human-controls.md</code>. Keep each close in length to the Claude original, and don&#39;t look at the Claude versions while writing.</li>
+<li>Run the app on the five samples: <code>node scripts/run-tests.js &lt;app-url&gt;</code>.</li>
+<li>Run <code>node scripts/build-blind-test.js</code>. It writes <code>form-A.md</code>, <code>form-B.md</code> (pieces in shuffled order, labelled only &quot;Piece 1&quot; to &quot;Piece 10&quot;) and <code>answer-key.csv</code>.</li>
+<li>Copy each form into a Google Form, with one section per piece and the three questions above. Turn off email collection; you only need a first name or initials.</li>
+<li>Export the responses as CSV into this folder as <code>responses-A.csv</code> and <code>responses-B.csv</code>.</li>
+<li>Run <code>node scripts/analyze-blind-test.js</code> to produce <code>results.md</code>.</li>
+</ol>
+<h2>What we report</h2>
+<ul>
+<li>Share of pieces called &quot;AI&quot;, for each version (O, R, H), with the number of judgments behind each figure.</li>
+<li>The same split by content type.</li>
+<li>Average confidence for each version.</li>
+<li>The most common &quot;what gave it away&quot; reasons, grouped by our pattern IDs where they match.</li>
+<li>Limits: small sample, classmates who know the course topic, short pieces.</li>
+</ul>
+<p><strong>What counts as success:</strong> the rewrites (R) get called &quot;AI&quot; noticeably less often than the originals (O), and close to the human controls (H). If they aren&#39;t, report that honestly. A null result, written up well, is still a valid finding.</p>
+
+<p class="foot">Group 1 · MICA OpenProject · generated from the project repository by scripts/build-docs.js</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test samples · deClaude</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#eef1ec; --sheet:#f9fbf7; --ink:#232a3a; --ink-2:#4b5365; --ink-3:#7c8393; --pen:#d9503c; --hl:#ffe27a; --on-hl:#232a3a; --bar:#232a3a; --on-bar:#eef1ec; --shadow:4px 4px 0 rgb(35 42 58 / .85); color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 "Space Grotesk", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--pen); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.top { background: var(--bar); color: var(--on-bar); }
+.top .in, .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+.top .in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 10px; font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+.logo { font: 400 26px/1 Anton, Impact, sans-serif; text-decoration: none; letter-spacing: .02em; }
+.logo s { color: #848b98; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
+.top nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; opacity: .85; }
+.top nav a:hover, .top nav a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: var(--pen); }
+.wrap { padding-block: 36px 70px; }
+.kicker { font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--pen); margin: 0 0 6px; }
+h1, h2, h3, h4 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(40px, 7vw, 68px); margin: 0 0 22px; }
+h2 { font-size: 32px; margin: 46px 0 14px; padding-top: 14px; border-top: 3px solid var(--ink); }
+h3 { font-size: 23px; margin: 30px 0 10px; }
+h4 { font-size: 19px; margin: 22px 0 8px; }
+p, li { max-width: 72ch; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+strong { font-weight: 700; }
+code { font: 14px "JetBrains Mono", monospace; background: var(--sheet); border: 1px solid var(--ink-3); padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 14px 16px; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 5px solid var(--pen); background: var(--sheet); font: 15.5px/1.7 "Courier Prime", "Courier New", monospace; white-space: normal; }
+blockquote p { margin: 6px 0; }
+.table { overflow-x: auto; margin: 16px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1.5px dashed var(--ink-3); }
+th { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; background: var(--bar); color: var(--on-bar); border-bottom: 0; }
+tr:last-child td { border-bottom: 0; }
+td { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin: -6px 0 26px; }
+.btn { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .04em; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 var(--ink); padding: 6px 10px; text-decoration: none; }
+.btn:hover { background: var(--hl); color: var(--on-hl); }
+.front { border: 2.5px dashed var(--pen); padding: 10px 14px; margin: 0 0 20px; font: 14px "JetBrains Mono", monospace; color: var(--ink-2); white-space: pre-wrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+.card { display: block; text-decoration: none; background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 16px 18px 18px; }
+.card:hover { box-shadow: 6px 6px 0 var(--pen); }
+.card .tag { font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border: 2px solid var(--ink); background: var(--hl); color: var(--on-hl); }
+.card .tag.r { background: transparent; color: var(--ink-2); }
+.card h3 { margin: 12px 0 6px; font-size: 26px; }
+.card p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
+@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="logo" href="../">de<s>Claude</s></a><nav><a href="./">All</a><a href="report.html">Report</a><a href="skill.html">SKILL.md</a><a href="ai-log.html">AI log</a><a href="patterns.html">Patterns</a><a href="detectors.html">Detectors</a><a href="../">App</a><a href="../deck/">Deck</a></nav></div></header>
+<main class="wrap">
+<p class="kicker">Testing</p>
+<h1>Test samples: original Claude output</h1>
+<div class="meta"><a class="btn" href="https://github.com/sharmaekagra-oss/deClaude/blob/main/docs/test-report/samples-original.md">View on GitHub</a></div>
+<p>Generated by Claude (subagent in Claude Code, model claude-opus-5-5) on 2026-10-13 from the prompts below, with an instruction to write in its normal default style. Unedited.</p>
+<h2>1. Email</h2>
+<p><strong>Prompt:</strong> Write an email to my team lead, Neha, asking if I can move my project deadline from Friday to next Wednesday because the client sent new requirements yesterday.</p>
+<p>Subject: Request to move project deadline to next Wednesday</p>
+<p>Hi Neha,</p>
+<p>I wanted to check with you about the deadline for the project. The client sent over a new set of requirements yesterday, and a few of them change the scope enough that I&#39;ll need to rework parts of what&#39;s already done.</p>
+<p>Given that, I don&#39;t think I can deliver something solid by Friday. Would it be okay to move the deadline to next Wednesday? That would give me time to incorporate the new requirements properly and run through a final check before it goes out.</p>
+<p>In the meantime, I&#39;ll keep working on the parts that aren&#39;t affected, and I&#39;m happy to share a quick progress update on Friday so you can see where things stand. If Wednesday doesn&#39;t work, let me know what&#39;s possible and I&#39;ll figure out what I can prioritise to meet it.</p>
+<p>Thanks for considering this.</p>
+<p>Best,
+[Your name]</p>
+<h2>2. Blog post</h2>
+<p><strong>Prompt:</strong> Write a short blog post (about 300 words) on why first-time managers struggle with delegation.</p>
+<p><strong>Why First-Time Managers Struggle to Delegate</strong></p>
+<p>Most people get promoted into management because they were good at the work. That&#39;s exactly what makes delegation so hard.</p>
+<p><strong>The skill that got you here is now the trap.</strong> As an individual contributor, your value came from doing things well and doing them yourself. When you become a manager, your instinct is still to solve problems directly. Handing a task to someone else can feel like giving away the part of the job you&#39;re actually confident in.</p>
+<p><strong>&quot;It&#39;s faster if I just do it.&quot;</strong> In the short term, this is often true. Explaining a task, answering questions, and reviewing someone else&#39;s work takes longer than finishing it yourself. But this math only holds once. Every time you skip delegating, you guarantee you&#39;ll be doing that task again next week, and your team never builds the ability to take it off your plate.</p>
+<p><strong>Fear of losing control.</strong> New managers often worry that if the work isn&#39;t done their way, it won&#39;t be done right. Sometimes that&#39;s a quality concern. Often it&#39;s discomfort with the fact that there are many acceptable ways to do something, and yours isn&#39;t the only one.</p>
+<p><strong>Not knowing what &quot;good delegation&quot; looks like.</strong> Many first-time managers swing between two extremes: dumping a task with no context, or handing it over and then hovering. Neither works. Good delegation means being clear about the outcome, the constraints, and the deadline, then stepping back while staying available.</p>
+<p><strong>Guilt about adding to people&#39;s workload.</strong> Some managers hold on to tasks because they don&#39;t want to seem like they&#39;re offloading work. But delegation, done well, is how people grow. Holding back stretch assignments can quietly stall your team&#39;s development.</p>
+<p>The shift is a mental one. Your job is no longer to be the best at the work. It&#39;s to build a team that can do the work without you. Delegation is how that happens.</p>
+<h2>3. Product description</h2>
+<p><strong>Prompt:</strong> Write a product description for an online store for a stainless steel insulated water bottle, 750 ml, keeps drinks cold for 24 hours and hot for 12, leak-proof lid, ₹1,299.</p>
+<p><strong>Stainless Steel Insulated Water Bottle – 750 ml</strong></p>
+<p>Cold water at the end of a long day. Hot tea on an early morning commute. This bottle keeps your drinks the way you like them, wherever the day takes you.</p>
+<p>Made from food-grade stainless steel with double-wall vacuum insulation, it keeps drinks cold for up to 24 hours and hot for up to 12. No condensation on the outside, so it won&#39;t leave rings on your desk or soak through your bag.</p>
+<p>The leak-proof lid seals tight, so you can toss it in a backpack, gym bag, or laptop sleeve without worrying about spills. At 750 ml, it holds enough to get you through a workday or a long workout without constant refills, while still fitting in most car cup holders and bag pockets.</p>
+<p><strong>Features</strong></p>
+<ul>
+<li>750 ml capacity</li>
+<li>Keeps drinks cold for 24 hours, hot for 12 hours</li>
+<li>Double-wall vacuum insulation</li>
+<li>Leak-proof lid</li>
+<li>Food-grade stainless steel, BPA-free</li>
+<li>Sweat-free exterior</li>
+<li>Durable and reusable, a simple way to cut down on single-use plastic</li>
+</ul>
+<p><strong>Care:</strong> Hand wash recommended. Not suitable for microwave or freezer.</p>
+<p><strong>Price: ₹1,299</strong></p>
+<h2>4. LinkedIn post</h2>
+<p><strong>Prompt:</strong> Write a LinkedIn post about finishing my first year at business school and what I learned.</p>
+<p>One year of business school, done.</p>
+<p>When I started, I thought the biggest challenge would be the coursework. It turned out the bigger lessons came from everything around it.</p>
+<p>A few things I&#39;m taking with me into year two:</p>
+<p><strong>1. You can&#39;t do everything, so choose deliberately.</strong> Classes, clubs, competitions, placements prep, friendships. There&#39;s always more on the table than there is time. Learning to say no (and being okay with it) was one of the most useful things I picked up.</p>
+<p><strong>2. Your peers are your best teachers.</strong> Some of my most valuable learning happened outside the classroom, in late-night group discussions and from classmates who came in with completely different backgrounds and ways of thinking.</p>
+<p><strong>3. Frameworks are a starting point, not the answer.</strong> Case after case showed me that real problems are messy. The frameworks help you structure your thinking, but judgment is what gets you to a good decision.</p>
+<p><strong>4. Getting comfortable with being wrong is a skill.</strong> Cold calls, presentations, feedback on submissions. There were plenty of moments where I got it wrong in front of others. Each one made the next one easier.</p>
+<p><strong>5. Rest is part of the work.</strong> I learned this the hard way. Burning out doesn&#39;t make you more productive, it just makes everything harder.</p>
+<p>Grateful to my professors, my batchmates, and everyone who made this year what it was. Looking forward to what year two brings.</p>
+<p>If you&#39;ve been through business school, what&#39;s one thing you wish you&#39;d known at the end of your first year?</p>
+<p>#MBA #BusinessSchool #Learning #FirstYear</p>
+<h2>5. Cover letter</h2>
+<p><strong>Prompt:</strong> Write a cover letter for a Marketing Associate role at Nykaa. I&#39;m an MBA student at MICA with a summer internship at an FMCG brand where I ran a social media campaign that grew engagement by 40%.</p>
+<p>Dear Hiring Manager,</p>
+<p>I&#39;m writing to apply for the Marketing Associate role at Nykaa. I&#39;m currently pursuing my MBA at MICA, and I&#39;ve followed Nykaa&#39;s growth from an online beauty retailer into a brand that shapes how millions of people in India discover and shop for beauty and personal care. I&#39;d love the chance to contribute to that work.</p>
+<p>This summer, I interned with the marketing team at [FMCG brand], where I planned and ran a social media campaign for [product/category]. I worked on the campaign end to end, from understanding the target audience and developing the content strategy to coordinating with creators and tracking performance week by week. Over the course of the campaign, engagement grew by 40%. The biggest lesson for me was how much small, consistent adjustments based on data could improve results. When certain formats weren&#39;t landing, we shifted quickly toward what our audience was actually responding to.</p>
+<p>That experience is a big part of why Nykaa appeals to me. Your marketing sits at the intersection of content, community, and commerce. Whether it&#39;s creator collaborations, campaigns around Pink Friday, or building trust through education and reviews, the brand speaks to its audience in a way that feels both aspirational and personal. I&#39;m excited by the idea of working in an environment where creative ideas are tied closely to measurable outcomes.</p>
+<p>At MICA, my coursework in brand management, consumer behaviour, and digital marketing has given me a strong foundation in both the strategic and analytical sides of marketing. I&#39;m comfortable working with data, enjoy collaborating across teams, and I&#39;m genuinely curious about how consumers make decisions, especially in a category as personal as beauty.</p>
+<p>I&#39;d welcome the opportunity to discuss how I could contribute to Nykaa&#39;s marketing team. Thank you for your time and consideration.</p>
+<p>Sincerely,
+[Your name]
+[Phone number] | [Email address] | [LinkedIn profile]</p>
+
+<p class="foot">Group 1 · MICA OpenProject · generated from the project repository by scripts/build-docs.js</p>
+</main>
+</body>
+</html>

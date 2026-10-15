@@ -31,7 +31,8 @@ const server = http.createServer(async (req, res) => {
     return rewrite(req, res);
   }
 
-  const rel = url.pathname === "/" ? "index.html" : url.pathname.slice(1);
+  // Folder addresses serve their index.html, as on Vercel.
+  const rel = (url.pathname.endsWith("/") ? url.pathname + "index.html" : url.pathname).slice(1);
   const file = path.join("app", path.normalize(rel).replace(/^(\.\.[/\\])+/, ""));
   try {
     const body = await readFile(file);

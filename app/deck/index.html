@@ -45,6 +45,10 @@ body { margin: 0; background: var(--void); color: var(--ink); font-family: var(-
 @keyframes scrib { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
 .qr { background: var(--ink) !important; }
 .dot { color: var(--pen); }
+.doclink { color: inherit; text-decoration: none; border-bottom: 2px solid currentColor; }
+.doclink:hover { color: var(--hl); }
+.rowlink { color: inherit; text-decoration: none; }
+.rowlink:hover { color: var(--hl); text-decoration: underline; text-decoration-color: var(--pen); }
 .ring { position: relative; display: inline-block; }
 .ring > .scribble { left: -26%; top: -16%; width: 152%; height: 132%; }
 .ring.wide > .scribble { left: -70%; width: 240%; }
@@ -152,6 +156,7 @@ p { margin: 0; }
       <div style="text-align: right;">
         <p class="hand" style="font-size: 36px;">try it on your phone ↘</p>
         <p class="mono" style="font-size: 20px; margin-top: 8px; white-space: nowrap;">declaude-nine.vercel.app</p>
+        <p class="mono" style="font-size: 15px; margin-top: 6px; white-space: nowrap; color: var(--ink-2);">deliverables: <a class="doclink" href="https://declaude-nine.vercel.app/docs/" target="_blank" rel="noopener">/docs ↗</a></p>
       </div>
       <div class="box qr" data-size="150" style="padding: 12px;"></div>
     </div>
@@ -160,7 +165,7 @@ p { margin: 0; }
 
 <!-- 2. The brief -->
 <section class="slide" data-title="The brief">
-  <p class="kicker">The brief · 40 marks</p>
+  <p class="kicker">The brief · 40 marks · <a class="doclink" href="https://declaude-nine.vercel.app/docs/" target="_blank" rel="noopener">all deliverables ↗</a></p>
   <h2>Make AI text<br>read human</h2>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;">
     <div>
@@ -170,12 +175,12 @@ p { margin: 0; }
     <div class="box pop">
       <div class="box-head"><span>Deliverable</span><span>Status</span></div>
       <div style="display: grid;">
-        <div class="row-check"><span>15+ AI-writing patterns</span><b class="tag ok">24 found</b></div>
-        <div class="row-check"><span>SKILL.md, before/after examples</span><b class="tag ok">16 examples</b></div>
-        <div class="row-check"><span>App: paste, rewrite, see changes</span><b class="tag ok">Live</b></div>
-        <div class="row-check"><span>Test on 5 Claude-written pieces</span><b class="tag ok">Done</b></div>
-        <div class="row-check"><span>Blind test, 5+ classmates</span><b class="tag wait">Running</b></div>
-        <div class="row-check"><span>Log of AI tools and prompts</span><b class="tag ok">Done</b></div>
+        <div class="row-check"><a class="rowlink" href="https://declaude-nine.vercel.app/docs/patterns.html" target="_blank" rel="noopener">15+ AI-writing patterns ↗</a><b class="tag ok">24 found</b></div>
+        <div class="row-check"><a class="rowlink" href="https://declaude-nine.vercel.app/docs/skill.html" target="_blank" rel="noopener">SKILL.md, before/after examples ↗</a><b class="tag ok">16 examples</b></div>
+        <div class="row-check"><a class="rowlink" href="https://declaude-nine.vercel.app" target="_blank" rel="noopener">App: paste, rewrite, see changes ↗</a><b class="tag ok">Live</b></div>
+        <div class="row-check"><a class="rowlink" href="https://declaude-nine.vercel.app/docs/report.html" target="_blank" rel="noopener">Test on 5 Claude-written pieces ↗</a><b class="tag ok">Done</b></div>
+        <div class="row-check"><a class="rowlink" href="https://declaude-nine.vercel.app/docs/blind-test.html" target="_blank" rel="noopener">Blind test, 5+ classmates ↗</a><b class="tag wait">Running</b></div>
+        <div class="row-check"><a class="rowlink" href="https://declaude-nine.vercel.app/docs/ai-log.html" target="_blank" rel="noopener">Log of AI tools and prompts ↗</a><b class="tag ok">Done</b></div>
       </div>
     </div>
   </div>
@@ -190,7 +195,7 @@ p { margin: 0; }
 
 <!-- 3. Research -->
 <section class="slide" data-title="Research">
-  <p class="kicker">Research</p>
+  <p class="kicker"><a class="doclink" href="https://declaude-nine.vercel.app/docs/research.html" target="_blank" rel="noopener">Research · the repo survey ↗</a></p>
   <h2>We read <span class="ring"><span class="count" data-to="21">21</span><svg class="scribble" style="--d:.7s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span> repos first</h2>
   <div style="display: grid; grid-template-columns: 640px 1fr; gap: 56px;">
     <div class="box">
@@ -214,7 +219,7 @@ p { margin: 0; }
 
 <!-- 4. Patterns -->
 <section class="slide" data-title="24 patterns">
-  <p class="kicker">docs/research/patterns.md</p>
+  <p class="kicker"><a class="doclink" href="https://declaude-nine.vercel.app/docs/patterns.html" target="_blank" rel="noopener">The 24 patterns ↗</a></p>
   <h2>24 tells in 5 families</h2>
   <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px;">
     <div class="box fam"><div class="box-head">Punctuation</div><div class="box-body"><p><span class="strike">em dashes —</span></p><p><span class="strike">**Bold:** labels</span></p><p><span class="strike">Title Case Headings</span></p></div></div>
@@ -236,7 +241,7 @@ p { margin: 0; }
 
 <!-- 5. SKILL.md -->
 <section class="slide" data-title="SKILL.md">
-  <p class="kicker">skill/SKILL.md</p>
+  <p class="kicker"><a class="doclink" href="https://declaude-nine.vercel.app/docs/skill.html" target="_blank" rel="noopener">Read SKILL.md ↗</a></p>
   <h2>The rulebook</h2>
   <div style="display: grid; grid-template-columns: 560px 1fr; gap: 56px; align-items: start;">
     <ol class="rules">
@@ -273,7 +278,7 @@ p { margin: 0; }
 
 <!-- 6. The app + how it works -->
 <section class="slide" data-title="The app">
-  <p class="kicker">declaude-nine.vercel.app</p>
+  <p class="kicker"><a class="doclink" href="https://declaude-nine.vercel.app" target="_blank" rel="noopener">declaude-nine.vercel.app ↗</a></p>
   <h2>The app</h2>
   <span class="stamp" style="right: 110px; top: 84px; font-size: 52px; --d: .4s;">Live demo</span>
   <div class="pipe2">
@@ -337,7 +342,7 @@ p { margin: 0; }
 
 <!-- 8. Results -->
 <section class="slide" data-title="Results">
-  <p class="kicker">5 Claude-written pieces · Groq gpt-oss-120b</p>
+  <p class="kicker">5 Claude-written pieces · Groq gpt-oss-120b · <a class="doclink" href="https://declaude-nine.vercel.app/docs/report.html" target="_blank" rel="noopener">full test report ↗</a></p>
   <h2><span class="count" data-to="32">32</span> tells <span style="color: var(--pen);">→</span> <span class="ring wide"><span class="count" data-to="7" data-from="32">7</span><svg class="scribble" style="--d:1.2s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span></h2>
   <div style="display: grid; grid-template-columns: 1fr 640px; gap: 56px; align-items: start;">
     <div>
@@ -385,7 +390,7 @@ p { margin: 0; }
 
 <!-- 8b. Detectors -->
 <section class="slide" data-title="AI detectors">
-  <p class="kicker">docs/test-report/detectors.md</p>
+  <p class="kicker"><a class="doclink" href="https://declaude-nine.vercel.app/docs/detectors.html" target="_blank" rel="noopener">The detector test ↗</a></p>
   <h2>Detectors aren't fooled</h2>
   <div style="display: grid; grid-template-columns: 470px 1fr; gap: 50px; align-items: start;">
     <div class="box pop">
@@ -430,7 +435,7 @@ p { margin: 0; }
 
 <!-- 9. Blind test -->
 <section class="slide" data-title="Blind test">
-  <p class="kicker">docs/blind-test</p>
+  <p class="kicker"><a class="doclink" href="https://declaude-nine.vercel.app/docs/blind-test.html" target="_blank" rel="noopener">Blind-test protocol ↗</a></p>
   <h2>Can you tell?</h2>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start;">
     <div style="display: grid; gap: 22px;">
@@ -459,7 +464,7 @@ p { margin: 0; }
 
 <!-- 10. What we learned -->
 <section class="slide" data-title="What we learned">
-  <p class="kicker">Takeaways</p>
+  <p class="kicker">Takeaways · <a class="doclink" href="https://declaude-nine.vercel.app/docs/" target="_blank" rel="noopener">all deliverables ↗</a></p>
   <h2>What we learned</h2>
   <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px;">
     <div class="box lesson"><h3>A clean score can hide a bad edit</h3><p>Early runs scored near zero while dropping a deadline's reason and a product's care instructions. So the app now checks facts, along with tells.</p></div>
@@ -468,7 +473,7 @@ p { margin: 0; }
   </div>
   <div style="display: grid; grid-template-columns: 1fr 1fr 240px; gap: 40px; margin-top: 40px; align-items: end;">
     <div><p class="mono" style="color: var(--pen); margin-bottom: 10px;">Limits</p><p style="font: 20px/1.55 var(--type);">Detectors tuned for English · formatting isn't kept on upload · a sentence full of tells can be cut whole, even when it held a real thank-you.</p></div>
-    <div><p class="mono" style="color: var(--pen); margin-bottom: 10px;">Built with AI</p><p style="font: 20px/1.55 var(--type);">Claude Code (Opus 5.5) for research, code and tests · Groq, Gemini and OpenRouter free tiers run the rewrites · full log in docs/ai-log.md.</p></div>
+    <div><p class="mono" style="color: var(--pen); margin-bottom: 10px;">Built with AI</p><p style="font: 20px/1.55 var(--type);">Claude Code (Opus 5.5) for research, code and tests · Groq, Gemini and OpenRouter free tiers run the rewrites · full log: <a class="doclink" href="https://declaude-nine.vercel.app/docs/ai-log.html" target="_blank" rel="noopener">AI tools and prompts ↗</a></p></div>
     <div style="display: grid; justify-items: end; gap: 8px;"><div class="box qr" data-size="130" style="padding: 10px;"></div><p class="mono" style="font-size: 14px;">declaude-nine.vercel.app</p></div>
   </div>
   <style>

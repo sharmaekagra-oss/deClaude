@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test report · deClaude</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#eef1ec; --sheet:#f9fbf7; --ink:#232a3a; --ink-2:#4b5365; --ink-3:#7c8393; --pen:#d9503c; --hl:#ffe27a; --on-hl:#232a3a; --bar:#232a3a; --on-bar:#eef1ec; --shadow:4px 4px 0 rgb(35 42 58 / .85); color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 "Space Grotesk", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--pen); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.top { background: var(--bar); color: var(--on-bar); }
+.top .in, .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+.top .in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 10px; font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+.logo { font: 400 26px/1 Anton, Impact, sans-serif; text-decoration: none; letter-spacing: .02em; }
+.logo s { color: #848b98; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
+.top nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; opacity: .85; }
+.top nav a:hover, .top nav a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: var(--pen); }
+.wrap { padding-block: 36px 70px; }
+.kicker { font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--pen); margin: 0 0 6px; }
+h1, h2, h3, h4 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(40px, 7vw, 68px); margin: 0 0 22px; }
+h2 { font-size: 32px; margin: 46px 0 14px; padding-top: 14px; border-top: 3px solid var(--ink); }
+h3 { font-size: 23px; margin: 30px 0 10px; }
+h4 { font-size: 19px; margin: 22px 0 8px; }
+p, li { max-width: 72ch; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+strong { font-weight: 700; }
+code { font: 14px "JetBrains Mono", monospace; background: var(--sheet); border: 1px solid var(--ink-3); padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 14px 16px; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 5px solid var(--pen); background: var(--sheet); font: 15.5px/1.7 "Courier Prime", "Courier New", monospace; white-space: normal; }
+blockquote p { margin: 6px 0; }
+.table { overflow-x: auto; margin: 16px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1.5px dashed var(--ink-3); }
+th { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; background: var(--bar); color: var(--on-bar); border-bottom: 0; }
+tr:last-child td { border-bottom: 0; }
+td { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin: -6px 0 26px; }
+.btn { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .04em; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 var(--ink); padding: 6px 10px; text-decoration: none; }
+.btn:hover { background: var(--hl); color: var(--on-hl); }
+.front { border: 2.5px dashed var(--pen); padding: 10px 14px; margin: 0 0 20px; font: 14px "JetBrains Mono", monospace; color: var(--ink-2); white-space: pre-wrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+.card { display: block; text-decoration: none; background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 16px 18px 18px; }
+.card:hover { box-shadow: 6px 6px 0 var(--pen); }
+.card .tag { font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border: 2px solid var(--ink); background: var(--hl); color: var(--on-hl); }
+.card .tag.r { background: transparent; color: var(--ink-2); }
+.card h3 { margin: 12px 0 6px; font-size: 26px; }
+.card p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
+@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="logo" href="../">de<s>Claude</s></a><nav><a href="./">All</a><a href="report.html" aria-current="page">Report</a><a href="skill.html">SKILL.md</a><a href="ai-log.html">AI log</a><a href="patterns.html">Patterns</a><a href="detectors.html">Detectors</a><a href="../">App</a><a href="../deck/">Deck</a></nav></div></header>
+<main class="wrap">
+<p class="kicker">Deliverable</p>
+<h1>deClaude: test report</h1>
+<div class="meta"><a class="btn" href="https://github.com/sharmaekagra-oss/deClaude/blob/main/docs/test-report/REPORT.md">View on GitHub</a></div>
+<p>Group 1 · MICA OpenProject · Aakansha Johari, Shivam Singh, Akshat Jha, Eishita Mehta, Ekagra Sharma</p>
+<p>App: <a href="https://declaude-nine.vercel.app">https://declaude-nine.vercel.app</a> · Code: <a href="https://github.com/sharmaekagra-oss/deClaude">https://github.com/sharmaekagra-oss/deClaude</a></p>
+<h2>1. Summary</h2>
+<ul>
+<li>We rewrote five pieces of Claude-written content (an email, a blog post, a product description, a LinkedIn post and a cover letter) with the deClaude app.</li>
+<li><strong>AI tells found by our scan fell from 32 to 7</strong>, and the text got 15% shorter overall.</li>
+<li><strong>Reading every rewrite by hand:</strong> all key facts survived, except one list item (&quot;laptop sleeve&quot;). One rewrite added a polite line the writer never wrote.</li>
+<li><strong>AI detectors were not fooled.</strong> GPTZero called every text it scanned 100% AI, rewrites included. Sapling&#39;s scores swung from 99.5% to 0% on near-identical text.</li>
+<li><strong>Blind test with classmates:</strong> not yet run; section 6 describes the design. This report will be regenerated with real results.</li>
+</ul>
+<h2>2. Method</h2>
+<p><strong>Test pieces.</strong> Five pieces generated by Claude (Opus 5.5) from plain prompts, with an instruction to write in its normal style and nothing about AI tells. The prompts:</p>
+<ul>
+<li><strong>Email:</strong> Write an email to my team lead, Neha, asking if I can move my project deadline from Friday to next Wednesday because the client sent new requirements yesterday.</li>
+<li><strong>Blog post:</strong> Write a short blog post (about 300 words) on why first-time managers struggle with delegation.</li>
+<li><strong>Product description:</strong> Write a product description for an online store for a stainless steel insulated water bottle, 750 ml, keeps drinks cold for 24 hours and hot for 12, leak-proof lid, ₹1,299.</li>
+<li><strong>LinkedIn post:</strong> Write a LinkedIn post about finishing my first year at business school and what I learned.</li>
+<li><strong>Cover letter:</strong> Write a cover letter for a Marketing Associate role at Nykaa. I&#39;m an MBA student at MICA with a summer internship at an FMCG brand where I ran a social media campaign that grew engagement by 40%.</li>
+</ul>
+<p><strong>The app run.</strong> All five pieces went through the live app&#39;s code on 2026-10-15, on one fixed model so results are comparable: openai/gpt-oss-120b via Groq&#39;s free tier. The rewrite follows <code>skill/SKILL.md</code>.</p>
+<p><strong>How we judged the rewrites.</strong></p>
+<ol>
+<li><strong>AI-tell count:</strong> the app&#39;s rule-based scan for our 24 patterns, before and after.</li>
+<li><strong>Automatic fact checks:</strong> lost numbers, source sentences with no counterpart in the rewrite, and lost contractions.</li>
+<li><strong>Reading by hand:</strong> a teammate read each rewrite against its original, fact by fact. The tell count can&#39;t see lost facts, so this step decides.</li>
+<li><strong>AI detectors:</strong> GPTZero and Sapling (free versions). See section 5.</li>
+<li><strong>Blind test:</strong> classmates guess which pieces were AI-written. See section 6.</li>
+</ol>
+<h2>3. Results</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>AI tells before → after</th>
+<th>Words before → after</th>
+<th>Edits</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email</td>
+<td>0 → 0</td>
+<td>162 → 117</td>
+<td>7</td>
+<td>33s</td>
+</tr>
+<tr>
+<td>Blog post</td>
+<td>10 → 3</td>
+<td>336 → 328</td>
+<td>8</td>
+<td>14s</td>
+</tr>
+<tr>
+<td>Product description</td>
+<td>4 → 0</td>
+<td>192 → 179</td>
+<td>5</td>
+<td>3s</td>
+</tr>
+<tr>
+<td>LinkedIn post</td>
+<td>11 → 1</td>
+<td>268 → 222</td>
+<td>9</td>
+<td>5s</td>
+</tr>
+<tr>
+<td>Cover letter</td>
+<td>7 → 3</td>
+<td>320 → 244</td>
+<td>10</td>
+<td>5s</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>32 → 7</strong></td>
+<td><strong>1278 → 1090</strong></td>
+<td>39</td>
+<td></td>
+</tr>
+</tbody></table></div>
+<p><strong>Which tells were in Claude&#39;s drafts:</strong> <code>bold-labels</code> 11, <code>rule-of-three</code> 6, <code>template-phrases</code> 4, <code>intensifiers</code> 3, <code>not-x-but-y</code> 3, <code>heading-style</code> 2, <code>generic-closer</code> 2, <code>em-dash</code> 1. None were &quot;AI vocabulary&quot; (delve, tapestry and so on). Claude&#39;s tells today are structural.</p>
+<h3>Human review</h3>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>What reading it by hand found</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email</td>
+<td>All facts kept: the reason (new client requirements), Friday, next Wednesday, the progress update. Added one line the writer never wrote: &quot;I appreciate your flexibility.&quot; Its &quot;Your turn&quot; questions were weak (about Wednesday timing, not the writer&#39;s own detail).</td>
+</tr>
+<tr>
+<td>Blog post</td>
+<td>All five bold lead-ins removed; every argument kept. &quot;But this math only holds once.&quot; became &quot;But this only works once.&quot; (the dropped-sentence check flagged it; no content was lost). The title is still in Title Case. The repair pass was skipped because the free model was busy.</td>
+</tr>
+<tr>
+<td>Product description</td>
+<td>Every spec, the care line and the price kept. Lost one list item: &quot;backpack, gym bag, or laptop sleeve&quot; became &quot;backpack or gym bag&quot;.</td>
+</tr>
+<tr>
+<td>LinkedIn post</td>
+<td>Bold labels, hashtags, &quot;Looking forward to what year two brings&quot; and the closing engagement question removed. One &quot;X, not Y&quot; survives as &quot;Frameworks are a starting point; they are not the answer.&quot;</td>
+</tr>
+<tr>
+<td>Cover letter</td>
+<td>All facts kept: &quot;planned and ran&quot;, 40%, the lesson about data-driven adjustments, Pink Friday. The writer&#39;s contractions were expanded (&quot;I&#39;m&quot; to &quot;I am&quot;), so it reads more formal than the original; the app flagged this.</td>
+</tr>
+</tbody></table></div>
+<h2>4. Before and after</h2>
+<h3>Email</h3>
+<p><strong>Tells before:</strong> none · <strong>after:</strong> none</p>
+<p><strong>Before (Claude):</strong></p>
+<blockquote>
+<p>Subject: Request to move project deadline to next Wednesday</p>
+<p>Hi Neha,</p>
+<p>I wanted to check with you about the deadline for the project. The client sent over a new set of requirements yesterday, and a few of them change the scope enough that I&#39;ll need to rework parts of what&#39;s already done.</p>
+<p>Given that, I don&#39;t think I can deliver something solid by Friday. Would it be okay to move the deadline to next Wednesday? That would give me time to incorporate the new requirements properly and run through a final check before it goes out.</p>
+<p>In the meantime, I&#39;ll keep working on the parts that aren&#39;t affected, and I&#39;m happy to share a quick progress update on Friday so you can see where things stand. If Wednesday doesn&#39;t work, let me know what&#39;s possible and I&#39;ll figure out what I can prioritise to meet it.</p>
+<p>Thanks for considering this.</p>
+<p>Best,
+[Your name]</p>
+</blockquote>
+<p><strong>After (deClaude):</strong></p>
+<blockquote>
+<p>Subject: Request to move project deadline to next Wednesday</p>
+<p>Hi Neha,</p>
+<p>The client sent new requirements yesterday that change the scope, so I need to rework parts of what’s already done. I won’t be able to deliver a solid version by Friday. Could we move the deadline to next Wednesday? That would let me incorporate the changes and run a final check. I appreciate your flexibility.</p>
+<p>In the meantime I’ll keep working on the parts that aren’t affected, and I can share a quick progress update on Friday so you can see where things stand. If Wednesday doesn’t work, let me know an alternative and I’ll adjust priorities.</p>
+<p>Thanks,</p>
+<p>[Your name]</p>
+</blockquote>
+<p><strong>What changed:</strong></p>
+<ol>
+<li><code>stock-openers</code>: &quot;I wanted to check with you about the deadline for the project.&quot; → cut. remove filler opening</li>
+<li><code>other</code>: &quot;Given that, I don&#39;t think I can deliver something solid by Friday.&quot; → &quot;I won’t be able to deliver a solid version by Friday.&quot;. streamline and drop hedge</li>
+<li><code>other</code>: &quot;Would it be okay to move the deadline to next Wednesday?&quot; → &quot;Could we move the deadline to next Wednesday?&quot;. simplify request</li>
+<li><code>other</code>: &quot;That would give me time to incorporate the new requirements properly and run through a final check before it goes out.&quot; → &quot;That would let me incorporate the changes and run a final check.&quot;. cut unnecessary words</li>
+<li><code>other</code>: &quot;In the meantime, I&#39;ll keep working on the parts that aren&#39;t affected, and I&#39;m happy to share a quick progress update on Friday so you can see where things stand.&quot; → &quot;In the meantime I’ll keep working on the parts that aren’t affected, and I can share a quick progress update on Friday so you can see where things stand.&quot;. rephrase, keep facts</li>
+<li><code>other</code>: &quot;If Wednesday doesn&#39;t work, let me know what&#39;s possible and I&#39;ll figure out what I can prioritise to meet it.&quot; → &quot;If Wednesday doesn’t work, let me know an alternative and I’ll adjust priorities.&quot;. concise rewrite</li>
+<li><code>generic-filler</code>: &quot;Thanks for considering this.&quot; → &quot;Thanks,&quot;. shorten closing</li>
+</ol>
+<p><strong>&quot;Your turn&quot; questions the app asked the writer:</strong> &quot;Do you have a preferred time on Wednesday?&quot; · &quot;Is there anything else I should adjust while I work?&quot;</p>
+<h3>Blog post</h3>
+<p><strong>Tells before:</strong> <code>heading-style</code> ×1, <code>bold-labels</code> ×5, <code>intensifiers</code> ×1, <code>rule-of-three</code> ×2, <code>not-x-but-y</code> ×1 · <strong>after:</strong> <code>heading-style</code> ×1, <code>rule-of-three</code> ×2</p>
+<p><strong>Before (Claude):</strong></p>
+<blockquote>
+<p><strong>Why First-Time Managers Struggle to Delegate</strong></p>
+<p>Most people get promoted into management because they were good at the work. That&#39;s exactly what makes delegation so hard.</p>
+<p><strong>The skill that got you here is now the trap.</strong> As an individual contributor, your value came from doing things well and doing them yourself. When you become a manager, your instinct is still to solve problems directly. Handing a task to someone else can feel like giving away the part of the job you&#39;re actually confident in.</p>
+<p><strong>&quot;It&#39;s faster if I just do it.&quot;</strong> In the short term, this is often true. Explaining a task, answering questions, and reviewing someone else&#39;s work takes longer than finishing it yourself. But this math only holds once. Every time you skip delegating, you guarantee you&#39;ll be doing that task again next week, and your team never builds the ability to take it off your plate.</p>
+<p><strong>Fear of losing control.</strong> New managers often worry that if the work isn&#39;t done their way, it won&#39;t be done right. Sometimes that&#39;s a quality concern. Often it&#39;s discomfort with the fact that there are many acceptable ways to do something, and yours isn&#39;t the only one.</p>
+<p><strong>Not knowing what &quot;good delegation&quot; looks like.</strong> Many first-time managers swing between two extremes: dumping a task with no context, or handing it over and then hovering. Neither works. Good delegation means being clear about the outcome, the constraints, and the deadline, then stepping back while staying available.</p>
+<p><strong>Guilt about adding to people&#39;s workload.</strong> Some managers hold on to tasks because they don&#39;t want to seem like they&#39;re offloading work. But delegation, done well, is how people grow. Holding back stretch assignments can quietly stall your team&#39;s development.</p>
+<p>The shift is a mental one. Your job is no longer to be the best at the work. It&#39;s to build a team that can do the work without you. Delegation is how that happens.</p>
+</blockquote>
+<p><strong>After (deClaude):</strong></p>
+<blockquote>
+<p>Why First-Time Managers Struggle to Delegate</p>
+<p>Most people get promoted into management because they were good at the work. That makes delegation hard.</p>
+<p>The skill that got you here is now the trap. As an individual contributor, your value came from doing things well and doing them yourself. When you become a manager, your instinct is still to solve problems directly. Handing a task to someone else can feel like giving away the part of the job you&#39;re confident in.</p>
+<p>&quot;It&#39;s faster if I just do it.&quot; In the short term, this is often true. Explaining a task, answering questions, and reviewing someone else&#39;s work takes longer than finishing it yourself. But this only works once. Every time you skip delegating, you guarantee you&#39;ll be doing that task again next week, and your team never builds the ability to take it off your plate.</p>
+<p>Fear of losing control. New managers often worry that if the work isn&#39;t done their way, it won&#39;t be done right. Sometimes that&#39;s a quality concern. Often it&#39;s discomfort with the fact that there are many acceptable ways to do something, and yours isn&#39;t the only one.</p>
+<p>Not knowing what good delegation looks like. Many first-time managers swing between two extremes: dumping a task with no context, or handing it over and then hovering. Neither works. Good delegation means being clear about the outcome, the constraints, and the deadline, then stepping back while staying available.</p>
+<p>Guilt about adding to people&#39;s workload. Some managers hold on to tasks because they don&#39;t want to seem like they&#39;re offloading work. But delegation, done well, is how people grow. Holding back stretch assignments can quietly stall your team&#39;s development.</p>
+<p>The shift is mental. Your job is no longer to be the best at the work; it is to build a team that can do the work without you. Delegation is how that happens.</p>
+</blockquote>
+<p><strong>What changed:</strong></p>
+<ol>
+<li><code>heading-style</code>: &quot;<strong>Why First-Time Managers Struggle to Delegate</strong>&quot; → &quot;Why First-Time Managers Struggle to Delegate&quot;. remove bold heading</li>
+<li><code>bold-labels</code>: &quot;<strong>The skill that got you here is now the trap.</strong>&quot; → &quot;The skill that got you here is now the trap.&quot;. remove bold</li>
+<li><code>bold-labels</code>: &quot;<strong>&quot;It&#39;s faster if I just do it.&quot;</strong>&quot; → &quot;&quot;It&#39;s faster if I just do it.&quot;&quot;. remove bold</li>
+<li><code>bold-labels</code>: &quot;<strong>Fear of losing control.</strong>&quot; → &quot;Fear of losing control.&quot;. remove bold</li>
+<li><code>bold-labels</code>: &quot;<strong>Not knowing what &quot;good delegation&quot; looks like.</strong>&quot; → &quot;Not knowing what good delegation looks like.&quot;. remove bold</li>
+<li><code>bold-labels</code>: &quot;<strong>Guilt about adding to people&#39;s workload.</strong>&quot; → &quot;Guilt about adding to people&#39;s workload.&quot;. remove bold</li>
+<li><code>other</code>: &quot;That&#39;s exactly what makes delegation so hard.&quot; → &quot;That makes delegation hard.&quot;. cut intensifier</li>
+<li><code>not-x-but-y</code>: &quot;no longer to be the best at the work. It&#39;s to build a team that can do the work without you.&quot; → &quot;no longer to be the best at the work; it is to build a team that can do the work without you.&quot;. state Y directly</li>
+</ol>
+<p><strong>&quot;Your turn&quot; questions the app asked the writer:</strong> &quot;Can you share a specific example of a promotion you experienced?&quot; · &quot;What particular situations triggered that worry for you?&quot; · &quot;Which delegation moment made the biggest difference for your team?&quot;</p>
+<h3>Product description</h3>
+<p><strong>Tells before:</strong> <code>em-dash</code> ×1, <code>template-phrases</code> ×1, <code>rule-of-three</code> ×1, <code>bold-labels</code> ×1 · <strong>after:</strong> none</p>
+<p><strong>Before (Claude):</strong></p>
+<blockquote>
+<p><strong>Stainless Steel Insulated Water Bottle – 750 ml</strong></p>
+<p>Cold water at the end of a long day. Hot tea on an early morning commute. This bottle keeps your drinks the way you like them, wherever the day takes you.</p>
+<p>Made from food-grade stainless steel with double-wall vacuum insulation, it keeps drinks cold for up to 24 hours and hot for up to 12. No condensation on the outside, so it won&#39;t leave rings on your desk or soak through your bag.</p>
+<p>The leak-proof lid seals tight, so you can toss it in a backpack, gym bag, or laptop sleeve without worrying about spills. At 750 ml, it holds enough to get you through a workday or a long workout without constant refills, while still fitting in most car cup holders and bag pockets.</p>
+<p><strong>Features</strong></p>
+<ul>
+<li>750 ml capacity</li>
+<li>Keeps drinks cold for 24 hours, hot for 12 hours</li>
+<li>Double-wall vacuum insulation</li>
+<li>Leak-proof lid</li>
+<li>Food-grade stainless steel, BPA-free</li>
+<li>Sweat-free exterior</li>
+<li>Durable and reusable, a simple way to cut down on single-use plastic</li>
+</ul>
+<p><strong>Care:</strong> Hand wash recommended. Not suitable for microwave or freezer.</p>
+<p><strong>Price: ₹1,299</strong></p>
+</blockquote>
+<p><strong>After (deClaude):</strong></p>
+<blockquote>
+<p>Stainless Steel Insulated Water Bottle, 750 ml</p>
+<p>Cold water after a long day or hot tea on a morning commute. This bottle keeps drinks as you like them.</p>
+<p>Made from food-grade stainless steel with double-wall vacuum insulation, it keeps drinks cold for up to 24 hours and hot for up to 12 hours. No condensation forms on the outside, so it won’t leave rings on your desk or soak through your bag.</p>
+<p>The leak-proof lid seals tight, so you can toss it in a backpack or gym bag without worrying about spills. At 750 ml, it holds enough to get you through a workday or a long workout while still fitting in most car cup holders and bag pockets.</p>
+<p>Features</p>
+<ul>
+<li>750 ml capacity</li>
+<li>Keeps drinks cold for 24 hours, hot for 12 hours</li>
+<li>Double-wall vacuum insulation</li>
+<li>Leak-proof lid</li>
+<li>Food-grade stainless steel, BPA-free</li>
+<li>Sweat-free exterior</li>
+<li>Durable and reusable, a simple way to cut down on single-use plastic</li>
+</ul>
+<p>Care: Hand wash recommended. Not suitable for microwave or freezer.</p>
+<p>Price: ₹1,299</p>
+</blockquote>
+<p><strong>What changed:</strong></p>
+<ol>
+<li><code>em-dash</code>: &quot;<strong>Stainless Steel Insulated Water Bottle – 750 ml</strong>&quot; → &quot;Stainless Steel Insulated Water Bottle, 750 ml&quot;. replace dash with comma</li>
+<li><code>template-phrases</code>: &quot;Cold water at the end of a long day. Hot tea on an early morning commute. This bottle keeps your drinks the way you like them, wherever the day takes you.&quot; → &quot;Cold water after a long day or hot tea on a morning commute. This bottle keeps drinks as you like them.&quot;. remove vague phrase</li>
+<li><code>rule-of-three</code>: &quot;in a backpack, gym bag, or laptop sleeve&quot; → &quot;in a backpack or gym bag&quot;. reduce to two items</li>
+<li><code>heading-style</code>: &quot;<strong>Features</strong>&quot; → &quot;Features&quot;. remove bold formatting</li>
+<li><code>bold-labels</code>: &quot;<strong>Care:</strong>&quot; → &quot;Care:&quot;. remove bold label</li>
+</ol>
+<p><strong>&quot;Your turn&quot; questions the app asked the writer:</strong> &quot;What temperature range do you usually prefer?&quot; · &quot;Which activity do you use it for most often?&quot;</p>
+<h3>LinkedIn post</h3>
+<p><strong>Tells before:</strong> <code>bold-labels</code> ×5, <code>not-x-but-y</code> ×2, <code>rule-of-three</code> ×1, <code>generic-closer</code> ×2, <code>heading-style</code> ×1 · <strong>after:</strong> <code>rule-of-three</code> ×1</p>
+<p><strong>Before (Claude):</strong></p>
+<blockquote>
+<p>One year of business school, done.</p>
+<p>When I started, I thought the biggest challenge would be the coursework. It turned out the bigger lessons came from everything around it.</p>
+<p>A few things I&#39;m taking with me into year two:</p>
+<p><strong>1. You can&#39;t do everything, so choose deliberately.</strong> Classes, clubs, competitions, placements prep, friendships. There&#39;s always more on the table than there is time. Learning to say no (and being okay with it) was one of the most useful things I picked up.</p>
+<p><strong>2. Your peers are your best teachers.</strong> Some of my most valuable learning happened outside the classroom, in late-night group discussions and from classmates who came in with completely different backgrounds and ways of thinking.</p>
+<p><strong>3. Frameworks are a starting point, not the answer.</strong> Case after case showed me that real problems are messy. The frameworks help you structure your thinking, but judgment is what gets you to a good decision.</p>
+<p><strong>4. Getting comfortable with being wrong is a skill.</strong> Cold calls, presentations, feedback on submissions. There were plenty of moments where I got it wrong in front of others. Each one made the next one easier.</p>
+<p><strong>5. Rest is part of the work.</strong> I learned this the hard way. Burning out doesn&#39;t make you more productive, it just makes everything harder.</p>
+<p>Grateful to my professors, my batchmates, and everyone who made this year what it was. Looking forward to what year two brings.</p>
+<p>If you&#39;ve been through business school, what&#39;s one thing you wish you&#39;d known at the end of your first year?</p>
+<p>#MBA #BusinessSchool #Learning #FirstYear</p>
+</blockquote>
+<p><strong>After (deClaude):</strong></p>
+<blockquote>
+<p>One year of business school, done.</p>
+<p>When I started, I thought the biggest challenge would be the coursework. The bigger lessons came from everything around it.</p>
+<p>A few things I&#39;m taking with me into year two:</p>
+<ol>
+<li><p>You can&#39;t do everything, so choose deliberately. Classes, clubs, competitions, placement prep, friendships. There&#39;s always more on the table than time. Learning to say no and being okay with it was one of the most useful things I picked up.</p>
+</li>
+<li><p>Your peers are your best teachers. Some of my most valuable learning happened outside the classroom, in late-night group discussions and from classmates with completely different backgrounds and ways of thinking.</p>
+</li>
+<li><p>Frameworks are a starting point; they are not the answer. Case after case showed me that real problems are messy. The frameworks help you structure your thinking, but judgment gets you to a good decision.</p>
+</li>
+<li><p>Getting comfortable with being wrong is a skill. Cold calls, presentations, feedback on submissions. I often got it wrong in front of others; each mistake made the next one easier.</p>
+</li>
+<li><p>Rest is part of the work. I learned this the hard way. Burning out doesn&#39;t make you more productive; it makes everything harder.</p>
+</li>
+</ol>
+<p>I&#39;m grateful to my professors, my batchmates, and everyone who made this year what it was.</p>
+</blockquote>
+<p><strong>What changed:</strong></p>
+<ol>
+<li><code>bold-labels</code>: &quot;<strong>1. You can&#39;t do everything, so choose deliberately.</strong>&quot; → &quot;1. You can&#39;t do everything, so choose deliberately.&quot;. remove bold formatting</li>
+<li><code>bold-labels</code>: &quot;<strong>2. Your peers are your best teachers.</strong>&quot; → &quot;2. Your peers are your best teachers.&quot;. remove bold formatting</li>
+<li><code>not-x-but-y</code>: &quot;<strong>3. Frameworks are a starting point, not the answer.</strong>&quot; → &quot;3. Frameworks are a starting point; they are not the answer.&quot;. replace contrast pattern</li>
+<li><code>bold-labels</code>: &quot;<strong>4. Getting comfortable with being wrong is a skill.</strong>&quot; → &quot;4. Getting comfortable with being wrong is a skill.&quot;. remove bold formatting</li>
+<li><code>bold-labels</code>: &quot;<strong>5. Rest is part of the work.</strong>&quot; → &quot;5. Rest is part of the work.&quot;. remove bold formatting</li>
+<li><code>not-x-but-y</code>: &quot;Burning out doesn&#39;t make you more productive, it just makes everything harder.&quot; → &quot;Burning out doesn&#39;t make you more productive; it makes everything harder.&quot;. replace contrast with semicolon</li>
+<li><code>generic-closer</code>: &quot;Looking forward to what year two brings.&quot; → cut. remove vague closing</li>
+<li><code>generic-closer</code>: &quot;If you&#39;ve been through business school, what&#39;s one thing you wish you&#39;d known at the end of your first year?&quot; → cut. remove engagement question</li>
+<li><code>heading-style</code>: &quot;#MBA #BusinessSchool #Learning #FirstYear&quot; → cut. remove hashtag heading</li>
+</ol>
+<p><strong>&quot;Your turn&quot; questions the app asked the writer:</strong> &quot;Which specific experience taught you the most outside class?&quot;</p>
+<h3>Cover letter</h3>
+<p><strong>Tells before:</strong> <code>template-phrases</code> ×3, <code>intensifiers</code> ×2, <code>rule-of-three</code> ×2 · <strong>after:</strong> <code>rule-of-three</code> ×3</p>
+<p><strong>Before (Claude):</strong></p>
+<blockquote>
+<p>Dear Hiring Manager,</p>
+<p>I&#39;m writing to apply for the Marketing Associate role at Nykaa. I&#39;m currently pursuing my MBA at MICA, and I&#39;ve followed Nykaa&#39;s growth from an online beauty retailer into a brand that shapes how millions of people in India discover and shop for beauty and personal care. I&#39;d love the chance to contribute to that work.</p>
+<p>This summer, I interned with the marketing team at [FMCG brand], where I planned and ran a social media campaign for [product/category]. I worked on the campaign end to end, from understanding the target audience and developing the content strategy to coordinating with creators and tracking performance week by week. Over the course of the campaign, engagement grew by 40%. The biggest lesson for me was how much small, consistent adjustments based on data could improve results. When certain formats weren&#39;t landing, we shifted quickly toward what our audience was actually responding to.</p>
+<p>That experience is a big part of why Nykaa appeals to me. Your marketing sits at the intersection of content, community, and commerce. Whether it&#39;s creator collaborations, campaigns around Pink Friday, or building trust through education and reviews, the brand speaks to its audience in a way that feels both aspirational and personal. I&#39;m excited by the idea of working in an environment where creative ideas are tied closely to measurable outcomes.</p>
+<p>At MICA, my coursework in brand management, consumer behaviour, and digital marketing has given me a strong foundation in both the strategic and analytical sides of marketing. I&#39;m comfortable working with data, enjoy collaborating across teams, and I&#39;m genuinely curious about how consumers make decisions, especially in a category as personal as beauty.</p>
+<p>I&#39;d welcome the opportunity to discuss how I could contribute to Nykaa&#39;s marketing team. Thank you for your time and consideration.</p>
+<p>Sincerely,
+[Your name]
+[Phone number] | [Email address] | [LinkedIn profile]</p>
+</blockquote>
+<p><strong>After (deClaude):</strong></p>
+<blockquote>
+<p>Dear Hiring Manager,</p>
+<p>I am applying for the Marketing Associate role at Nykaa. I am pursuing an MBA at MICA and have followed Nykaa’s growth from an online beauty retailer to a brand that influences how millions of Indians discover and shop for beauty and personal care.</p>
+<p>This summer I interned with the marketing team at [FMCG brand], where I planned and ran a social media campaign for [product/category]. I handled the campaign from audience research and content strategy to creator coordination and weekly performance tracking. Engagement grew by 40%. The biggest lesson was that small, consistent data-driven adjustments can improve results. When certain formats underperformed, we shifted quickly to what resonated with the audience.</p>
+<p>That experience is why Nykaa appeals to me. Your marketing combines content, community and commerce. Whether through creator collaborations, Pink Friday campaigns, or education and reviews, the brand speaks to its audience both aspirationally and personally. I look forward to working where creative ideas are tied to measurable outcomes.</p>
+<p>At MICA my coursework in brand management, consumer behaviour and digital marketing has given me a strong foundation in both strategy and analytics. I am comfortable with data, enjoy cross-team collaboration, and am curious about how consumers decide in a personal category like beauty.</p>
+<p>I would welcome the chance to discuss how I could contribute to Nykaa’s marketing team. Thank you for your time and consideration.</p>
+<p>Sincerely,
+[Your name]
+[Phone number] | [Email address] | [LinkedIn profile]</p>
+</blockquote>
+<p><strong>What changed:</strong></p>
+<ol>
+<li><code>copula-avoidance</code>: &quot;I&#39;m writing to apply for the Marketing Associate role at Nykaa.&quot; → &quot;I am applying for the Marketing Associate role at Nykaa.&quot;. more direct verb</li>
+<li><code>other</code>: &quot;I&#39;ve followed Nykaa&#39;s growth from an online beauty retailer into a brand that shapes how millions of people in India discover and shop for beauty and personal care.&quot; → &quot;I have followed Nykaa’s growth from an online beauty retailer to a brand that influences how millions of Indians discover and shop for beauty and personal care.&quot;. smooth preposition, remove filler</li>
+<li><code>template-phrases</code>: &quot;I&#39;d love the chance to contribute to that work.&quot; → cut. generic invitation</li>
+<li><code>intensifiers</code>: &quot;The biggest lesson for me was how much small, consistent adjustments based on data could improve results.&quot; → &quot;The biggest lesson was that small, consistent data‑driven adjustments can improve results.&quot;. remove unnecessary phrase</li>
+<li><code>intensifiers</code>: &quot;When certain formats weren&#39;t landing, we shifted quickly toward what our audience was actually responding to.&quot; → &quot;When certain formats underperformed, we shifted quickly to what resonated with the audience.&quot;. remove &#39;actually&#39;</li>
+<li><code>rule-of-three</code>: &quot;Your marketing sits at the intersection of content, community, and commerce.&quot; → &quot;Your marketing combines content, community and commerce.&quot;. simplify phrasing</li>
+<li><code>template-phrases</code>: &quot;I&#39;m excited by the idea of working in an environment where creative ideas are tied closely to measurable outcomes.&quot; → &quot;I look forward to working where creative ideas are tied to measurable outcomes.&quot;. remove empty enthusiasm</li>
+<li><code>rule-of-three</code>: &quot;At MICA, my coursework in brand management, consumer behaviour, and digital marketing has given me a strong foundation in both the strategic and analytical sides of marketing.&quot; → &quot;At MICA my coursework in brand management, consumer behaviour and digital marketing has given me a strong foundation in both strategy and analytics.&quot;. condense list and description</li>
+<li><code>intensifiers</code>: &quot;I&#39;m comfortable working with data, enjoy collaborating across teams, and I&#39;m genuinely curious about how consumers make decisions, especially in a category as personal as beauty.&quot; → &quot;I am comfortable with data, enjoy cross‑team collaboration, and am curious about how consumers decide in a personal category like beauty.&quot;. remove &#39;genuinely&#39; and tighten</li>
+<li><code>template-phrases</code>: &quot;I&#39;d welcome the opportunity to discuss how I could contribute to Nykaa&#39;s marketing team.&quot; → &quot;I would welcome the chance to discuss how I could contribute to Nykaa’s marketing team.&quot;. simplify phrasing</li>
+</ol>
+<p><strong>&quot;Your turn&quot; questions the app asked the writer:</strong> &quot;Can you give a concrete example of this combination at Nykaa?&quot; · &quot;What specific aspect of the role excites you most?&quot;</p>
+<h2>5. AI detectors</h2>
+<h2>Round 1: baseline (app as shipped, 2026-10-15)</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>GPTZero: original</th>
+<th>GPTZero: rewrite</th>
+<th>Sapling: original</th>
+<th>Sapling: rewrite</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email</td>
+<td>100%</td>
+<td>100%</td>
+<td>99.9%</td>
+<td>87.4%</td>
+</tr>
+<tr>
+<td>Blog post</td>
+<td>100%</td>
+<td>100%</td>
+<td>99.5%</td>
+<td>0.0% *</td>
+</tr>
+<tr>
+<td>Product description</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>99.9%</td>
+<td>88.1%</td>
+</tr>
+<tr>
+<td>LinkedIn post</td>
+<td>100%</td>
+<td>not counted **</td>
+<td>98.0%</td>
+<td>99.1%</td>
+</tr>
+<tr>
+<td>Cover letter</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>99.5%</td>
+<td>96.0%</td>
+</tr>
+<tr>
+<td>* Reproduced twice. The rewrite is nearly the original minus its bold labels, so this says more about Sapling&#39;s instability than about the rewrite.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>** GPTZero hit its anonymous limit during this scan; the number on screen was stale.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table></div>
+<h2>Round 2: after the improvements (2026-10-15)</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>Sapling: original</th>
+<th>Sapling: rewrite, round 1</th>
+<th>Sapling: rewrite, round 2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email</td>
+<td>99.9%</td>
+<td>87.4%</td>
+<td>87.5%</td>
+</tr>
+<tr>
+<td>Blog post</td>
+<td>99.5%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+</tr>
+<tr>
+<td>Product description</td>
+<td>99.9%</td>
+<td>88.1%</td>
+<td>96.4%</td>
+</tr>
+<tr>
+<td>LinkedIn post</td>
+<td>98.0%</td>
+<td>99.1%</td>
+<td>0.0%</td>
+</tr>
+<tr>
+<td>Cover letter</td>
+<td>99.5%</td>
+<td>96.0%</td>
+<td>100%</td>
+</tr>
+</tbody></table></div>
+<p><strong>What this means.</strong> A style rewrite by a language model makes text read better, but strong detectors still flag it. This matches the research we did first: a published blind test of blader/humanizer (56k GitHub stars) found readers preferred its rewrites 16 times out of 16, while detection only fell from 100% to 98.6%. We chose not to add detector-evasion tricks (invisible characters, planted typos), because they make text worse and exist mainly to pass off AI writing as human. The app instead ends with &quot;Your turn&quot;: questions that only the writer can answer, since the writer&#39;s own detail is what no model can supply.</p>
+<h2>6. Blind test</h2>
+<p><strong>Status: not yet run.</strong> No numbers appear here until real classmates have responded; we will not estimate or simulate them.</p>
+<p><strong>Design</strong> (full protocol in <code>docs/blind-test/PROTOCOL.md</code>):</p>
+<ul>
+<li>Three versions of each piece: Claude&#39;s original (O), the deClaude rewrite (R), and a version teammates write themselves without AI (H).</li>
+<li>Two forms, so nobody reads two versions of the same piece. Each classmate reads 10 short pieces and answers: written by a person or by AI, and how sure (1 to 5), plus what gave it away.</li>
+<li>At least 5 classmates, ideally 10 or more.</li>
+<li><strong>Success would look like:</strong> rewrites called &quot;AI&quot; noticeably less often than originals, and close to the human-written pieces.</li>
+</ul>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>Small sample.</strong> Five pieces, one of each type, all from one model and one set of prompts.</li>
+<li><strong>Our tell count is our own scan.</strong> It measures the 24 patterns we chose; it can&#39;t see lost facts, and a short reworded sentence can trip the dropped-sentence check.</li>
+<li><strong>Free models cut corners.</strong> On the free tier the second &quot;repair&quot; pass is sometimes skipped when the model is busy, and fast models occasionally drop a list item or add a line. We read every rewrite by hand for this reason.</li>
+<li><strong>Detector testing was limited</strong> to free tools without accounts: GPTZero stopped after 5 scans, QuillBot required a sign-up, and Sapling proved unstable.</li>
+<li><strong>English-tuned.</strong> The pattern detectors are built for English; other languages are rewritten but not scored well.</li>
+</ul>
+<h2>8. Earlier runs</h2>
+<p>We ran the five pieces several times while building the app. A low tell count never settled it; reading the rewrites did, and each problem found led to a fix:</p>
+<ul>
+<li><strong>Gemini (gemini-3.5-flash), 13 October:</strong> 32 → 7 tells, the same low count as today, but it cut the cover letter&#39;s &quot;biggest lesson&quot;, turned &quot;planned and ran&quot; into &quot;ran&quot;, dropped list items from the product description and expanded most of the cover letter&#39;s contractions. This led to the fact and register checks and stricter SKILL.md rules.</li>
+<li><strong>Groq, 14 October, first attempt:</strong> it dropped the email&#39;s reason for the delay and the product&#39;s care instructions. This led to the dropped-sentence check and SKILL.md rule 8. After the fix the same run scored 32 → 10 with those facts kept (archived as <code>results-groq-gpt-oss-120b</code>).</li>
+<li><strong>Groq, 15 October (this report):</strong> 32 → 7 tells, after adding rules for varied rhythm and less predictable wording, plus the &quot;Your turn&quot; step.</li>
+</ul>
+<p>Raw outputs of the archived runs are in <code>docs/test-report/</code>.</p>
+
+<p class="foot">Group 1 · MICA OpenProject · generated from the project repository by scripts/build-docs.js</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,140 @@
+// Publishes the deliverables as web pages: Markdown in the repo -> app/docs/*.html on Vercel.
+// Run after changing any of the source documents: node scripts/build-docs.js
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
+import { marked } from "marked";
+
+const REPO = "https://github.com/sharmaekagra-oss/deClaude/blob/main/";
+const DOCS = [
+  { slug: "report", src: "docs/test-report/REPORT.md", title: "Test report", tag: "Deliverable", blurb: "Before and after for five Claude-written pieces, human review, AI-detector results and the blind-test design." },
+  { slug: "skill", src: "skill/SKILL.md", title: "SKILL.md", tag: "Deliverable", blurb: "The rulebook the app gives the AI: 8 hard rules, 24 patterns with fixes, genre notes and 16 before/after examples.", raw: "SKILL.md" },
+  { slug: "ai-log", src: "docs/ai-log.md", title: "AI tools and prompts", tag: "Deliverable", blurb: "One page: the AI tools we used, the key prompts, and what the AI did not do." },
+  { slug: "patterns", src: "docs/research/patterns.md", title: "24 patterns", tag: "Research", blurb: "The AI-writing tells we hunt for, grouped in five families, each with sources." },
+  { slug: "detectors", src: "docs/test-report/detectors.md", title: "AI-detector test", tag: "Testing", blurb: "GPTZero and Sapling on the originals and rewrites, two rounds." },
+  { slug: "results", src: "docs/test-report/results.md", title: "Raw test run", tag: "Testing", blurb: "The official run as the app produced it: every rewrite and change." },
+  { slug: "samples", src: "docs/test-report/samples-original.md", title: "Test samples", tag: "Testing", blurb: "The five Claude-written originals and the exact prompts." },
+  { slug: "blind-test", src: "docs/blind-test/PROTOCOL.md", title: "Blind-test protocol", tag: "Testing", blurb: "How classmates judge person or AI, and why there are two forms." },
+  { slug: "research", src: "docs/research/repo_notes.md", title: "GitHub repo survey", tag: "Research", blurb: "Notes on the 21 most-starred and most-forked de-AI projects." },
+];
+const BY_FILE = Object.fromEntries(DOCS.map((d) => [d.src.split("/").pop().toLowerCase(), d.slug]));
+
+// Links between documents point to the hosted page; anything else in the repo goes to GitHub.
+marked.use({
+  walkTokens(token) {
+    if (token.type !== "link") return;
+    const href = token.href;
+    if (/^(https?:|mailto:|#)/.test(href)) return;
+    const [path, hash = ""] = href.split("#");
+    const slug = BY_FILE[path.split("/").pop().toLowerCase()];
+    token.href = slug ? `${slug}.html${hash ? "#" + hash : ""}` : REPO + path.replace(/^(\.\.\/)+/, "");
+  },
+});
+
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const STYLE = `
+:root { --paper:#eef1ec; --sheet:#f9fbf7; --ink:#232a3a; --ink-2:#4b5365; --ink-3:#7c8393; --pen:#d9503c; --hl:#ffe27a; --on-hl:#232a3a; --bar:#232a3a; --on-bar:#eef1ec; --shadow:4px 4px 0 rgb(35 42 58 / .85); color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 "Space Grotesk", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--pen); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.top { background: var(--bar); color: var(--on-bar); }
+.top .in, .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+.top .in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 10px; font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+.logo { font: 400 26px/1 Anton, Impact, sans-serif; text-decoration: none; letter-spacing: .02em; }
+.logo s { color: #848b98; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
+.top nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; opacity: .85; }
+.top nav a:hover, .top nav a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: var(--pen); }
+.wrap { padding-block: 36px 70px; }
+.kicker { font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--pen); margin: 0 0 6px; }
+h1, h2, h3, h4 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(40px, 7vw, 68px); margin: 0 0 22px; }
+h2 { font-size: 32px; margin: 46px 0 14px; padding-top: 14px; border-top: 3px solid var(--ink); }
+h3 { font-size: 23px; margin: 30px 0 10px; }
+h4 { font-size: 19px; margin: 22px 0 8px; }
+p, li { max-width: 72ch; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+strong { font-weight: 700; }
+code { font: 14px "JetBrains Mono", monospace; background: var(--sheet); border: 1px solid var(--ink-3); padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 14px 16px; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 5px solid var(--pen); background: var(--sheet); font: 15.5px/1.7 "Courier Prime", "Courier New", monospace; white-space: normal; }
+blockquote p { margin: 6px 0; }
+.table { overflow-x: auto; margin: 16px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1.5px dashed var(--ink-3); }
+th { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; background: var(--bar); color: var(--on-bar); border-bottom: 0; }
+tr:last-child td { border-bottom: 0; }
+td { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin: -6px 0 26px; }
+.btn { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .04em; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 var(--ink); padding: 6px 10px; text-decoration: none; }
+.btn:hover { background: var(--hl); color: var(--on-hl); }
+.front { border: 2.5px dashed var(--pen); padding: 10px 14px; margin: 0 0 20px; font: 14px "JetBrains Mono", monospace; color: var(--ink-2); white-space: pre-wrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+.card { display: block; text-decoration: none; background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 16px 18px 18px; }
+.card:hover { box-shadow: 6px 6px 0 var(--pen); }
+.card .tag { font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border: 2px solid var(--ink); background: var(--hl); color: var(--on-hl); }
+.card .tag.r { background: transparent; color: var(--ink-2); }
+.card h3 { margin: 12px 0 6px; font-size: 26px; }
+.card p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
+@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+`;
+
+function page({ title, kicker, body, current }) {
+  const nav = [["index", "All"], ["report", "Report"], ["skill", "SKILL.md"], ["ai-log", "AI log"], ["patterns", "Patterns"], ["detectors", "Detectors"]]
+    .map(([s, l]) => `<a href="${s === "index" ? "./" : s + ".html"}"${s === current ? ' aria-current="page"' : ""}>${l}</a>`).join("");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)} · deClaude</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>${STYLE}</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="logo" href="../">de<s>Claude</s></a><nav>${nav}<a href="../">App</a><a href="../deck/">Deck</a></nav></div></header>
+<main class="wrap">
+<p class="kicker">${esc(kicker)}</p>
+${body}
+<p class="foot">Group 1 · MICA OpenProject · generated from the project repository by scripts/build-docs.js</p>
+</main>
+</body>
+</html>
+`;
+}
+
+mkdirSync("app/docs", { recursive: true });
+for (const d of DOCS) {
+  let md = readFileSync(d.src, "utf8").replace(/\r\n/g, "\n");
+  let front = "";
+  const fm = md.match(/^---\n([\s\S]*?)\n---\n/);
+  if (fm) { front = fm[1]; md = md.slice(fm[0].length); }
+  let html = marked.parse(md).replace(/<table>/g, '<div class="table"><table>').replace(/<\/table>/g, "</table></div>");
+  // The first heading becomes the page title; keep it, and add the action buttons below it.
+  const buttons = `<div class="meta">${d.raw ? `<a class="btn" href="${d.raw}" download>Download ${d.raw}</a>` : ""}<a class="btn" href="${REPO + d.src}">View on GitHub</a></div>`;
+  html = html.replace(/(<h1[^>]*>[\s\S]*?<\/h1>)/, `$1\n${buttons}${front ? `\n<div class="front">${esc(front)}</div>` : ""}`);
+  if (!/<h1/.test(html)) html = `<h1>${esc(d.title)}</h1>\n${buttons}\n${html}`;
+  writeFileSync(`app/docs/${d.slug}.html`, page({ title: d.title, kicker: d.tag, body: html, current: d.slug }));
+  if (d.raw) copyFileSync(d.src, `app/docs/${d.raw}`);
+}
+
+const cards = DOCS.map((d) => `<a class="card" href="${d.slug}.html"><span class="tag${d.tag === "Deliverable" ? "" : " r"}">${d.tag}</span><h3>${esc(d.title)}</h3><p>${esc(d.blurb)}</p></a>`).join("\n");
+writeFileSync("app/docs/index.html", page({
+  title: "Deliverables",
+  kicker: "deClaude · Group 1",
+  current: "index",
+  body: `<h1>Deliverables</h1>
+<p>Everything the brief asks for, in one place. The working app is at <a href="../">declaude-nine.vercel.app</a> and the presentation at <a href="../deck/">/deck</a>.</p>
+<div class="cards">
+<a class="card" href="../"><span class="tag">Deliverable</span><h3>The app</h3><p>Paste or attach AI-written text, get it back with every edit marked, then add your own details.</p></a>
+${cards}
+</div>`,
+}));
+console.log(`Built ${DOCS.length + 1} pages in app/docs/`);

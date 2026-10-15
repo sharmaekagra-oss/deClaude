@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>24 patterns · deClaude</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#eef1ec; --sheet:#f9fbf7; --ink:#232a3a; --ink-2:#4b5365; --ink-3:#7c8393; --pen:#d9503c; --hl:#ffe27a; --on-hl:#232a3a; --bar:#232a3a; --on-bar:#eef1ec; --shadow:4px 4px 0 rgb(35 42 58 / .85); color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 "Space Grotesk", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--pen); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.top { background: var(--bar); color: var(--on-bar); }
+.top .in, .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+.top .in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 10px; font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+.logo { font: 400 26px/1 Anton, Impact, sans-serif; text-decoration: none; letter-spacing: .02em; }
+.logo s { color: #848b98; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
+.top nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; opacity: .85; }
+.top nav a:hover, .top nav a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: var(--pen); }
+.wrap { padding-block: 36px 70px; }
+.kicker { font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--pen); margin: 0 0 6px; }
+h1, h2, h3, h4 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(40px, 7vw, 68px); margin: 0 0 22px; }
+h2 { font-size: 32px; margin: 46px 0 14px; padding-top: 14px; border-top: 3px solid var(--ink); }
+h3 { font-size: 23px; margin: 30px 0 10px; }
+h4 { font-size: 19px; margin: 22px 0 8px; }
+p, li { max-width: 72ch; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+strong { font-weight: 700; }
+code { font: 14px "JetBrains Mono", monospace; background: var(--sheet); border: 1px solid var(--ink-3); padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 14px 16px; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 5px solid var(--pen); background: var(--sheet); font: 15.5px/1.7 "Courier Prime", "Courier New", monospace; white-space: normal; }
+blockquote p { margin: 6px 0; }
+.table { overflow-x: auto; margin: 16px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1.5px dashed var(--ink-3); }
+th { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; background: var(--bar); color: var(--on-bar); border-bottom: 0; }
+tr:last-child td { border-bottom: 0; }
+td { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin: -6px 0 26px; }
+.btn { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .04em; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 var(--ink); padding: 6px 10px; text-decoration: none; }
+.btn:hover { background: var(--hl); color: var(--on-hl); }
+.front { border: 2.5px dashed var(--pen); padding: 10px 14px; margin: 0 0 20px; font: 14px "JetBrains Mono", monospace; color: var(--ink-2); white-space: pre-wrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+.card { display: block; text-decoration: none; background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 16px 18px 18px; }
+.card:hover { box-shadow: 6px 6px 0 var(--pen); }
+.card .tag { font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border: 2px solid var(--ink); background: var(--hl); color: var(--on-hl); }
+.card .tag.r { background: transparent; color: var(--ink-2); }
+.card h3 { margin: 12px 0 6px; font-size: 26px; }
+.card p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
+@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="logo" href="../">de<s>Claude</s></a><nav><a href="./">All</a><a href="report.html">Report</a><a href="skill.html">SKILL.md</a><a href="ai-log.html">AI log</a><a href="patterns.html" aria-current="page">Patterns</a><a href="detectors.html">Detectors</a><a href="../">App</a><a href="../deck/">Deck</a></nav></div></header>
+<main class="wrap">
+<p class="kicker">Research</p>
+<h1>AI writing patterns: the deClaude catalogue</h1>
+<div class="meta"><a class="btn" href="https://github.com/sharmaekagra-oss/deClaude/blob/main/docs/research/patterns.md">View on GitHub</a></div>
+<p>24 patterns that make text read as AI-written, grouped into five families. Each has an ID. The same IDs are used in <code>skill/SKILL.md</code>, in the app&#39;s detectors (<code>app/detectors.js</code>), and in the change annotations the app shows. That keeps the research, the skill and the app in step.</p>
+<p><strong>How the list was built.</strong> We read the 21 most-starred and most-forked de-AI repos on GitHub (notes in <a href="research.html">repo_notes.md</a>) and the Wikipedia field guide they mostly draw on, <a href="https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing">Wikipedia: Signs of AI writing</a>. A pattern made the list if at least two independent sources named it, or if the brief asked for it by name.</p>
+<p><strong>Detection column.</strong> <em>Rule</em> means a regex in <code>app/detectors.js</code> flags it before and after rewriting. <em>Stat</em> means a measurement (sentence lengths, opener repetition). <em>Judgment</em> means only the rewrite model can spot it, so it lives in SKILL.md alone.</p>
+<p><strong>Source key.</strong> W = Wikipedia Signs of AI writing · BH = blader/humanizer (56k stars) · SS = hardikpandya/stop-slop (18k) · NS = petergyang/no-ai-slop (12k) · AW = conorbronsdon/avoid-ai-writing (5k) · SM = ItsssssJack/SlopMonster · CU = theclaymethod/unslop · Brief = named in the project brief.</p>
+<h2>A. Punctuation and formatting</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>ID</th>
+<th>Pattern</th>
+<th>Example</th>
+<th>Detection</th>
+<th>Sources</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>em-dash</code></td>
+<td>Em dashes, en dashes and <code>--</code> used as all-purpose connectors</td>
+<td>&quot;The tool is fast — and it&#39;s free.&quot;</td>
+<td>Rule</td>
+<td>Brief, W (now listed as a historical sign, 2022 to Sept 2026), BH §8, SS, AW, CU</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>bold-labels</code></td>
+<td>Bold used as decoration, especially <code>**Label:** text</code> lists</td>
+<td>&quot;<strong>Speed:</strong> It&#39;s fast. <strong>Price:</strong> It&#39;s cheap.&quot;</td>
+<td>Rule</td>
+<td>W, BH §19, AW #32, CU</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>heading-style</code></td>
+<td>Decorative headings and markup: Title Case headings (including whole bold lines used as headings), emoji or arrows, a heading every two paragraphs, hashtag stuffing</td>
+<td>&quot;## 🚀 Key Benefits For Your Team&quot;, &quot;#MBA #Learning #Growth #Grateful&quot;</td>
+<td>Rule</td>
+<td>W, BH §20, AW #14, #34, #63</td>
+</tr>
+</tbody></table></div>
+<h2>B. Word choice</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>ID</th>
+<th>Pattern</th>
+<th>Example</th>
+<th>Detection</th>
+<th>Sources</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4</td>
+<td><code>ai-vocab</code></td>
+<td>Words models overuse: delve, tapestry, testament, pivotal, robust, seamless, leverage, landscape, realm, foster, underscore, showcase, meticulous, intricate</td>
+<td>&quot;Let&#39;s delve into the rich tapestry of...&quot;</td>
+<td>Rule</td>
+<td>W (&quot;AI vocabulary&quot; list), BH §12, NS, AW Tier 1, SM</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>stacked-adjectives</code></td>
+<td>Two or more stock adjectives piled on one noun</td>
+<td>&quot;a sleek, intuitive, powerful dashboard&quot;</td>
+<td>Rule</td>
+<td>Brief, BH §9 and §10, SM (hyphen stacks)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>intensifiers</code></td>
+<td>Empty adverbs: truly, really, deeply, genuinely, incredibly, absolutely, simply, actually</td>
+<td>&quot;We are truly excited to genuinely help&quot;</td>
+<td>Rule</td>
+<td>SS, NS, AW #2, CU §7</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>copula-avoidance</code></td>
+<td>&quot;Serves as&quot;, &quot;stands as&quot;, &quot;boasts&quot;, &quot;features&quot; in place of plain is/has</td>
+<td>&quot;The library serves as a hub&quot; → &quot;The library is a hub&quot;</td>
+<td>Rule</td>
+<td>W, BH §18, AW #16, CU §14</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>promo-language</code></td>
+<td>Brochure words: nestled, in the heart of, breathtaking, world-class, game-changer, elevate, unlock</td>
+<td>&quot;Nestled in the heart of the city&quot;</td>
+<td>Rule</td>
+<td>W, BH §16, AW #28, CU §11</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>hedge-stack</code></td>
+<td>Two hedges where one would do</td>
+<td>&quot;could potentially&quot;, &quot;may possibly help&quot;</td>
+<td>Rule</td>
+<td>AW #10, SM, CU</td>
+</tr>
+</tbody></table></div>
+<h2>C. Sentence templates</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>ID</th>
+<th>Pattern</th>
+<th>Example</th>
+<th>Detection</th>
+<th>Sources</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10</td>
+<td><code>rule-of-three</code></td>
+<td>Reflexive groups of three, often with rising rhythm</td>
+<td>&quot;fast, simple, and reliable&quot;</td>
+<td>Rule</td>
+<td>Brief, W, BH §6, SS, AW, SM</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>not-x-but-y</code></td>
+<td>Negative parallelism and fake contrast</td>
+<td>&quot;It&#39;s not just a tool, it&#39;s a movement.&quot;</td>
+<td>Rule</td>
+<td>W, BH §1, SS, NS, AW #2, CU §16</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>stock-openers</code></td>
+<td>Throat-clearing and filler openers</td>
+<td>&quot;In today&#39;s fast-paced world&quot;, &quot;Here&#39;s the thing:&quot;, &quot;Let&#39;s dive in&quot;, &quot;When it comes to&quot;</td>
+<td>Rule</td>
+<td>Brief, SS, NS, AW #5 and #21, CU §1 and §4</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>template-phrases</code></td>
+<td>Ready-made ad and blog templates</td>
+<td>&quot;Whether you&#39;re a beginner or a pro&quot;, &quot;more than just&quot;, &quot;say goodbye to&quot;, &quot;look no further&quot;, &quot;that&#39;s where X comes in&quot;</td>
+<td>Rule</td>
+<td>AW #4, SM</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>transition-overuse</code></td>
+<td>Moreover, Furthermore, Additionally starting sentence after sentence</td>
+<td>&quot;Furthermore, ... Additionally, ...&quot;</td>
+<td>Rule</td>
+<td>W, AW #5, CU structure scan</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>ing-tail</code></td>
+<td>A sentence ending on an empty -ing clause that claims significance</td>
+<td>&quot;..., highlighting the importance of teamwork.&quot;</td>
+<td>Rule</td>
+<td>W, BH §15, AW #27, CU §12</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>self-answer</code></td>
+<td>A question the writer answers right away, or a colon reveal</td>
+<td>&quot;The result? A faster team.&quot; &quot;The best part: it learns.&quot;</td>
+<td>Rule</td>
+<td>NS, SS, SM, CU §23</td>
+</tr>
+</tbody></table></div>
+<h2>D. Claims and tone</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>ID</th>
+<th>Pattern</th>
+<th>Example</th>
+<th>Detection</th>
+<th>Sources</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>17</td>
+<td><code>significance-inflation</code></td>
+<td>Inflating ordinary things into milestones and legacies</td>
+<td>&quot;a pivotal moment&quot;, &quot;a testament to&quot;, &quot;plays a crucial role&quot;</td>
+<td>Rule</td>
+<td>W, BH §13, AW #7, CU §10</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>vague-attribution</code></td>
+<td>Unnamed authorities</td>
+<td>&quot;Experts say&quot;, &quot;Studies show&quot;, &quot;Many believe&quot;</td>
+<td>Rule</td>
+<td>W, BH §17, AW #20, CU §13</td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>chatbot-residue</code></td>
+<td>Assistant chatter left in the text</td>
+<td>&quot;Great question!&quot;, &quot;I hope this helps&quot;, &quot;Feel free to reach out&quot;, &quot;I&#39;d be happy to&quot;</td>
+<td>Rule</td>
+<td>W, BH §22, AW #23, CU §17</td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>generic-closer</code></td>
+<td>Summary endings and vague optimism</td>
+<td>&quot;In conclusion&quot;, &quot;Ultimately,&quot;, &quot;The future looks bright&quot;, &quot;Only time will tell&quot;</td>
+<td>Rule</td>
+<td>W, BH §13, NS, AW #22, CU §28 and §29</td>
+</tr>
+<tr>
+<td>21</td>
+<td><code>punchy-closer</code></td>
+<td>A one-line moral or dramatic fragment at the end of a paragraph</td>
+<td>&quot;Let that sink in.&quot; &quot;And that changes everything.&quot;</td>
+<td>Rule (common forms) + Judgment</td>
+<td>BH §2, SS, NS (&quot;fake-profound kickers&quot;), CU §2</td>
+</tr>
+</tbody></table></div>
+<h2>E. Rhythm and structure</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>ID</th>
+<th>Pattern</th>
+<th>Example</th>
+<th>Detection</th>
+<th>Sources</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>22</td>
+<td><code>uniform-rhythm</code></td>
+<td>Sentences all about the same length, so the text has a steady machine beat</td>
+<td>Ten sentences of 14 to 18 words each</td>
+<td>Stat (coefficient of variation of sentence length below 0.45 over 6+ sentences)</td>
+<td>BH (the third-party blind test found rhythm tells survived rewriting), SS #6, AW #73, CU burstiness</td>
+</tr>
+<tr>
+<td>23</td>
+<td><code>repeated-openers</code></td>
+<td>Several sentences in a row starting the same way</td>
+<td>&quot;This tool... This means... This allows...&quot;</td>
+<td>Stat</td>
+<td>BH §7, AW #69, CU opener repetition</td>
+</tr>
+<tr>
+<td>24</td>
+<td><code>generic-filler</code></td>
+<td>Sentences that could move unchanged to any other company or topic, and say nothing specific</td>
+<td>&quot;Communication is key to any successful team.&quot;</td>
+<td>Judgment</td>
+<td>NS (the &quot;portability test&quot;), SS #4, AW #76</td>
+</tr>
+</tbody></table></div>
+<h2>What current Claude output actually looks like</h2>
+<p>We generated our five test pieces with plain prompts and no hint about the project (see <code>docs/test-report/samples-original.md</code>). The famous word-level tells barely appear: no &quot;delve&quot;, no &quot;tapestry&quot;, one em dash in five pieces. What shows up instead is structural:</p>
+<ul>
+<li>Bold lead-in sentences used as section labels (&quot;<strong>Fear of losing control.</strong> New managers often...&quot;)</li>
+<li>&quot;X, not Y&quot; and &quot;no longer X. It&#39;s Y&quot; contrasts</li>
+<li>Groups of three in almost every paragraph</li>
+<li>Template phrases in cover letters (&quot;sits at the intersection of&quot;, &quot;I&#39;d love the chance&quot;)</li>
+<li>Engagement-bait endings and hashtag rows on LinkedIn</li>
+</ul>
+<p>So the detectors for <code>bold-labels</code>, <code>not-x-but-y</code>, <code>template-phrases</code>, <code>generic-closer</code> and <code>heading-style</code> were widened to catch these forms. This fits the shift Wikipedia records in its &quot;historical indicators&quot; section, where once-reliable signs such as em-dash overuse stop being reliable as models change.</p>
+<h2>Rules for the rewrite, from what went wrong in other repos</h2>
+<p>These are not patterns to detect. They are mistakes the popular tools made, so SKILL.md forbids them.</p>
+<ol>
+<li><strong>Don&#39;t invent facts.</strong> SlopMonster&#39;s and academic-humanizer&#39;s own examples add details that were not in the source. theclaymethod/unslop&#39;s example adds a made-up &quot;2015 startup&quot; story. Our rewrite may cut, but it may not add facts, numbers, names or quotes.</li>
+<li><strong>Don&#39;t swap one tell for another.</strong> In an outside blind test of blader/humanizer, rewrites lost their AI vocabulary but gained staccato fragments and aphoristic closers (&quot;uniform beat rate&quot; went from 60 to 101). Short dramatic fragments are a tell too.</li>
+<li><strong>Follow our own rules in the examples.</strong> stop-slop&#39;s sample output contains the em dash it bans. Every example in our SKILL.md is checked with the same detectors the app uses.</li>
+<li><strong>Don&#39;t treat one sighting as proof.</strong> Wikipedia&#39;s &quot;Ineffective indicators&quot; section warns that perfect grammar, formal register or a single transition word prove nothing. Weak patterns need company before they&#39;re worth changing.</li>
+</ol>
+<h2>What we left out, and why</h2>
+<ul>
+<li><strong>Synonym cycling / elegant variation.</strong> Wikipedia moved it to &quot;historical indicators&quot;, and blader/humanizer dropped it in v3.0.0.</li>
+<li><strong>Curly quotes.</strong> Every tool marks it as weak, and word processors produce them anyway.</li>
+<li><strong>Knowledge-cutoff disclaimers and placeholder leaks</strong> (<code>[Your Name]</code>, <code>citeturn0search0</code>). Real tells, but rare in the content types we test. <code>chatbot-residue</code> covers the common ones.</li>
+<li><strong>Detector-evasion tricks</strong> (Unicode spacing, homoglyphs). Out of scope: the brief is about human readers, and these tricks don&#39;t improve the writing.</li>
+</ul>
+
+<p class="foot">Group 1 · MICA OpenProject · generated from the project repository by scripts/build-docs.js</p>
+</main>
+</body>
+</html>

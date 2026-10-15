@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-detector test · deClaude</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef1ec'/%3E%3Crect x='2' y='2' width='26' height='26' fill='%23232a3a'/%3E%3Cpath d='M7 20 L25 11' stroke='%23d9503c' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#eef1ec; --sheet:#f9fbf7; --ink:#232a3a; --ink-2:#4b5365; --ink-3:#7c8393; --pen:#d9503c; --hl:#ffe27a; --on-hl:#232a3a; --bar:#232a3a; --on-bar:#eef1ec; --shadow:4px 4px 0 rgb(35 42 58 / .85); color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper:#161a22; --sheet:#1d2230; --ink:#e6e9e2; --ink-2:#b6bcc7; --ink-3:#848b98; --pen:#ff7a63; --hl:#f2d466; --on-hl:#161a22; --bar:#0b0e14; --on-bar:#e6e9e2; --shadow:4px 4px 0 #05070b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 "Space Grotesk", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--pen); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.top { background: var(--bar); color: var(--on-bar); }
+.top .in, .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+.top .in { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 10px; font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+.logo { font: 400 26px/1 Anton, Impact, sans-serif; text-decoration: none; letter-spacing: .02em; }
+.logo s { color: #848b98; text-decoration-color: var(--pen); text-decoration-thickness: 4px; }
+.top nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; opacity: .85; }
+.top nav a:hover, .top nav a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: var(--pen); }
+.wrap { padding-block: 36px 70px; }
+.kicker { font: 700 13px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--pen); margin: 0 0 6px; }
+h1, h2, h3, h4 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(40px, 7vw, 68px); margin: 0 0 22px; }
+h2 { font-size: 32px; margin: 46px 0 14px; padding-top: 14px; border-top: 3px solid var(--ink); }
+h3 { font-size: 23px; margin: 30px 0 10px; }
+h4 { font-size: 19px; margin: 22px 0 8px; }
+p, li { max-width: 72ch; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+strong { font-weight: 700; }
+code { font: 14px "JetBrains Mono", monospace; background: var(--sheet); border: 1px solid var(--ink-3); padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 14px 16px; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+blockquote { margin: 14px 0; padding: 10px 16px; border-left: 5px solid var(--pen); background: var(--sheet); font: 15.5px/1.7 "Courier Prime", "Courier New", monospace; white-space: normal; }
+blockquote p { margin: 6px 0; }
+.table { overflow-x: auto; margin: 16px 0; border: 2.5px solid var(--ink); box-shadow: var(--shadow); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1.5px dashed var(--ink-3); }
+th { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .05em; background: var(--bar); color: var(--on-bar); border-bottom: 0; }
+tr:last-child td { border-bottom: 0; }
+td { font-variant-numeric: tabular-nums; }
+hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; margin: -6px 0 26px; }
+.btn { font: 700 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .04em; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 var(--ink); padding: 6px 10px; text-decoration: none; }
+.btn:hover { background: var(--hl); color: var(--on-hl); }
+.front { border: 2.5px dashed var(--pen); padding: 10px 14px; margin: 0 0 20px; font: 14px "JetBrains Mono", monospace; color: var(--ink-2); white-space: pre-wrap; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+.card { display: block; text-decoration: none; background: var(--sheet); border: 2.5px solid var(--ink); box-shadow: var(--shadow); padding: 16px 18px 18px; }
+.card:hover { box-shadow: 6px 6px 0 var(--pen); }
+.card .tag { font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border: 2px solid var(--ink); background: var(--hl); color: var(--on-hl); }
+.card .tag.r { background: transparent; color: var(--ink-2); }
+.card h3 { margin: 12px 0 6px; font-size: 26px; }
+.card p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
+@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="logo" href="../">de<s>Claude</s></a><nav><a href="./">All</a><a href="report.html">Report</a><a href="skill.html">SKILL.md</a><a href="ai-log.html">AI log</a><a href="patterns.html">Patterns</a><a href="detectors.html" aria-current="page">Detectors</a><a href="../">App</a><a href="../deck/">Deck</a></nav></div></header>
+<main class="wrap">
+<p class="kicker">Testing</p>
+<h1>AI detector test</h1>
+<div class="meta"><a class="btn" href="https://github.com/sharmaekagra-oss/deClaude/blob/main/docs/test-report/detectors.md">View on GitHub</a></div>
+<p><strong>Question:</strong> after deClaude, do leading AI detectors still flag the text?</p>
+<p><strong>Texts:</strong> the five Claude-written originals and their official rewrites from <code>results.md</code> (Groq <code>openai/gpt-oss-120b</code>). Human-written controls get a column once teammates have written them (<code>docs/blind-test/human-controls.md</code>), so we can see how often each detector wrongly flags real human writing.</p>
+<p><strong>Detectors:</strong> free web versions, used without an account. GPTZero (Basic AI Scan, model 4.1o) stopped after 5 scans and asked for a sign-up; QuillBot asked for a sign-up before the first scan. Sapling worked without one.</p>
+<h2>Round 1: baseline (app as shipped, 2026-10-15)</h2>
+<p>Share of the text each detector called AI. Higher means &quot;more likely AI&quot;.</p>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>GPTZero: original</th>
+<th>GPTZero: rewrite</th>
+<th>Sapling: original</th>
+<th>Sapling: rewrite</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email</td>
+<td>100%</td>
+<td>100%</td>
+<td>99.9%</td>
+<td>87.4%</td>
+</tr>
+<tr>
+<td>Blog post</td>
+<td>100%</td>
+<td>100%</td>
+<td>99.5%</td>
+<td>0.0% *</td>
+</tr>
+<tr>
+<td>Product description</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>99.9%</td>
+<td>88.1%</td>
+</tr>
+<tr>
+<td>LinkedIn post</td>
+<td>100%</td>
+<td>not counted **</td>
+<td>98.0%</td>
+<td>99.1%</td>
+</tr>
+<tr>
+<td>Cover letter</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>99.5%</td>
+<td>96.0%</td>
+</tr>
+</tbody></table></div>
+<p>* Reproduced twice. The rewrite is nearly the original minus its bold labels, so this says more about Sapling&#39;s instability than about the rewrite.
+** GPTZero hit its anonymous limit during this scan; the number on screen was stale.</p>
+<h2>Round 2: after the improvements (2026-10-15)</h2>
+<p>Changes since round 1: SKILL.md now pushes varied sentence and paragraph length and less predictable wording; a flat rhythm triggers the repair pass; the app returns &quot;Your turn&quot; questions (not applied here: those need the writer&#39;s own details, and we don&#39;t fake them). Rewrites are the new official run in <code>results.md</code> (32 tells → 7).</p>
+<div class="table"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>Sapling: original</th>
+<th>Sapling: rewrite, round 1</th>
+<th>Sapling: rewrite, round 2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Email</td>
+<td>99.9%</td>
+<td>87.4%</td>
+<td>87.5%</td>
+</tr>
+<tr>
+<td>Blog post</td>
+<td>99.5%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+</tr>
+<tr>
+<td>Product description</td>
+<td>99.9%</td>
+<td>88.1%</td>
+<td>96.4%</td>
+</tr>
+<tr>
+<td>LinkedIn post</td>
+<td>98.0%</td>
+<td>99.1%</td>
+<td>0.0%</td>
+</tr>
+<tr>
+<td>Cover letter</td>
+<td>99.5%</td>
+<td>96.0%</td>
+<td>100%</td>
+</tr>
+</tbody></table></div>
+<p>GPTZero was not re-run: its free anonymous scans ran out in round 1 and it needs an account.</p>
+<p><strong>Reading:</strong></p>
+<ul>
+<li>On Sapling, round 2 moved two pieces to 0% and pushed two others up. With swings this large on near-identical text, Sapling&#39;s score tells us little either way.</li>
+<li>Nothing here suggests the rewrites now pass a strong detector. GPTZero called everything it saw 100% AI.</li>
+<li>The honest summary for the report: deClaude makes text read better to people; it does not make AI text undetectable, and we didn&#39;t add tricks to try.</li>
+</ul>
+<p><strong>Round 1 reading:</strong></p>
+<ul>
+<li>GPTZero, rated among the most accurate detectors, called every text 100% AI with &quot;high confidence&quot;, rewrites included.</li>
+<li>Sapling dropped a little on three rewrites (email, product, cover letter) and swung wildly on one (blog), while the LinkedIn rewrite went up.</li>
+<li>This matches what our research found for other humanizer skills: a style rewrite by a language model fools human readers more than it fools strong detectors.</li>
+</ul>
+
+<p class="foot">Group 1 · MICA OpenProject · generated from the project repository by scripts/build-docs.js</p>
+</main>
+</body>
+</html>
