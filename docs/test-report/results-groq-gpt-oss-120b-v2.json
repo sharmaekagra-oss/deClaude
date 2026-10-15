@@ -1,0 +1,809 @@
+{
+  "base": "http://localhost:3311",
+  "results": [
+    {
+      "label": "Email",
+      "original": "Subject: Request to move project deadline to next Wednesday\n\nHi Neha,\n\nI wanted to check with you about the deadline for the project. The client sent over a new set of requirements yesterday, and a few of them change the scope enough that I'll need to rework parts of what's already done.\n\nGiven that, I don't think I can deliver something solid by Friday. Would it be okay to move the deadline to next Wednesday? That would give me time to incorporate the new requirements properly and run through a final check before it goes out.\n\nIn the meantime, I'll keep working on the parts that aren't affected, and I'm happy to share a quick progress update on Friday so you can see where things stand. If Wednesday doesn't work, let me know what's possible and I'll figure out what I can prioritise to meet it.\n\nThanks for considering this.\n\nBest,\n[Your name]",
+      "rewrite": "Subject: Request to move project deadline to next Wednesday\n\nHi Neha,\n\nThe client sent new requirements yesterday that change the scope, so I need to rework parts of what’s already done. I won’t be able to deliver a solid version by Friday. Could we move the deadline to next Wednesday? That would let me incorporate the changes and run a final check. I appreciate your flexibility.\n\nIn the meantime I’ll keep working on the parts that aren’t affected, and I can share a quick progress update on Friday so you can see where things stand. If Wednesday doesn’t work, let me know an alternative and I’ll adjust priorities.\n\nThanks,\n\n[Your name]",
+      "changes": [
+        {
+          "pattern": "stock-openers",
+          "before": "I wanted to check with you about the deadline for the project.",
+          "after": "",
+          "why": "remove filler opening"
+        },
+        {
+          "pattern": "other",
+          "before": "Given that, I don't think I can deliver something solid by Friday.",
+          "after": "I won’t be able to deliver a solid version by Friday.",
+          "why": "streamline and drop hedge"
+        },
+        {
+          "pattern": "other",
+          "before": "Would it be okay to move the deadline to next Wednesday?",
+          "after": "Could we move the deadline to next Wednesday?",
+          "why": "simplify request"
+        },
+        {
+          "pattern": "other",
+          "before": "That would give me time to incorporate the new requirements properly and run through a final check before it goes out.",
+          "after": "That would let me incorporate the changes and run a final check.",
+          "why": "cut unnecessary words"
+        },
+        {
+          "pattern": "other",
+          "before": "In the meantime, I'll keep working on the parts that aren't affected, and I'm happy to share a quick progress update on Friday so you can see where things stand.",
+          "after": "In the meantime I’ll keep working on the parts that aren’t affected, and I can share a quick progress update on Friday so you can see where things stand.",
+          "why": "rephrase, keep facts"
+        },
+        {
+          "pattern": "other",
+          "before": "If Wednesday doesn't work, let me know what's possible and I'll figure out what I can prioritise to meet it.",
+          "after": "If Wednesday doesn’t work, let me know an alternative and I’ll adjust priorities.",
+          "why": "concise rewrite"
+        },
+        {
+          "pattern": "generic-filler",
+          "before": "Thanks for considering this.",
+          "after": "Thanks,",
+          "why": "shorten closing"
+        }
+      ],
+      "kept": [],
+      "yourTurn": [
+        {
+          "sentence": "Could we move the deadline to next Wednesday?",
+          "ask": "Do you have a preferred time on Wednesday?"
+        },
+        {
+          "sentence": "I appreciate your flexibility.",
+          "ask": "Is there anything else I should adjust while I work?"
+        }
+      ],
+      "before": {
+        "total": 0,
+        "words": 162,
+        "per100": 0,
+        "byFamily": {
+          "Punctuation": 0,
+          "Words": 0,
+          "Templates": 0,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {},
+        "findings": []
+      },
+      "after": {
+        "total": 0,
+        "words": 117,
+        "per100": 0,
+        "byFamily": {
+          "Punctuation": 0,
+          "Words": 0,
+          "Templates": 0,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {},
+        "findings": []
+      },
+      "repaired": true,
+      "repairSkipped": false,
+      "autoFixedDashes": false,
+      "warnings": [],
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "fellBackFrom": [],
+      "seconds": 33
+    },
+    {
+      "label": "Blog post",
+      "original": "**Why First-Time Managers Struggle to Delegate**\n\nMost people get promoted into management because they were good at the work. That's exactly what makes delegation so hard.\n\n**The skill that got you here is now the trap.** As an individual contributor, your value came from doing things well and doing them yourself. When you become a manager, your instinct is still to solve problems directly. Handing a task to someone else can feel like giving away the part of the job you're actually confident in.\n\n**\"It's faster if I just do it.\"** In the short term, this is often true. Explaining a task, answering questions, and reviewing someone else's work takes longer than finishing it yourself. But this math only holds once. Every time you skip delegating, you guarantee you'll be doing that task again next week, and your team never builds the ability to take it off your plate.\n\n**Fear of losing control.** New managers often worry that if the work isn't done their way, it won't be done right. Sometimes that's a quality concern. Often it's discomfort with the fact that there are many acceptable ways to do something, and yours isn't the only one.\n\n**Not knowing what \"good delegation\" looks like.** Many first-time managers swing between two extremes: dumping a task with no context, or handing it over and then hovering. Neither works. Good delegation means being clear about the outcome, the constraints, and the deadline, then stepping back while staying available.\n\n**Guilt about adding to people's workload.** Some managers hold on to tasks because they don't want to seem like they're offloading work. But delegation, done well, is how people grow. Holding back stretch assignments can quietly stall your team's development.\n\nThe shift is a mental one. Your job is no longer to be the best at the work. It's to build a team that can do the work without you. Delegation is how that happens.",
+      "rewrite": "Why First-Time Managers Struggle to Delegate\n\nMost people get promoted into management because they were good at the work. That makes delegation hard.\n\nThe skill that got you here is now the trap. As an individual contributor, your value came from doing things well and doing them yourself. When you become a manager, your instinct is still to solve problems directly. Handing a task to someone else can feel like giving away the part of the job you're confident in.\n\n\"It's faster if I just do it.\" In the short term, this is often true. Explaining a task, answering questions, and reviewing someone else's work takes longer than finishing it yourself. But this only works once. Every time you skip delegating, you guarantee you'll be doing that task again next week, and your team never builds the ability to take it off your plate.\n\nFear of losing control. New managers often worry that if the work isn't done their way, it won't be done right. Sometimes that's a quality concern. Often it's discomfort with the fact that there are many acceptable ways to do something, and yours isn't the only one.\n\nNot knowing what good delegation looks like. Many first-time managers swing between two extremes: dumping a task with no context, or handing it over and then hovering. Neither works. Good delegation means being clear about the outcome, the constraints, and the deadline, then stepping back while staying available.\n\nGuilt about adding to people's workload. Some managers hold on to tasks because they don't want to seem like they're offloading work. But delegation, done well, is how people grow. Holding back stretch assignments can quietly stall your team's development.\n\nThe shift is mental. Your job is no longer to be the best at the work; it is to build a team that can do the work without you. Delegation is how that happens.",
+      "changes": [
+        {
+          "pattern": "heading-style",
+          "before": "**Why First-Time Managers Struggle to Delegate**",
+          "after": "Why First-Time Managers Struggle to Delegate",
+          "why": "remove bold heading"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**The skill that got you here is now the trap.**",
+          "after": "The skill that got you here is now the trap.",
+          "why": "remove bold"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**\"It's faster if I just do it.\"**",
+          "after": "\"It's faster if I just do it.\"",
+          "why": "remove bold"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**Fear of losing control.**",
+          "after": "Fear of losing control.",
+          "why": "remove bold"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**Not knowing what \"good delegation\" looks like.**",
+          "after": "Not knowing what good delegation looks like.",
+          "why": "remove bold"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**Guilt about adding to people's workload.**",
+          "after": "Guilt about adding to people's workload.",
+          "why": "remove bold"
+        },
+        {
+          "pattern": "other",
+          "before": "That's exactly what makes delegation so hard.",
+          "after": "That makes delegation hard.",
+          "why": "cut intensifier"
+        },
+        {
+          "pattern": "not-x-but-y",
+          "before": "no longer to be the best at the work. It's to build a team that can do the work without you.",
+          "after": "no longer to be the best at the work; it is to build a team that can do the work without you.",
+          "why": "state Y directly"
+        }
+      ],
+      "kept": [],
+      "yourTurn": [
+        {
+          "sentence": "Most people get promoted into management because they were good at the work.",
+          "ask": "Can you share a specific example of a promotion you experienced?"
+        },
+        {
+          "sentence": "New managers often worry that if the work isn't done their way, it won't be done right.",
+          "ask": "What particular situations triggered that worry for you?"
+        },
+        {
+          "sentence": "Delegation is how that happens.",
+          "ask": "Which delegation moment made the biggest difference for your team?"
+        }
+      ],
+      "before": {
+        "total": 10,
+        "words": 336,
+        "per100": 3,
+        "byFamily": {
+          "Punctuation": 6,
+          "Words": 1,
+          "Templates": 3,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "heading-style": 1,
+          "bold-labels": 5,
+          "intensifiers": 1,
+          "rule-of-three": 2,
+          "not-x-but-y": 1
+        },
+        "findings": [
+          {
+            "id": "heading-style",
+            "start": 0,
+            "end": 48,
+            "text": "**Why First-Time Managers Struggle to Delegate**"
+          },
+          {
+            "id": "bold-labels",
+            "start": 174,
+            "end": 222,
+            "text": "**The skill that got you here is now the trap.**"
+          },
+          {
+            "id": "intensifiers",
+            "start": 479,
+            "end": 487,
+            "text": "actually"
+          },
+          {
+            "id": "bold-labels",
+            "start": 503,
+            "end": 537,
+            "text": "**\"It's faster if I just do it.\"**"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 577,
+            "end": 643,
+            "text": "Explaining a task, answering questions, and reviewing someone else"
+          },
+          {
+            "id": "bold-labels",
+            "start": 879,
+            "end": 906,
+            "text": "**Fear of losing control.**"
+          },
+          {
+            "id": "bold-labels",
+            "start": 1151,
+            "end": 1201,
+            "text": "**Not knowing what \"good delegation\" looks like.**"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 1374,
+            "end": 1426,
+            "text": "about the outcome, the constraints, and the deadline"
+          },
+          {
+            "id": "bold-labels",
+            "start": 1473,
+            "end": 1517,
+            "text": "**Guilt about adding to people's workload.**"
+          },
+          {
+            "id": "not-x-but-y",
+            "start": 1774,
+            "end": 1816,
+            "text": "no longer to be the best at the work. It's"
+          }
+        ]
+      },
+      "after": {
+        "total": 3,
+        "words": 328,
+        "per100": 0.9,
+        "byFamily": {
+          "Punctuation": 1,
+          "Words": 0,
+          "Templates": 2,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "heading-style": 1,
+          "rule-of-three": 2
+        },
+        "findings": [
+          {
+            "id": "heading-style",
+            "start": 0,
+            "end": 44,
+            "text": "Why First-Time Managers Struggle to Delegate"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 538,
+            "end": 604,
+            "text": "Explaining a task, answering questions, and reviewing someone else"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 1320,
+            "end": 1372,
+            "text": "about the outcome, the constraints, and the deadline"
+          }
+        ]
+      },
+      "repaired": false,
+      "repairSkipped": true,
+      "autoFixedDashes": false,
+      "warnings": [
+        "this sentence from the original may be missing: \"But this math only holds once.\""
+      ],
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "fellBackFrom": [],
+      "seconds": 14
+    },
+    {
+      "label": "Product description",
+      "original": "**Stainless Steel Insulated Water Bottle – 750 ml**\n\nCold water at the end of a long day. Hot tea on an early morning commute. This bottle keeps your drinks the way you like them, wherever the day takes you.\n\nMade from food-grade stainless steel with double-wall vacuum insulation, it keeps drinks cold for up to 24 hours and hot for up to 12. No condensation on the outside, so it won't leave rings on your desk or soak through your bag.\n\nThe leak-proof lid seals tight, so you can toss it in a backpack, gym bag, or laptop sleeve without worrying about spills. At 750 ml, it holds enough to get you through a workday or a long workout without constant refills, while still fitting in most car cup holders and bag pockets.\n\n**Features**\n- 750 ml capacity\n- Keeps drinks cold for 24 hours, hot for 12 hours\n- Double-wall vacuum insulation\n- Leak-proof lid\n- Food-grade stainless steel, BPA-free\n- Sweat-free exterior\n- Durable and reusable, a simple way to cut down on single-use plastic\n\n**Care:** Hand wash recommended. Not suitable for microwave or freezer.\n\n**Price: ₹1,299**",
+      "rewrite": "Stainless Steel Insulated Water Bottle, 750 ml\n\nCold water after a long day or hot tea on a morning commute. This bottle keeps drinks as you like them.\n\nMade from food-grade stainless steel with double-wall vacuum insulation, it keeps drinks cold for up to 24 hours and hot for up to 12 hours. No condensation forms on the outside, so it won’t leave rings on your desk or soak through your bag.\n\nThe leak-proof lid seals tight, so you can toss it in a backpack or gym bag without worrying about spills. At 750 ml, it holds enough to get you through a workday or a long workout while still fitting in most car cup holders and bag pockets.\n\nFeatures\n- 750 ml capacity\n- Keeps drinks cold for 24 hours, hot for 12 hours\n- Double-wall vacuum insulation\n- Leak-proof lid\n- Food-grade stainless steel, BPA-free\n- Sweat-free exterior\n- Durable and reusable, a simple way to cut down on single-use plastic\n\nCare: Hand wash recommended. Not suitable for microwave or freezer.\n\nPrice: ₹1,299",
+      "changes": [
+        {
+          "pattern": "em-dash",
+          "before": "**Stainless Steel Insulated Water Bottle – 750 ml**",
+          "after": "Stainless Steel Insulated Water Bottle, 750 ml",
+          "why": "replace dash with comma"
+        },
+        {
+          "pattern": "template-phrases",
+          "before": "Cold water at the end of a long day. Hot tea on an early morning commute. This bottle keeps your drinks the way you like them, wherever the day takes you.",
+          "after": "Cold water after a long day or hot tea on a morning commute. This bottle keeps drinks as you like them.",
+          "why": "remove vague phrase"
+        },
+        {
+          "pattern": "rule-of-three",
+          "before": "in a backpack, gym bag, or laptop sleeve",
+          "after": "in a backpack or gym bag",
+          "why": "reduce to two items"
+        },
+        {
+          "pattern": "heading-style",
+          "before": "**Features**",
+          "after": "Features",
+          "why": "remove bold formatting"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**Care:**",
+          "after": "Care:",
+          "why": "remove bold label"
+        }
+      ],
+      "kept": [
+        {
+          "text": "Food‑grade stainless steel, BPA‑free",
+          "why": "specific material claim"
+        },
+        {
+          "text": "Double‑wall vacuum insulation",
+          "why": "key product spec"
+        },
+        {
+          "text": "Durable and reusable, a simple way to cut down on single‑use plastic",
+          "why": "specific environmental benefit"
+        }
+      ],
+      "yourTurn": [
+        {
+          "sentence": "This bottle keeps drinks as you like them.",
+          "ask": "What temperature range do you usually prefer?"
+        },
+        {
+          "sentence": "At 750 ml, it holds enough to get you through a workday or a long workout while still fitting in most car cup holders and bag pockets.",
+          "ask": "Which activity do you use it for most often?"
+        }
+      ],
+      "before": {
+        "total": 4,
+        "words": 192,
+        "per100": 2.1,
+        "byFamily": {
+          "Punctuation": 2,
+          "Words": 0,
+          "Templates": 2,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "em-dash": 1,
+          "template-phrases": 1,
+          "rule-of-three": 1,
+          "bold-labels": 1
+        },
+        "findings": [
+          {
+            "id": "em-dash",
+            "start": 41,
+            "end": 42,
+            "text": "–"
+          },
+          {
+            "id": "template-phrases",
+            "start": 180,
+            "end": 206,
+            "text": "wherever the day takes you"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 491,
+            "end": 539,
+            "text": "in a backpack, gym bag, or laptop sleeve without"
+          },
+          {
+            "id": "bold-labels",
+            "start": 989,
+            "end": 998,
+            "text": "**Care:**"
+          }
+        ]
+      },
+      "after": {
+        "total": 0,
+        "words": 179,
+        "per100": 0,
+        "byFamily": {
+          "Punctuation": 0,
+          "Words": 0,
+          "Templates": 0,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {},
+        "findings": []
+      },
+      "repaired": false,
+      "repairSkipped": false,
+      "autoFixedDashes": false,
+      "warnings": [],
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "fellBackFrom": [],
+      "seconds": 3
+    },
+    {
+      "label": "LinkedIn post",
+      "original": "One year of business school, done.\n\nWhen I started, I thought the biggest challenge would be the coursework. It turned out the bigger lessons came from everything around it.\n\nA few things I'm taking with me into year two:\n\n**1. You can't do everything, so choose deliberately.** Classes, clubs, competitions, placements prep, friendships. There's always more on the table than there is time. Learning to say no (and being okay with it) was one of the most useful things I picked up.\n\n**2. Your peers are your best teachers.** Some of my most valuable learning happened outside the classroom, in late-night group discussions and from classmates who came in with completely different backgrounds and ways of thinking.\n\n**3. Frameworks are a starting point, not the answer.** Case after case showed me that real problems are messy. The frameworks help you structure your thinking, but judgment is what gets you to a good decision.\n\n**4. Getting comfortable with being wrong is a skill.** Cold calls, presentations, feedback on submissions. There were plenty of moments where I got it wrong in front of others. Each one made the next one easier.\n\n**5. Rest is part of the work.** I learned this the hard way. Burning out doesn't make you more productive, it just makes everything harder.\n\nGrateful to my professors, my batchmates, and everyone who made this year what it was. Looking forward to what year two brings.\n\nIf you've been through business school, what's one thing you wish you'd known at the end of your first year?\n\n#MBA #BusinessSchool #Learning #FirstYear",
+      "rewrite": "One year of business school, done.\n\nWhen I started, I thought the biggest challenge would be the coursework. The bigger lessons came from everything around it.\n\nA few things I'm taking with me into year two:\n\n1. You can't do everything, so choose deliberately. Classes, clubs, competitions, placement prep, friendships. There's always more on the table than time. Learning to say no and being okay with it was one of the most useful things I picked up.\n\n2. Your peers are your best teachers. Some of my most valuable learning happened outside the classroom, in late-night group discussions and from classmates with completely different backgrounds and ways of thinking.\n\n3. Frameworks are a starting point; they are not the answer. Case after case showed me that real problems are messy. The frameworks help you structure your thinking, but judgment gets you to a good decision.\n\n4. Getting comfortable with being wrong is a skill. Cold calls, presentations, feedback on submissions. I often got it wrong in front of others; each mistake made the next one easier.\n\n5. Rest is part of the work. I learned this the hard way. Burning out doesn't make you more productive; it makes everything harder.\n\nI'm grateful to my professors, my batchmates, and everyone who made this year what it was.",
+      "changes": [
+        {
+          "pattern": "bold-labels",
+          "before": "**1. You can't do everything, so choose deliberately.**",
+          "after": "1. You can't do everything, so choose deliberately.",
+          "why": "remove bold formatting"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**2. Your peers are your best teachers.**",
+          "after": "2. Your peers are your best teachers.",
+          "why": "remove bold formatting"
+        },
+        {
+          "pattern": "not-x-but-y",
+          "before": "**3. Frameworks are a starting point, not the answer.**",
+          "after": "3. Frameworks are a starting point; they are not the answer.",
+          "why": "replace contrast pattern"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**4. Getting comfortable with being wrong is a skill.**",
+          "after": "4. Getting comfortable with being wrong is a skill.",
+          "why": "remove bold formatting"
+        },
+        {
+          "pattern": "bold-labels",
+          "before": "**5. Rest is part of the work.**",
+          "after": "5. Rest is part of the work.",
+          "why": "remove bold formatting"
+        },
+        {
+          "pattern": "not-x-but-y",
+          "before": "Burning out doesn't make you more productive, it just makes everything harder.",
+          "after": "Burning out doesn't make you more productive; it makes everything harder.",
+          "why": "replace contrast with semicolon"
+        },
+        {
+          "pattern": "generic-closer",
+          "before": "Looking forward to what year two brings.",
+          "after": "",
+          "why": "remove vague closing"
+        },
+        {
+          "pattern": "generic-closer",
+          "before": "If you've been through business school, what's one thing you wish you'd known at the end of your first year?",
+          "after": "",
+          "why": "remove engagement question"
+        },
+        {
+          "pattern": "heading-style",
+          "before": "#MBA #BusinessSchool #Learning #FirstYear",
+          "after": "",
+          "why": "remove hashtag heading"
+        }
+      ],
+      "kept": [],
+      "yourTurn": [
+        {
+          "sentence": "The bigger lessons came from everything around it.",
+          "ask": "Which specific experience taught you the most outside class?"
+        }
+      ],
+      "before": {
+        "total": 11,
+        "words": 268,
+        "per100": 4.1,
+        "byFamily": {
+          "Punctuation": 6,
+          "Words": 0,
+          "Templates": 3,
+          "Claims": 2,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "bold-labels": 5,
+          "not-x-but-y": 2,
+          "rule-of-three": 1,
+          "generic-closer": 2,
+          "heading-style": 1
+        },
+        "findings": [
+          {
+            "id": "bold-labels",
+            "start": 223,
+            "end": 278,
+            "text": "**1. You can't do everything, so choose deliberately.**"
+          },
+          {
+            "id": "bold-labels",
+            "start": 484,
+            "end": 525,
+            "text": "**2. Your peers are your best teachers.**"
+          },
+          {
+            "id": "bold-labels",
+            "start": 717,
+            "end": 772,
+            "text": "**3. Frameworks are a starting point, not the answer.**"
+          },
+          {
+            "id": "not-x-but-y",
+            "start": 733,
+            "end": 770,
+            "text": "are a starting point, not the answer."
+          },
+          {
+            "id": "bold-labels",
+            "start": 929,
+            "end": 984,
+            "text": "**4. Getting comfortable with being wrong is a skill.**"
+          },
+          {
+            "id": "bold-labels",
+            "start": 1143,
+            "end": 1175,
+            "text": "**5. Rest is part of the work.**"
+          },
+          {
+            "id": "not-x-but-y",
+            "start": 1217,
+            "end": 1258,
+            "text": "doesn't make you more productive, it just"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 1294,
+            "end": 1348,
+            "text": "to my professors, my batchmates, and everyone who made"
+          },
+          {
+            "id": "generic-closer",
+            "start": 1372,
+            "end": 1411,
+            "text": "Looking forward to what year two brings"
+          },
+          {
+            "id": "generic-closer",
+            "start": 1414,
+            "end": 1522,
+            "text": "If you've been through business school, what's one thing you wish you'd known at the end of your first year?"
+          },
+          {
+            "id": "heading-style",
+            "start": 1524,
+            "end": 1565,
+            "text": "#MBA #BusinessSchool #Learning #FirstYear"
+          }
+        ]
+      },
+      "after": {
+        "total": 1,
+        "words": 222,
+        "per100": 0.5,
+        "byFamily": {
+          "Punctuation": 0,
+          "Words": 0,
+          "Templates": 1,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "rule-of-three": 1
+        },
+        "findings": [
+          {
+            "id": "rule-of-three",
+            "start": 1211,
+            "end": 1265,
+            "text": "to my professors, my batchmates, and everyone who made"
+          }
+        ]
+      },
+      "repaired": false,
+      "repairSkipped": false,
+      "autoFixedDashes": false,
+      "warnings": [],
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "fellBackFrom": [],
+      "seconds": 5
+    },
+    {
+      "label": "Cover letter",
+      "original": "Dear Hiring Manager,\n\nI'm writing to apply for the Marketing Associate role at Nykaa. I'm currently pursuing my MBA at MICA, and I've followed Nykaa's growth from an online beauty retailer into a brand that shapes how millions of people in India discover and shop for beauty and personal care. I'd love the chance to contribute to that work.\n\nThis summer, I interned with the marketing team at [FMCG brand], where I planned and ran a social media campaign for [product/category]. I worked on the campaign end to end, from understanding the target audience and developing the content strategy to coordinating with creators and tracking performance week by week. Over the course of the campaign, engagement grew by 40%. The biggest lesson for me was how much small, consistent adjustments based on data could improve results. When certain formats weren't landing, we shifted quickly toward what our audience was actually responding to.\n\nThat experience is a big part of why Nykaa appeals to me. Your marketing sits at the intersection of content, community, and commerce. Whether it's creator collaborations, campaigns around Pink Friday, or building trust through education and reviews, the brand speaks to its audience in a way that feels both aspirational and personal. I'm excited by the idea of working in an environment where creative ideas are tied closely to measurable outcomes.\n\nAt MICA, my coursework in brand management, consumer behaviour, and digital marketing has given me a strong foundation in both the strategic and analytical sides of marketing. I'm comfortable working with data, enjoy collaborating across teams, and I'm genuinely curious about how consumers make decisions, especially in a category as personal as beauty.\n\nI'd welcome the opportunity to discuss how I could contribute to Nykaa's marketing team. Thank you for your time and consideration.\n\nSincerely,\n[Your name]\n[Phone number] | [Email address] | [LinkedIn profile]",
+      "rewrite": "Dear Hiring Manager,\n\nI am applying for the Marketing Associate role at Nykaa. I am pursuing an MBA at MICA and have followed Nykaa’s growth from an online beauty retailer to a brand that influences how millions of Indians discover and shop for beauty and personal care.\n\nThis summer I interned with the marketing team at [FMCG brand], where I planned and ran a social media campaign for [product/category]. I handled the campaign from audience research and content strategy to creator coordination and weekly performance tracking. Engagement grew by 40%. The biggest lesson was that small, consistent data-driven adjustments can improve results. When certain formats underperformed, we shifted quickly to what resonated with the audience.\n\nThat experience is why Nykaa appeals to me. Your marketing combines content, community and commerce. Whether through creator collaborations, Pink Friday campaigns, or education and reviews, the brand speaks to its audience both aspirationally and personally. I look forward to working where creative ideas are tied to measurable outcomes.\n\nAt MICA my coursework in brand management, consumer behaviour and digital marketing has given me a strong foundation in both strategy and analytics. I am comfortable with data, enjoy cross-team collaboration, and am curious about how consumers decide in a personal category like beauty.\n\nI would welcome the chance to discuss how I could contribute to Nykaa’s marketing team. Thank you for your time and consideration.\n\nSincerely,\n[Your name]\n[Phone number] | [Email address] | [LinkedIn profile]",
+      "changes": [
+        {
+          "pattern": "copula-avoidance",
+          "before": "I'm writing to apply for the Marketing Associate role at Nykaa.",
+          "after": "I am applying for the Marketing Associate role at Nykaa.",
+          "why": "more direct verb"
+        },
+        {
+          "pattern": "other",
+          "before": "I've followed Nykaa's growth from an online beauty retailer into a brand that shapes how millions of people in India discover and shop for beauty and personal care.",
+          "after": "I have followed Nykaa’s growth from an online beauty retailer to a brand that influences how millions of Indians discover and shop for beauty and personal care.",
+          "why": "smooth preposition, remove filler"
+        },
+        {
+          "pattern": "template-phrases",
+          "before": "I'd love the chance to contribute to that work.",
+          "after": "",
+          "why": "generic invitation"
+        },
+        {
+          "pattern": "intensifiers",
+          "before": "The biggest lesson for me was how much small, consistent adjustments based on data could improve results.",
+          "after": "The biggest lesson was that small, consistent data‑driven adjustments can improve results.",
+          "why": "remove unnecessary phrase"
+        },
+        {
+          "pattern": "intensifiers",
+          "before": "When certain formats weren't landing, we shifted quickly toward what our audience was actually responding to.",
+          "after": "When certain formats underperformed, we shifted quickly to what resonated with the audience.",
+          "why": "remove 'actually'"
+        },
+        {
+          "pattern": "rule-of-three",
+          "before": "Your marketing sits at the intersection of content, community, and commerce.",
+          "after": "Your marketing combines content, community and commerce.",
+          "why": "simplify phrasing"
+        },
+        {
+          "pattern": "template-phrases",
+          "before": "I'm excited by the idea of working in an environment where creative ideas are tied closely to measurable outcomes.",
+          "after": "I look forward to working where creative ideas are tied to measurable outcomes.",
+          "why": "remove empty enthusiasm"
+        },
+        {
+          "pattern": "rule-of-three",
+          "before": "At MICA, my coursework in brand management, consumer behaviour, and digital marketing has given me a strong foundation in both the strategic and analytical sides of marketing.",
+          "after": "At MICA my coursework in brand management, consumer behaviour and digital marketing has given me a strong foundation in both strategy and analytics.",
+          "why": "condense list and description"
+        },
+        {
+          "pattern": "intensifiers",
+          "before": "I'm comfortable working with data, enjoy collaborating across teams, and I'm genuinely curious about how consumers make decisions, especially in a category as personal as beauty.",
+          "after": "I am comfortable with data, enjoy cross‑team collaboration, and am curious about how consumers decide in a personal category like beauty.",
+          "why": "remove 'genuinely' and tighten"
+        },
+        {
+          "pattern": "template-phrases",
+          "before": "I'd welcome the opportunity to discuss how I could contribute to Nykaa's marketing team.",
+          "after": "I would welcome the chance to discuss how I could contribute to Nykaa’s marketing team.",
+          "why": "simplify phrasing"
+        }
+      ],
+      "kept": [
+        {
+          "text": "Dear Hiring Manager,",
+          "why": "standard greeting"
+        },
+        {
+          "text": "Sincerely,",
+          "why": "standard sign‑off"
+        },
+        {
+          "text": "[Phone number] | [Email address] | [LinkedIn profile]",
+          "why": "required contact info"
+        }
+      ],
+      "yourTurn": [
+        {
+          "sentence": "Your marketing combines content, community and commerce.",
+          "ask": "Can you give a concrete example of this combination at Nykaa?"
+        },
+        {
+          "sentence": "I am applying for the Marketing Associate role at Nykaa.",
+          "ask": "What specific aspect of the role excites you most?"
+        }
+      ],
+      "before": {
+        "total": 7,
+        "words": 320,
+        "per100": 2.2,
+        "byFamily": {
+          "Punctuation": 0,
+          "Words": 2,
+          "Templates": 5,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "template-phrases": 3,
+          "intensifiers": 2,
+          "rule-of-three": 2
+        },
+        "findings": [
+          {
+            "id": "template-phrases",
+            "start": 294,
+            "end": 313,
+            "text": "I'd love the chance"
+          },
+          {
+            "id": "intensifiers",
+            "start": 910,
+            "end": 918,
+            "text": "actually"
+          },
+          {
+            "id": "template-phrases",
+            "start": 1008,
+            "end": 1035,
+            "text": "sits at the intersection of"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 1020,
+            "end": 1068,
+            "text": "intersection of content, community, and commerce"
+          },
+          {
+            "id": "template-phrases",
+            "start": 1271,
+            "end": 1294,
+            "text": "I'm excited by the idea"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 1410,
+            "end": 1476,
+            "text": "in brand management, consumer behaviour, and digital marketing has"
+          },
+          {
+            "id": "intensifiers",
+            "start": 1640,
+            "end": 1649,
+            "text": "genuinely"
+          }
+        ]
+      },
+      "after": {
+        "total": 3,
+        "words": 244,
+        "per100": 1.2,
+        "byFamily": {
+          "Punctuation": 0,
+          "Words": 0,
+          "Templates": 3,
+          "Claims": 0,
+          "Rhythm": 0
+        },
+        "byPattern": {
+          "rule-of-three": 3
+        },
+        "findings": [
+          {
+            "id": "rule-of-three",
+            "start": 790,
+            "end": 840,
+            "text": "marketing combines content, community and commerce"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 850,
+            "end": 929,
+            "text": "through creator collaborations, Pink Friday campaigns, or education and reviews"
+          },
+          {
+            "id": "rule-of-three",
+            "start": 1103,
+            "end": 1168,
+            "text": "in brand management, consumer behaviour and digital marketing has"
+          }
+        ]
+      },
+      "repaired": false,
+      "repairSkipped": false,
+      "autoFixedDashes": false,
+      "warnings": [
+        "the source uses contractions (12) but the rewrite has only 2; keep the writer's register"
+      ],
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "fellBackFrom": [],
+      "seconds": 5
+    }
+  ],
+  "ranAt": "2026-10-15T09:52:09.042Z"
+}

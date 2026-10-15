@@ -47,6 +47,7 @@ body { margin: 0; background: var(--void); color: var(--ink); font-family: var(-
 .dot { color: var(--pen); }
 .ring { position: relative; display: inline-block; }
 .ring > .scribble { left: -26%; top: -16%; width: 152%; height: 132%; }
+.ring.wide > .scribble { left: -70%; width: 240%; }
 
 /* Stage */
 .viewport { position: fixed; inset: 0; overflow: hidden; }
@@ -270,73 +271,66 @@ p { margin: 0; }
   </style>
 </section>
 
-<!-- 6. How it works -->
-<section class="slide" data-title="How it works">
-  <p class="kicker">Under the hood</p>
-  <h2>How it works</h2>
-  <div class="pipe">
-    <div class="box step"><span class="n">1</span><h3>Scan</h3><p>24 detectors run in your browser and count the tells.</p></div>
-    <div class="arrow">→</div>
-    <div class="box step"><span class="n">2</span><h3>Rewrite</h3><p>A free AI model rewrites, with SKILL.md as its rulebook.</p></div>
-    <div class="arrow">→</div>
-    <div class="box step"><span class="n">3</span><h3>Check</h3><p>Lost numbers? Dropped sentences? Cut off mid-line? Tells left?</p></div>
-    <div class="arrow">→</div>
-    <div class="box step"><span class="n">4</span><h3>Repair</h3><p>One second pass, only when a hard rule broke.</p></div>
-    <div class="arrow">→</div>
-    <div class="box step"><span class="n">5</span><h3>Show</h3><p>Side by side, every edit numbered and explained.</p></div>
-  </div>
-  <div class="darkbar" style="margin-top: 52px; justify-content: space-between;">
-    <span style="font: 400 46px var(--display); letter-spacing: .03em;">GROQ <span style="color: var(--pen);">→</span> GEMINI <span style="color: var(--pen);">→</span> OPENROUTER</span>
-    <span style="font: 22px/1.4 var(--type); text-align: right;">Free tiers, chained. When one runs out of quota,<br>the next takes over. Most rewrites: <b style="color: var(--hl);">2 to 6 seconds</b>.</span>
-  </div>
-  <p class="hand" style="margin-top: 26px;">↳ fixed in code, never left to the model: em dashes, stray characters, the writer's spelling (prioritise stays prioritise).</p>
-  <style>
-    .pipe { display: grid; grid-template-columns: 1fr 44px 1fr 44px 1fr 44px 1fr 44px 1fr; align-items: stretch; }
-    .step { padding: 20px 20px 24px; }
-    .step .n { margin-bottom: 14px; }
-    .step p { font: 21px/1.4 var(--type); color: var(--ink-2); }
-    .arrow { display: grid; place-items: center; font: 400 44px var(--display); color: var(--pen); }
-  </style>
-</section>
-
-<!-- 7. The app -->
+<!-- 6. The app + how it works -->
 <section class="slide" data-title="The app">
   <p class="kicker">declaude-nine.vercel.app</p>
   <h2>The app</h2>
-  <span class="stamp" style="right: 110px; top: 92px; font-size: 52px; --d: .4s;">Live demo</span>
-  <div style="display: grid; grid-template-columns: 960px 1fr; gap: 50px; align-items: start;">
+  <span class="stamp" style="right: 110px; top: 84px; font-size: 52px; --d: .4s;">Live demo</span>
+  <div class="pipe2">
+    <div class="box step2"><span class="n">1</span><div><h4>Scan</h4><p>24 detectors, in your browser</p></div></div>
+    <div class="arrow2">→</div>
+    <div class="box step2"><span class="n">2</span><div><h4>Rewrite</h4><p>free model + SKILL.md</p></div></div>
+    <div class="arrow2">→</div>
+    <div class="box step2"><span class="n">3</span><div><h4>Check</h4><p>facts, cut-offs, leftover tells</p></div></div>
+    <div class="arrow2">→</div>
+    <div class="box step2"><span class="n">4</span><div><h4>Repair</h4><p>one more pass if needed</p></div></div>
+    <div class="arrow2">→</div>
+    <div class="box step2 you"><span class="n">5</span><div><h4>Your turn</h4><p>details only you know</p></div></div>
+  </div>
+  <div style="display: grid; grid-template-columns: 900px 1fr; gap: 46px; align-items: start; margin-top: 30px;">
     <div class="shot box pop">
       <div class="score-row"><div><small>Before</small><b>11</b></div><div><small>After</small><b>0</b></div><div class="v"><b>Clean.</b> Caught 1 punctuation · 6 words · 4 templates</div></div>
       <div class="two">
         <div class="mini"><div class="box-head">Original</div><p><span class="n">1</span><span class="strike">Elevate your morning ritual with the AeroBrew Pro</span> <span class="n">2</span><span class="strike">— the perfect companion for coffee lovers.</span> <span class="n">3</span><span class="strike">Crafted with meticulous attention to detail,</span> this <span class="n">4</span><span class="strike">sleek, modern, and intuitive</span> kettle…</p></div>
-        <div class="mini"><div class="box-head">Rewrite</div><p><span class="n">1</span><span class="under">The AeroBrew Pro is a 1 L stainless steel pour-over kettle</span> with a gooseneck spout.</p></div>
+        <div class="mini"><div class="box-head">Rewrite</div><p><span class="n">1</span><span class="under">The AeroBrew Pro is a 1 L stainless steel pour-over kettle</span> with a gooseneck spout.</p><p class="turn-mini"><b>Your turn:</b> <span>How long does your pour take, and with which beans?</span></p></div>
       </div>
     </div>
     <ul class="feats">
       <li><b>Paste or attach</b> .docx, .pdf, .txt, .md</li>
       <li><b>Red-pen edits</b>, numbered on both sides</li>
-      <li><b>AI-tells view</b> under the highlighter</li>
+      <li><b>Your turn:</b> questions only the writer can answer</li>
+      <li><b>Edit in place</b>, then copy or download</li>
       <li><b>Fact checks</b> for lost numbers and sentences</li>
-      <li><b>Copy, or download</b> .docx and .txt</li>
-      <li><b>Works on phones</b>, light and dark</li>
+      <li><b>Groq → Gemini → OpenRouter</b>, free tiers chained</li>
     </ul>
   </div>
   <style>
+    .pipe2 { display: grid; grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr 34px 1fr; align-items: stretch; }
+    .step2 { display: flex; gap: 12px; align-items: center; padding: 12px 14px; box-shadow: 5px 5px 0 var(--shadow-c); }
+    .step2 .n { width: 30px; height: 30px; font-size: 21px; }
+    .step2 h4 { margin: 0; font: 400 26px/1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+    .step2 p { margin: 4px 0 0; font: 16px/1.25 var(--type); color: var(--ink-2); }
+    .step2.you { border-color: var(--pen); box-shadow: 5px 5px 0 var(--pen-deep); }
+    .step2.you h4 { color: var(--pen); }
+    .arrow2 { display: grid; place-items: center; font: 400 34px var(--display); color: var(--pen); }
     .shot { padding: 18px; background: var(--paper); }
     .score-row { display: grid; grid-template-columns: 130px 130px 1fr; border: 3px solid var(--ink); background: var(--sheet); margin-bottom: 18px; }
     .score-row > div { padding: 8px 14px; border-right: 3px solid var(--ink); }
     .score-row small { display: block; font: 700 13px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); }
-    .score-row b { font: 400 58px/1 var(--display); }
-    .score-row .v { background: var(--bar); color: var(--on-bar); border: 0; display: flex; align-items: center; gap: 14px; font: 16px var(--mono); }
-    .score-row .v b { font-size: 38px; color: var(--hl); text-transform: uppercase; }
+    .score-row b { font: 400 52px/1 var(--display); }
+    .score-row .v { background: var(--bar); color: var(--on-bar); border: 0; display: flex; align-items: center; gap: 14px; font: 15px var(--mono); }
+    .score-row .v b { font-size: 36px; color: var(--hl); text-transform: uppercase; }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     .mini { border: 3px solid var(--ink); background: var(--sheet); }
-    .mini p { padding: 14px 16px; font: 19px/1.9 var(--type); }
+    .mini p { padding: 12px 16px; font: 18px/1.85 var(--type); margin: 0; }
     .mini .n { width: 26px; height: 26px; font-size: 18px; border-width: 2px; margin-right: 3px; vertical-align: 1px; display: inline-grid; }
+    .turn-mini { border-top: 3px dashed var(--pen); }
+    .turn-mini b { font: 700 14px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--pen); }
+    .turn-mini span { font: 700 24px/1.1 var(--hand); color: var(--pen); }
     .under { box-shadow: inset 0 -3px 0 var(--pen); }
-    .feats { margin: 0; padding: 0; list-style: none; display: grid; gap: 20px; font: 25px/1.35 var(--type); }
+    .feats { margin: 0; padding: 0; list-style: none; display: grid; gap: 18px; font: 23px/1.35 var(--type); }
     .feats li { padding-left: 34px; position: relative; }
-    .feats li::before { content: "✓"; position: absolute; left: 0; color: var(--pen); font: 700 26px var(--mono); }
+    .feats li::before { content: "✓"; position: absolute; left: 0; color: var(--pen); font: 700 25px var(--mono); }
     .feats b { font-weight: 700; color: var(--hl); }
   </style>
 </section>
@@ -344,19 +338,19 @@ p { margin: 0; }
 <!-- 8. Results -->
 <section class="slide" data-title="Results">
   <p class="kicker">5 Claude-written pieces · Groq gpt-oss-120b</p>
-  <h2><span class="count" data-to="32">32</span> tells <span style="color: var(--pen);">→</span> <span class="ring"><span class="count" data-to="10" data-from="32">10</span><svg class="scribble" style="--d:1.2s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span></h2>
+  <h2><span class="count" data-to="32">32</span> tells <span style="color: var(--pen);">→</span> <span class="ring wide"><span class="count" data-to="7" data-from="32">7</span><svg class="scribble" style="--d:1.2s" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1000" d="M30 60 C 22 20, 176 8, 188 44 C 198 82, 46 98, 18 70 C 6 56, 34 26, 92 18"/></svg></span></h2>
   <div style="display: grid; grid-template-columns: 1fr 640px; gap: 56px; align-items: start;">
     <div>
       <div class="legend-row"><span><i class="sw before"></i>AI tells before</span><span><i class="sw after"></i>after</span></div>
       <div id="bars" style="display: grid; gap: 20px;"></div>
       <div class="facts">
-        <div><b>0</b><span>facts lost</span></div>
-        <div><b>0</b><span>sentences dropped</span></div>
-        <div><b>2–4s</b><span>per rewrite</span></div>
+        <div><b>1</b><span>list item lost</span></div>
+        <div><b>1</b><span>line added</span></div>
+        <div><b>3–33s</b><span>per rewrite</span></div>
       </div>
     </div>
     <div class="box pop">
-      <span class="stamp" style="right: 22px; top: -26px; --d: .9s;">11 → 2</span>
+      <span class="stamp" style="right: 22px; top: -26px; --d: .9s;">11 → 1</span>
       <div class="box-head">LinkedIn post · what got cut</div>
       <div class="box-body cuts">
         <p><span class="strike draw" style="animation-delay:.3s">**1. You can't do everything, so choose deliberately.**</span><em>bold lead-in ×5</em></p>
@@ -366,7 +360,7 @@ p { margin: 0; }
       </div>
     </div>
   </div>
-  <p class="mono" style="position: absolute; left: 96px; right: 96px; bottom: 76px; color: var(--ink-2);">Still slips through: some groups of three, one "X, not Y", and the email came back flatter (0 → 1).</p>
+  <p class="mono" style="position: absolute; left: 96px; right: 96px; bottom: 76px; color: var(--ink-2);">Read by hand: the bottle lost "laptop sleeve" from a list, and the email gained "I appreciate your flexibility." Every other fact survived.</p>
   <style>
     .legend-row { display: flex; gap: 28px; font: 700 15px var(--mono); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 18px; }
     .sw { display: inline-block; width: 22px; height: 14px; margin-right: 8px; vertical-align: -1px; border: 2px solid var(--ink); }
@@ -386,6 +380,51 @@ p { margin: 0; }
     .cuts { display: grid; gap: 18px; }
     .cuts p { font: 22px/1.45 var(--type); }
     .cuts em { display: block; font: 700 28px/1 var(--hand); font-style: normal; color: var(--pen); margin-top: 4px; }
+  </style>
+</section>
+
+<!-- 8b. Detectors -->
+<section class="slide" data-title="AI detectors">
+  <p class="kicker">docs/test-report/detectors.md</p>
+  <h2>Detectors aren't fooled</h2>
+  <div style="display: grid; grid-template-columns: 470px 1fr; gap: 50px; align-items: start;">
+    <div class="box pop">
+      <span class="stamp" style="right: 20px; top: -26px; --d: .7s;">100% AI</span>
+      <div class="box-head"><span>GPTZero · free scans</span><span>model 4.1o</span></div>
+      <div class="box-body">
+        <p style="font: 400 92px/0.9 var(--display);"><span class="count" data-to="5">5</span><span style="font-size: 52px; color: var(--ink-3);"> / 5</span></p>
+        <p style="font: 22px/1.45 var(--type); color: var(--ink-2); margin-top: 10px;">texts called <b style="color: var(--pen);">100% AI, "highly confident"</b>, including both of our rewrites it saw.</p>
+        <div class="gz">
+          <span>Email</span><b>100</b><b class="r">100</b>
+          <span>Blog post</span><b>100</b><b class="r">100</b>
+          <span>LinkedIn</span><b>100</b><i>limit hit</i>
+        </div>
+        <p class="mono" style="color: var(--ink-3); font-size: 12px; margin-top: 12px;">Original · rewrite. Free anonymous use stops after 5 scans.</p>
+      </div>
+    </div>
+    <div class="box">
+      <div class="box-head"><span>Sapling · score per piece</span><span><i class="sw2 o"></i>original <i class="sw2 r1"></i>rewrite 1 <i class="sw2 r2"></i>rewrite 2</span></div>
+      <div class="box-body" id="sapling" style="display: grid; gap: 10px; padding-block: 14px;"></div>
+    </div>
+  </div>
+  <div class="darkbar" style="margin-top: 24px; padding-block: 16px; justify-content: space-between;">
+    <span style="font: 21px/1.4 var(--type);">Sapling flipped the blog from <b style="color: var(--hl);">99.5% to 0.0%</b> when the bold labels went, then the LinkedIn post a round later. <b style="color: var(--hl);">Scores swing. They aren't proof.</b></span>
+    <span class="mono" style="font-size: 13px; color: var(--ink-3); text-align: right; min-width: 260px;">Next: human-written pieces,<br>to see how often real people get flagged.</span>
+  </div>
+  <style>
+    .gz { display: grid; grid-template-columns: 1fr 70px 70px; gap: 8px 10px; margin-top: 20px; align-items: center; font: 20px var(--type); }
+    .gz b { font: 400 30px/1 var(--display); text-align: right; color: var(--ink-2); }
+    .gz b.r { color: var(--pen); }
+    .gz i { font: 700 11px var(--mono); text-transform: uppercase; color: var(--ink-3); text-align: right; font-style: normal; }
+    .sp { display: grid; grid-template-columns: 170px 1fr; gap: 14px; align-items: center; font: 19px var(--type); }
+    .sp .bars3 { display: grid; gap: 4px; }
+    .sp .b3 { display: flex; align-items: center; gap: 8px; font: 700 14px var(--mono); }
+    .sp .b3 i { display: block; height: 11px; }
+    .sp .b3 { font-size: 13px; }
+    .sw2 { display: inline-block; width: 14px; height: 10px; margin: 0 4px 0 10px; vertical-align: 0; }
+    .sw2.o, .sp .o { background: var(--ink-3); }
+    .sw2.r1, .sp .r1 { background: var(--hl); }
+    .sw2.r2, .sp .r2 { background: var(--pen); }
   </style>
 </section>
 
@@ -425,7 +464,7 @@ p { margin: 0; }
   <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px;">
     <div class="box lesson"><h3>A clean score can hide a bad edit</h3><p>Early runs scored near zero while dropping a deadline's reason and a product's care instructions. So the app now checks facts, along with tells.</p></div>
     <div class="box lesson"><h3>Fast models cut corners</h3><p>Groq answers in seconds but dropped facts until we added sentence checks. One model stopped mid-sentence; we test for that too.</p></div>
-    <div class="box lesson"><h3>Free tiers are fragile</h3><p>Gemini allows 20 requests a day per model, Groq 8,000 tokens a minute. A chain of providers keeps the app up.</p></div>
+    <div class="box lesson"><h3>The last step is yours</h3><p>GPTZero called every text 100% AI, rewrites included. The blind test asks whether people notice. The fix we trust is the writer's own detail, so the app ends with "Your turn".</p></div>
   </div>
   <div style="display: grid; grid-template-columns: 1fr 1fr 240px; gap: 40px; margin-top: 40px; align-items: end;">
     <div><p class="mono" style="color: var(--pen); margin-bottom: 10px;">Limits</p><p style="font: 20px/1.55 var(--type);">Detectors tuned for English · formatting isn't kept on upload · a sentence full of tells can be cut whole, even when it held a real thank-you.</p></div>
@@ -458,7 +497,7 @@ const REPOS = [
   ["petergyang/no-ai-slop", 12273], ["conorbronsdon/avoid-ai-writing", 4985],
 ];
 const RESULTS = [
-  ["Email", 0, 1], ["Blog post", 10, 3], ["Product description", 4, 1], ["LinkedIn post", 11, 2], ["Cover letter", 7, 3],
+  ["Email", 0, 0], ["Blog post", 10, 3], ["Product description", 4, 0], ["LinkedIn post", 11, 1], ["Cover letter", 7, 3],
 ];
 
 // Research bars, to scale against the top repo.
@@ -471,6 +510,16 @@ document.getElementById("bars").innerHTML = RESULTS.map(([label, b, a], i) => `
   <div class="brow"><span>${label}</span><div class="bpair">
     <div class="bline"><i class="before grow" style="width:${Math.max(b / MAX * 100, 0.8)}%; --d:${0.1 + i * 0.08}s"></i>${b}</div>
     <div class="bline"><i class="after grow" style="width:${Math.max(a / MAX * 100, 0.8)}%; --d:${0.4 + i * 0.08}s"></i>${a}</div>
+  </div></div>`).join("");
+
+// Sapling scores from docs/test-report/detectors.md, drawn to scale (0 to 100%).
+const SAPLING = [
+  ["Email", 99.9, 87.4, 87.5], ["Blog post", 99.5, 0, 0], ["Product", 99.9, 88.1, 96.4],
+  ["LinkedIn post", 98.0, 99.1, 0], ["Cover letter", 99.5, 96.0, 100],
+];
+document.getElementById("sapling").innerHTML = SAPLING.map(([label, o, r1, r2], i) => `
+  <div class="sp"><span>${label}</span><div class="bars3">
+    ${[["o", o], ["r1", r1], ["r2", r2]].map(([k, v], j) => `<div class="b3"><i class="${k} grow" style="width:${Math.max(v * 0.82, 0.6)}%; --d:${0.15 + i * 0.08 + j * 0.05}s"></i>${v.toFixed(1)}%</div>`).join("")}
   </div></div>`).join("");
 
 // Blind test: real numbers or an honest "pending" panel.
