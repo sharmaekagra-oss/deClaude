@@ -48,9 +48,9 @@ for (const s of samples) {
     ({ status, data } = await post(`${base}/api/rewrite`, { text: s.text }));
     // 503 = overloaded, 429 = free-tier per-minute limit. Both usually clear within a minute.
     // (A used-up daily quota also returns 429; that fails after three tries.)
-    if (![429, 503].includes(status) || data.daily || attempt > 3) break;
-    process.stdout.write(`${status === 429 ? "rate-limited" : "overloaded"}, retrying in 60s (${attempt}/3)... `);
-    await new Promise((r) => setTimeout(r, 60_000));
+    if (![429, 503].includes(status) || data.daily || attempt > 5) break;
+    process.stdout.write(`${status === 429 ? "rate-limited" : "overloaded"}, retrying in 90s (${attempt}/5)... `);
+    await new Promise((r) => setTimeout(r, 90_000));
   }
   if (status !== 200) throw new Error(`${s.label}: ${data.error}`);
   saved.results.push({ label: s.label, original: s.text, ...data });

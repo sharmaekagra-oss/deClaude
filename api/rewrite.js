@@ -412,7 +412,13 @@ function keepSpelling(original, rewrite) {
   });
 }
 
-async function rewriteWith(session, text, before) {
+// "Please try again in 15.1s" (Groq, OpenRouter) or retryDelay "37s" (Gemini), in seconds.
+function retryAfterSeconds(err) {
+  const m = String(err?.message || "").match(/try again in ([\d.]+)\s*s|retryDelay"?:\s*"?(\d+)s/i);
+  return m ? Math.ceil(Number(m[1] || m[2])) : null;
+}
+
+async function rewriteWith(session, text, before, deadline) {
   let data = clean(await session.send(
     `<source_text>\n${text}\n</source_text>\n\nRule-based scan of the source:\n${hintList(before.findings)}`,
   ));
@@ -429,16 +435,31 @@ async function rewriteWith(session, text, before) {
   const dropped = droppedSentences(text, data.rewrite).map((s) => `this sentence from the source has no counterpart in your rewrite: "${s}". If it carries a fact, reason, instruction or lesson, put that content back. If it was pure filler, leave it out and add it to "kept" with the reason it was cut`);
   const blocking = [...lostFacts, ...dropped, ...(REPAIR_MODE === "all" ? register : [])];
   let repaired = false;
+  let repairSkipped = false;
   if (leftover.length || blocking.length) {
-    repaired = true;
     const problems = [
       leftover.length ? `Your rewrite still contains these patterns:\n${hintList(leftover)}` : "",
       blocking.length ? `Your rewrite breaks the hard rules:\n${blocking.map((l) => `- ${l}`).join("\n")}\nAlso recheck that every list item, action and stated lesson from the source survived.` : "",
     ].filter(Boolean).join("\n\n");
-    const fixed = clean(await session.send(
-      `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the changes list measured against the original source text, kept, and yourTurn (its sentences copied from the updated rewrite).`,
-    ));
-    if (fixed.rewrite) data = fixed;
+    const ask = `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the changes list measured against the original source text, kept, and yourTurn (its sentences copied from the updated rewrite).`;
+    // Free tiers often refuse a second call in the same minute. Wait out a short limit once;
+    // if the repair still can't run, keep the first draft instead of failing the whole request.
+    for (let attempt = 0; attempt < 2 && !repaired && !repairSkipped; attempt++) {
+      try {
+        const fixed = clean(await session.send(ask));
+        if (fixed.rewrite && !truncated(text, fixed.rewrite)) data = fixed;
+        repaired = true;
+      } catch (err) {
+        if (!isRetryable(err)) throw err;
+        const wait = retryAfterSeconds(err);
+        if (attempt === 0 && wait !== null && wait <= 30 && Date.now() + (wait + 15) * 1000 < deadline) {
+          await new Promise((r) => setTimeout(r, (wait + 1) * 1000));
+        } else {
+          repairSkipped = true;
+          console.error("Repair pass skipped:", err.status, err.message);
+        }
+      }
+    }
   }
 
   // Dashes first: replacing one can leave a double space, which the clean-up below removes.
@@ -459,7 +480,7 @@ async function rewriteWith(session, text, before) {
     ...preservationIssues(text, data.rewrite),
     ...droppedSentences(text, data.rewrite).map((s) => `this sentence from the original may be missing: "${s}"`),
   ];
-  return { ...data, before, after: score(data.rewrite), repaired, autoFixedDashes, warnings };
+  return { ...data, before, after: score(data.rewrite), repaired, repairSkipped, autoFixedDashes, warnings };
 }
 
 export default async function handler(req, res) {
@@ -493,7 +514,7 @@ export default async function handler(req, res) {
   for (const provider of chain) {
     try {
       const session = SESSIONS[provider](deadline);
-      const result = await rewriteWith(session, text, before);
+      const result = await rewriteWith(session, text, before, deadline);
       return res.status(200).json({
         ...result,
         provider,

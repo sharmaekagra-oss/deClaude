@@ -267,6 +267,7 @@ function renderLists() {
   const bits = [`Rewritten by ${result.model} (${NAMES[result.provider] || result.provider}) in ${result.seconds}s.`];
   if (result.fellBackFrom?.length) bits.push(`${result.fellBackFrom.map((p) => NAMES[p] || p).join(" and ")} hit a free-tier limit, so the next provider took over.`);
   if (result.repaired) bits.push("A second pass fixed patterns the first draft missed.");
+  if (result.repairSkipped) bits.push("A second pass was due but the free model was busy, so this is the first draft.");
   if (result.autoFixedDashes) bits.push("Leftover dashes were replaced automatically.");
   for (const w of result.warnings || []) bits.push(`Check: ${w}.`);
   $("meta").textContent = bits.join(" ");
