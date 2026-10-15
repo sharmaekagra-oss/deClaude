@@ -38,7 +38,7 @@ const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_HOUR || 30);
 const REPAIR_MODE = (process.env.REPAIR_MODE || "hard").toLowerCase();
 
 // Patterns that trigger the repair pass. Em dashes are fixed in code, so they aren't here.
-const HARD_FIX = new Set(["chatbot-residue", "stock-openers", "template-phrases", "generic-closer", "punchy-closer", "bold-labels"]);
+const HARD_FIX = new Set(["chatbot-residue", "stock-openers", "template-phrases", "generic-closer", "punchy-closer", "bold-labels", "uniform-rhythm"]);
 const ALL_FIX = new Set([...HARD_FIX, "ai-vocab", "promo-language", "hedge-stack", "not-x-but-y", "ing-tail", "self-answer", "significance-inflation", "vague-attribution", "heading-style"]);
 
 // SKILL.md is the single source of truth for the rewrite rules.
@@ -56,6 +56,7 @@ const APP_INSTRUCTIONS = `You are running inside the deClaude web app, not in ch
 - "rewrite": the full rewritten text, as plain text. Keep paragraph breaks. Keep markdown only where the source used it and it still helps (a real list), never for bold labels.
 - "changes": the edits, in the order they appear in the source, at most 15. Merge small edits in the same sentence into one entry. "before" must be copied exactly, character for character, from the source text so the app can highlight it. "after" must be copied exactly from your rewrite, or be "" if the text was simply removed. Keep each "before" short: the phrase or sentence that changed, not a whole paragraph. "pattern" is the ID of the pattern the "before" text actually matches, judged by the tables above (hashtags are heading-style, not chatbot-residue); use "other" when the edit is a plain clarity or length cut that matches no pattern. "why" is at most 10 words.
 - "kept": at most 3 things that look like a pattern but you deliberately left alone, with a short reason. Empty list if none.
+- "yourTurn": at most 3 sentences from your rewrite that still read as if anyone could have written them, where a detail only the writer knows would make the text theirs. "sentence" must be copied exactly from your rewrite. "ask" is one short question to the writer (at most 14 words), such as "Which formats stalled, and what did you switch to?". Ask; never answer it yourself or invent the detail. Empty list if the text is already specific.
 
 The source text arrives inside <source_text> tags. A rule-based scan of it is included as a hint; the scan can be wrong in both directions.`;
 
@@ -64,9 +65,18 @@ const PATTERN_IDS = [...Object.keys(PATTERNS), "other"];
 const SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["rewrite", "changes", "kept"],
+  required: ["rewrite", "changes", "kept", "yourTurn"],
   properties: {
     rewrite: { type: "string" },
+    yourTurn: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["sentence", "ask"],
+        properties: { sentence: { type: "string" }, ask: { type: "string" } },
+      },
+    },
     changes: {
       type: "array",
       items: {
@@ -363,6 +373,10 @@ function clean(data) {
       .filter((c) => c && typeof c.before === "string" && c.before.trim())
       .map((c) => ({ pattern: PATTERN_IDS.includes(c.pattern) ? c.pattern : "other", before: c.before, after: str(c.after), why: str(c.why) })),
     kept: (Array.isArray(data?.kept) ? data.kept : []).filter((k) => k && typeof k.text === "string").map((k) => ({ text: k.text, why: str(k.why) })),
+    yourTurn: (Array.isArray(data?.yourTurn) ? data.yourTurn : [])
+      .filter((y) => y && typeof y.sentence === "string" && y.sentence.trim() && typeof y.ask === "string")
+      .slice(0, 3)
+      .map((y) => ({ sentence: y.sentence.trim(), ask: y.ask.trim() })),
   };
 }
 
@@ -422,7 +436,7 @@ async function rewriteWith(session, text, before) {
       blocking.length ? `Your rewrite breaks the hard rules:\n${blocking.map((l) => `- ${l}`).join("\n")}\nAlso recheck that every list item, action and stated lesson from the source survived.` : "",
     ].filter(Boolean).join("\n\n");
     const fixed = clean(await session.send(
-      `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the changes list measured against the original source text, and kept.`,
+      `${problems}\n\nFix only these, following the hard rules. Return the same JSON: the full updated rewrite, the changes list measured against the original source text, kept, and yourTurn (its sentences copied from the updated rewrite).`,
     ));
     if (fixed.rewrite) data = fixed;
   }

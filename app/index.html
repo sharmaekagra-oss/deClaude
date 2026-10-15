@@ -107,14 +107,27 @@
           <span class="stamp ok" id="stamp-after">Human-ish</span>
           <div class="panel-head">
             <h3>Rewrite</h3>
+            <span class="head-tools">
+            <button id="edit" type="button" class="btn icon-btn" title="Edit the rewrite in your own words">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              <span>Edit</span>
+            </button>
             <button id="copy" type="button" class="btn icon-btn" title="Copy the rewrite to your clipboard">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <span>Copy</span>
             </button>
+            </span>
           </div>
           <div id="rew" class="text"></div>
+          <textarea id="rew-edit" class="text rew-edit" hidden aria-label="Edit the rewrite"></textarea>
         </article>
       </div>
+
+      <section id="turn-wrap" class="panel list turn" hidden>
+        <div class="panel-head"><h3>Your turn: make it yours</h3><span class="mono">details only you know</span></div>
+        <p class="turn-intro">These sentences could still have been written by anyone. Add a detail only you know. Click one to edit it in place. Copy and download include your edits.</p>
+        <ol id="turn" class="turn-list"></ol>
+      </section>
 
       <section class="panel list">
         <div class="panel-head"><h3>What changed <span id="n-changes"></span></h3></div>

@@ -87,9 +87,8 @@ Each pattern has an ID. Use these IDs when you report changes.
 
 | ID | What to look for | What to do |
 |---|---|---|
-| `uniform-rhythm` | Every sentence is roughly the same length, so the text has a steady beat | Let length follow meaning. Join two short related sentences. Break up a long one. A mix of 6-word and 25-word sentences reads as human. |
-| `repeated-openers` | Three or more sentences in a row starting the same way ("This... This... This...") | Rebuild so the subjects vary naturally. |
-| `generic-filler` | A sentence that could move unchanged to any other company, product or person: "Communication is key to any successful team." | The portability test: if it fits anywhere, it says nothing. Cut it. |
+| `uniform-rhythm` | Every sentence is roughly the same length, so the text has a steady beat; every paragraph is the same size | Let length follow meaning. Join two short related sentences. Break up a long one. In any paragraph of four or more sentences, aim for at least one short sentence (under 8 words) and one long one (over 22), unless it would sound forced. Vary paragraph length too. A mix of 6-word and 25-word sentences reads as human. || `repeated-openers` | Three or more sentences in a row starting the same way ("This... This... This...") | Rebuild so the subjects vary naturally. |
+| `generic-filler` | A sentence that could move unchanged to any other company, product or person: "Communication is key to any successful team." Also the most predictable phrase every time: "plays a key role", "end to end", "a strong foundation", "tied closely to". | The portability test: if it fits anywhere, it says nothing. Cut it. When the first phrase that comes to mind is the stock one, use the plainer or more specific one this writer would use. Predictable wording is what AI detectors measure and what makes text forgettable. Never swap in rare words for their own sake. |
 
 > **Before:** Our platform helps teams work better. It keeps chat and files in one place. It makes collaboration easier for everyone. It is designed with modern teams in mind.
 > **After:** Our platform keeps your team's chat and files in one place.
@@ -121,6 +120,8 @@ Each pattern has an ID. Use these IDs when you report changes.
    - Compare facts. Is anything added? Is anything missing? Check every number, list item, action and stated lesson one by one.
    - Did you keep the writer's contractions and register?
    - Did any pattern survive in reworded form (a contrast, a closing question, a Title Case title)?
+   - Read the sentence lengths. If they are all similar, join or split some. If every paragraph is the same size, vary them.
+   - Find the two or three sentences that could still have been written by anyone. Those are where the writer's own detail belongs; note them for the writer instead of inventing one.
    - Read it aloud in your head. Does any sentence still sound like a brochure or a chatbot? Did you create new fragments or punchlines?
 5. **Report** the result.
 

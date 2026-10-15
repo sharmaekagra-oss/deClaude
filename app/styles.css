@@ -139,6 +139,21 @@ textarea.drop { outline: 3px dashed var(--pen); outline-offset: -8px; }
 .pen.active, .ins.active { background-color: color-mix(in srgb, var(--hl) 70%, transparent); color: var(--on-hl); }
 .n { display: inline-grid; place-items: center; width: 21px; height: 21px; margin: 0 3px 0 1px; border: 2px solid var(--pen); border-radius: 50%; font: 600 16px/1 var(--hand); color: var(--pen); transform: rotate(-8deg); vertical-align: 1px; background: var(--sheet); }
 
+/* Edit mode and "your turn" */
+.head-tools { display: inline-flex; gap: 8px; }
+.rew-edit { display: block; width: 100%; min-height: 260px; resize: vertical; border: 0; border-top: 3px dashed var(--pen); background: var(--sheet); color: var(--ink); font: 16px/1.95 var(--type); padding: 16px 18px 22px; }
+.rew-edit[hidden] { display: none; }
+.turn { border-color: var(--pen); }
+.turn-intro { margin: 0; padding: 12px 14px 4px; font: 14px/1.55 var(--mono); color: var(--ink-2); }
+.turn-list { margin: 0; padding: 4px 0 6px; list-style: none; counter-reset: t; }
+.turn-list li { counter-increment: t; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 12px 14px; border-top: 2px dashed var(--ink-3); cursor: pointer; }
+.turn-list li:first-child { border-top: 0; }
+.turn-list li:hover { background: color-mix(in srgb, var(--hl) 25%, transparent); }
+.turn-list li::before { content: counter(t); display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--pen); border-radius: 50%; color: var(--pen); font: 600 16px/1 var(--hand); transform: rotate(-8deg); }
+.turn-list q { display: block; font: 15px/1.6 var(--type); color: var(--ink); quotes: "\201C" "\201D"; overflow-wrap: anywhere; }
+.turn-list .ask { display: block; margin-top: 4px; font: 600 21px/1.15 var(--hand); color: var(--pen); }
+.turn-list li.done q { text-decoration: line-through; text-decoration-color: var(--pen); color: var(--ink-3); }
+
 /* Lists */
 .list { margin-top: 30px; }
 #n-changes { color: var(--ink-3); }

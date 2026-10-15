@@ -12,6 +12,9 @@
     { "pattern": "intensifiers", "before": "a truly exceptional brewing experience every single time", "after": "lets you pour slowly and evenly over the grounds", "why": "Says what the spout does instead of praising it." },
     { "pattern": "template-phrases", "before": "Say goodbye to bitter coffee!", "after": "which is most of what separates a good pour-over from a bitter one", "why": "Keeps the bitterness point without the slogan." }
   ],
+  "yourTurn": [
+    { "sentence": "The narrow spout lets you pour slowly and evenly over the grounds, which is most of what separates a good pour-over from a bitter one.", "ask": "How long does your pour take, and with which beans?" }
+  ],
   "kept": [
     { "text": "1 L stainless steel body", "why": "Specs stay exactly as given." }
   ]

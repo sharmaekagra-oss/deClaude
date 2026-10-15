@@ -273,12 +273,71 @@ function renderLists() {
 }
 
 function render() {
+  editing = false;
+  $("rew").hidden = false;
+  $("rew-edit").hidden = true;
+  $("edit").querySelector("span").textContent = "Edit";
   renderScore();
   renderColumns();
   renderLists();
+  renderTurn();
   $("results").hidden = false;
   $("results").scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+// "Your turn": sentences the model thinks still read as anyone's, with a question only the writer can answer.
+function renderTurn() {
+  const items = Array.isArray(result.yourTurn) ? result.yourTurn : [];
+  $("turn-wrap").hidden = !items.length;
+  $("turn").innerHTML = items.map((y, i) => `
+    <li data-i="${i}" tabindex="0" role="button" class="${result.rewrite.includes(y.sentence) ? "" : "done"}">
+      <span><q>${esc(y.sentence)}</q><span class="ask">${esc(y.ask)}</span></span>
+    </li>`).join("");
+}
+
+// Edit the rewrite in place. Copy, download and the after-score all follow the edited text.
+let editing = false;
+function enterEdit(focusSentence) {
+  if (!result) return;
+  editing = true;
+  const ta = $("rew-edit");
+  ta.value = result.rewrite;
+  $("rew").hidden = true;
+  ta.hidden = false;
+  $("edit").querySelector("span").textContent = "Done";
+  ta.focus();
+  const at = focusSentence ? ta.value.indexOf(focusSentence) : -1;
+  if (at >= 0) {
+    ta.setSelectionRange(at, at + focusSentence.length);
+    // Scroll the selection into view: approximate by line position.
+    const line = ta.value.slice(0, at).split("\n").length;
+    ta.scrollTop = Math.max(0, (line - 3) * 31);
+  }
+}
+function exitEdit() {
+  editing = false;
+  $("rew-edit").hidden = true;
+  $("rew").hidden = false;
+  $("edit").querySelector("span").textContent = "Edit";
+  renderScore();
+  renderColumns();
+  renderTurn();
+}
+$("edit").addEventListener("click", () => (editing ? exitEdit() : enterEdit()));
+$("rew-edit").addEventListener("input", (e) => {
+  result.rewrite = e.target.value;
+  result.edited = true;
+  result.after = score(result.rewrite);
+  renderScore();
+});
+$("turn").addEventListener("click", (e) => {
+  const li = e.target.closest("li[data-i]");
+  if (li) enterEdit(result.yourTurn[+li.dataset.i].sentence);
+});
+$("turn").addEventListener("keydown", (e) => {
+  const li = e.target.closest("li[data-i]");
+  if (li && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); enterEdit(result.yourTurn[+li.dataset.i].sentence); }
+});
 
 // Changes / AI tells toggle
 document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
