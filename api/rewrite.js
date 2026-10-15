@@ -129,7 +129,7 @@ const coolUntil = new Map();
 const cooling = (key) => (coolUntil.get(key) || 0) > Date.now();
 function coolDown(key, status, message = "") {
   let secs = 30; // overloaded or gone for now
-  const hinted = message.match(/retry(?:Delay"?:\s*"?| in )(\d+(?:\.\d+)?)s/i);
+  const hinted = message.match(/(?:retryDelay"?:\s*"?|retry in |try again in )(\d+(?:\.\d+)?)\s*s/i);
   if (status === 404) secs = 6 * 3600;
   else if (status === 429) secs = hinted ? Number(hinted[1]) : /per[- ]?day/i.test(message) ? 3600 : 60;
   coolUntil.set(key, Date.now() + Math.min(secs, 24 * 3600) * 1000);
