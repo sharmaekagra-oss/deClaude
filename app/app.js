@@ -1,4 +1,4 @@
-import { detect, score, PATTERNS, FAMILIES } from "./detectors.js";
+import { detect, score, quotations, PATTERNS, FAMILIES } from "./detectors.js";
 import { ACCEPT, readFile, readWithAI, canReadWithAI, downloadTxt, downloadDocx } from "./files.js";
 
 const $ = (id) => document.getElementById(id);
@@ -41,6 +41,18 @@ $("keep").addEventListener("click", () => {
   showError("");
   addKeep(picked);
 });
+
+// Quotations are someone's exact words, so they start out kept. The writer can remove any with ×.
+function keepQuotes(text) {
+  const found = quotations(text).filter((q) => !keep.includes(q));
+  keep.push(...found);
+  renderKeeps();
+  return found.length ? `${found.length} quotation${found.length > 1 ? "s were" : " was"} added to "Keep as is", since ${found.length > 1 ? "they're" : "it's"} someone's exact words. Remove any that should be rewritten.` : "";
+}
+src.addEventListener("paste", () => setTimeout(() => {
+  const msg = keepQuotes(src.value);
+  if (msg) { showNote(msg); updateLive(); }
+}));
 
 // Live count while typing
 let t;
@@ -105,12 +117,14 @@ function limitProblem(text) {
 }
 
 // Puts newly read text in the box and reports what happened.
-function loaded(file, { text, name, notes }) {
+function loaded(file, { text, name, notes: given }) {
+  let notes = given;
   src.value = text;
   baseName = name || "rewrite";
   $("results").hidden = true; // results belonged to the previous text
   result = null;
-  renderKeeps();
+  const quoted = keepQuotes(text);
+  if (quoted) notes = [...notes, quoted];
   updateLive();
   const problem = limitProblem(text);
   const offerAI = canReadWithAI(file);

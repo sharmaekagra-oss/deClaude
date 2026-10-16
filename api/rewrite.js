@@ -13,7 +13,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI, ApiError as GoogleApiError } from "@google/genai";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { detect, score, PATTERNS, preservationIssues, droppedSentences, isSlides, SLIDE_MARK } from "../app/detectors.js";
+import { detect, score, PATTERNS, preservationIssues, droppedSentences, droppedLines, isSlides, SLIDE_MARK } from "../app/detectors.js";
 
 const list = (v, d) => (v || d).split(",").map((s) => s.trim()).filter(Boolean);
 
@@ -356,12 +356,16 @@ function hintList(findings) {
 }
 
 // Replace any dash that survived. The brief requires zero em dashes.
+// Only the commas inserted here are tidied next to other punctuation; the writer's own ", ." (as in
+// ".docx, .pdf") is left alone.
 function stripDashes(text) {
   return text
-    .replace(/\s*—\s*/g, ", ")
-    .replace(/(?<!\d)\s*–\s*(?!\d)/g, ", ")
-    .replace(/\s--\s/g, ", ")
-    .replace(/,\s*([.,;:!?])/g, "$1");
+    .replace(/\s*—\s*/g, "\u0001")
+    .replace(/(?<!\d)\s*–\s*(?!\d)/g, "\u0001")
+    .replace(/\s--\s/g, "\u0001")
+    .replace(/\u0001\s*([.,;:!?])/g, "$1")
+    .replace(/([,;:])\s*\u0001/g, "$1 ")
+    .replace(/\u0001/g, ", ");
 }
 
 // Keep only well-formed change entries; models occasionally drift from the schema.
@@ -370,7 +374,7 @@ function clean(data) {
   return {
     rewrite: str(data?.rewrite),
     changes: (Array.isArray(data?.changes) ? data.changes : [])
-      .filter((c) => c && typeof c.before === "string" && c.before.trim())
+      .filter((c) => c && typeof c.before === "string" && c.before.trim() && c.before !== c.after) // "no change needed" isn't a change
       .map((c) => ({ pattern: PATTERN_IDS.includes(c.pattern) ? c.pattern : "other", before: c.before, after: str(c.after), why: str(c.why) })),
     kept: (Array.isArray(data?.kept) ? data.kept : []).filter((k) => k && typeof k.text === "string").map((k) => ({ text: k.text, why: str(k.why) })),
     yourTurn: (Array.isArray(data?.yourTurn) ? data.yourTurn : [])
@@ -474,7 +478,8 @@ async function rewriteWith(session, text, before, deadline, keep = []) {
   const lostFacts = issues.filter((i) => i.startsWith("numbers"));
   const register = issues.filter((i) => !i.startsWith("numbers"));
   const dropped = droppedSentences(text, draft, { keep }).map((s) => `this sentence from the source has no counterpart in your rewrite: "${ph.hide(s)}". If it carries a fact, reason, instruction or lesson, put that content back. If it was pure filler, leave it out and add it to "kept" with the reason it was cut`);
-  const blocking = [...lostFacts, ...dropped, ...structureIssues(hidden, data.rewrite, ph), ...(REPAIR_MODE === "all" ? register : [])];
+  const lostLines = droppedLines(text, draft, { keep }).slice(0, 10).map((l) => `this line from the slides is missing from your rewrite: "${ph.hide(l)}". Slide labels, captions and headings stay on their slide; put it back, reworded only if it holds an AI tell`);
+  const blocking = [...lostFacts, ...dropped, ...lostLines, ...structureIssues(hidden, data.rewrite, ph), ...(REPAIR_MODE === "all" ? register : [])];
   let repaired = false;
   let repairSkipped = false;
   if (leftover.length || blocking.length) {
@@ -527,6 +532,7 @@ async function rewriteWith(session, text, before, deadline, keep = []) {
   const warnings = [
     ...preservationIssues(text, data.rewrite),
     ...droppedSentences(text, data.rewrite, { keep }).map((s) => `this sentence from the original may be missing: "${s}"`),
+    ...droppedLines(text, data.rewrite, { keep }).slice(0, 10).map((l) => `this slide line may be missing: "${l}"`),
     ...(lostKeep.length ? [`${lostKeep.length} "keep as is" passage${lostKeep.length > 1 ? "s" : ""} didn't survive: ${lostKeep.map((k) => `"${k.length > 60 ? `${k.slice(0, 57)}...` : k}"`).join(", ")}`] : []),
     ...(slidesOff ? ["the slide markers changed, so some text may have moved to another slide"] : []),
   ];
@@ -538,7 +544,7 @@ function keepList(raw, text) {
   if (!Array.isArray(raw)) return [];
   const out = raw.filter((k) => typeof k === "string").map((k) => k.trim())
     .filter((k) => k.length >= 2 && k.length <= 600 && text.includes(k));
-  return [...new Set(out)].slice(0, 40);
+  return [...new Set(out)].slice(0, 60);
 }
 
 export default async function handler(req, res) {

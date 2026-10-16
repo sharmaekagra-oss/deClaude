@@ -86,4 +86,11 @@ const deck = ["--- Slide 1 ---", "Keep every fact, list item and lesson", "Scan,
 assert.ok(!detect(deck).some((f) => ["rule-of-three", "uniform-rhythm"].includes(f.id)), "slide labels and rhythm");
 assert.ok(has("--- Slide 1 ---\nOur sleek, modern, and intuitive kettle.", "stacked-adjectives"), "word-level tells still fire on slides");
 
+// Slide lines that vanish, and quotations suggested as "keep as is"
+import { droppedLines, quotations } from "../app/detectors.js";
+const slide = "--- Slide 1 ---\nLooking forward to what year two brings.\ngeneric closer\nhashtag row\n#MBA #BusinessSchool #Learning #FirstYear";
+assert.deepEqual(droppedLines(slide, "--- Slide 1 ---\nhashtag row"), ["generic closer"], "a cut label is caught; cut tells are allowed");
+assert.equal(droppedLines("Not slides.\nA label", "Not slides.").length, 0, "only judged on slides");
+assert.deepEqual(quotations(`It says "Speed, quality, cost—pick two." and “keep it”. A 5" screen.`), [`"Speed, quality, cost—pick two."`, "“keep it”"]);
+
 console.log("\nAll detector checks passed.");

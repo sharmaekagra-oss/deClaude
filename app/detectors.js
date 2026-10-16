@@ -328,6 +328,35 @@ export function droppedSentences(original, rewrite, opts = {}) {
   return out;
 }
 
+// On slides, whole lines that vanished: labels, captions and headings are too short for
+// droppedSentences, but cutting "engagement bait" from under an example breaks the slide.
+// Lines that are themselves an AI tell may go.
+export function droppedLines(original, rewrite, opts = {}) {
+  if (!isSlides(original)) return [];
+  const words = (t) => t.toLowerCase().match(/[\p{L}\p{N}]{2,}/gu) || [];
+  const have = new Set(words(rewrite));
+  const tells = detect(original, opts).filter((f) => !f.doc);
+  const out = [];
+  let at = 0;
+  for (const raw of original.split("\n")) {
+    const start = at;
+    at += raw.length + 1;
+    const line = raw.trim();
+    if (!line || new RegExp(SLIDE_MARK.source).test(raw)) continue;
+    const lineStart = start + raw.indexOf(line);
+    if (tells.some((f) => f.start < lineStart + line.length && lineStart < f.end)) continue;
+    const w = [...new Set(words(line))];
+    if (!w.length) continue;
+    if (w.filter((x) => have.has(x)).length / w.length < 0.5) out.push(line);
+  }
+  return out;
+}
+
+// Quoted passages ("...", “...”) on one line: suggested "keep as is", since quotes are someone's exact words.
+export function quotations(text) {
+  return [...new Set((text || "").match(/“[^”\n]{3,300}”|"[^"\n]{3,300}"/g) || [])];
+}
+
 // Checks a rewrite against its source for lost facts and a shifted register.
 // Not AI tells, so they don't count in the score; the server uses them to trigger the repair pass.
 export function preservationIssues(original, rewrite) {
