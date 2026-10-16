@@ -81,7 +81,27 @@ hr { border: 0; border-top: 2px dashed var(--ink-3); margin: 30px 0; }
 .card h3 { margin: 12px 0 6px; font-size: 26px; }
 .card p { margin: 0; font-size: 15px; color: var(--ink-2); }
 .foot { font: 12px "JetBrains Mono", monospace; color: var(--ink-3); border-top: 2px dashed var(--ink-3); margin-top: 50px; padding-top: 16px; }
-@media print { .top nav, .meta { display: none; } .table, pre { box-shadow: none; } }
+/* Paper: compact type and no site furniture, so the one-page AI log fits one page. */
+@media print {
+  @page { size: A4; margin: 12mm 13mm 10mm; }
+  :root { --paper: #fff; --sheet: #f6f7f4; }
+  body { font-size: 10pt; line-height: 1.4; background: #fff; }
+  * { font-variant-ligatures: none; } /* so text copied from the PDF reads "patterns", not "pa tt erns" */
+  .top, .meta, .foot { display: none; }
+  .front { font-size: 9pt; padding: 6px 10px; }
+  .wrap { max-width: none; padding: 0; }
+  h1 { font-size: 24pt; margin: 0 0 10px; }
+  h2 { font-size: 15pt; margin: 18px 0 8px; padding-top: 6px; border-top-width: 2px; break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 14px 0 6px; break-after: avoid; }
+  h4 { font-size: 11pt; margin: 10px 0 4px; }
+  p, li { max-width: none; margin-block: 4px; }
+  table { font-size: 8.8pt; line-height: 1.35; }
+  th, td { padding: 3px 6px; }
+  th { font-size: 8pt; }
+  tr, blockquote, pre { break-inside: avoid; }
+  blockquote, pre, code { font-size: 9pt; }
+  .table, pre { box-shadow: none; }
+}
 `;
 
 function page({ title, kicker, body, current }) {
